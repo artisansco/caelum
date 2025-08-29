@@ -1,12 +1,15 @@
 <script>
-  import AsideMenu from "$lib/components/shared/AsideMenu.svelte";
-  import TopNavigation from "$lib/components/shared/TopNavigation.svelte";
+  import Header from "./header.svelte";
+  import Sidebar from "./sidebar.svelte";
+
+  const { children } = $props();
 </script>
 
-<TopNavigation />
-<div class="grid grid-cols-[max-content_1fr]">
-  <AsideMenu />
-  <main>
-    <slot />
-  </main>
+<div class="min-h-screen bg-white">
+  <Header />
+  <Sidebar />
+
+  <section class="w-full *:p-4 *:sm:p-6 lg:ps-57 *:lg:p-8">
+    {@render children?.()}
+  </section>
 </div>

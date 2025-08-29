@@ -1,8 +1,16 @@
 import { redirect } from "@sveltejs/kit";
+import type { LayoutServerLoad } from "./$types";
 
-/** @type {import('./$types').LayoutServerLoad} */
-export async function load({ locals }) {
-  if (!locals.admin) throw redirect(302, "/");
+export const load: LayoutServerLoad = async ({ cookies }) => {
+	const token = cookies.get("token");
+	if (!token) {
+		redirect(302, "/");
+	}
 
-  return { admin: locals.admin };
-}
+	try {
+		const decoded = JSON.parse(
+			Buffer.from(token.split(".")[1], "base64").toString(),
+		);
+		console.log({ decoded });
+	} catch (_e) {}
+};
