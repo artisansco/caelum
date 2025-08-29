@@ -1,0 +1,29 @@
+{
+  "name": "caelum",
+  "version": "1.0.0",
+  "description": "A web application for schools",
+  "scripts": {
+    "install:api": "npm install -w api",
+    "install:web": "npm install -w web",
+    "build:api": "npm run build -w api",
+    "build:web": "npm run build -w web",
+    "web": "npm run dev -w web",
+    "api": "npm run dev -w api",
+    "format": "npm run format -w api -w web",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artisansco/caelum.git"
+  },
+  "keywords": [],
+  "author": "The Artisans",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/artisansco/caelum/issues"
+  },
+  "homepage": "https://github.com/artisansco/caelum#readme"
+}
