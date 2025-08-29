@@ -11,7 +11,7 @@ const token_schema = z.object({
 export const token_validator = validator("json", (value, c) => {
 	const { success, data, error } = token_schema.safeParse(value);
 	if (!success) {
-		const message = error.issues.at(0)?.message;
+		const message = error.issues.at(0)?.message as string;
 		return c.json({ status: "fail", message }, 401);
 	}
 

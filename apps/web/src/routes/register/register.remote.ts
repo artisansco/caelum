@@ -21,7 +21,7 @@ const register_schema = z.object({
 	email: z.email(),
 	password: z
 		.string()
-		.min(8, { error: "Password must be at least 8 characters long" }),
+		.min(6, { error: "Password must be at least 6 characters long" }),
 });
 
 export const register = form(async (form_data) => {
@@ -32,8 +32,6 @@ export const register = form(async (form_data) => {
 		const message = error.issues.at(0)?.message;
 		return { message, errors: z.treeifyError(error).properties };
 	}
-
-	const redirect_to = "/";
 
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/schools`, {
@@ -50,5 +48,5 @@ export const register = form(async (form_data) => {
 		}
 	}
 
-	redirect(302, redirect_to);
+	redirect(302, "/");
 });
