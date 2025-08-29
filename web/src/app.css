@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+@import "basecoat-css";
+
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@plugin "@iconify/tailwind4";
