@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "Preserve",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "types": [
+      "node"
+    ],
+    "outDir": "./build"
+  },
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+  ],
+  "include": [
+    "index.ts",
+    "src/**/*",
+    "drizzle/",
+    "package.json",
+    "package-lock.json",
+    "drizzle.config.ts",
+    "prod.sql"
+  ],
+}
