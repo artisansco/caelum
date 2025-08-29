@@ -1,14 +1,9 @@
 import { redirect } from "@sveltejs/kit";
 import { z } from "zod";
-import { command, form, getRequestEvent } from "$app/server";
+import { form, getRequestEvent } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 
-const login_schema = z.object({
-	email: z.email(),
-	password: z
-		.string()
-		.min(4, { error: "password should be more than 4 characters" }),
-});
+const login_schema = z.object({ email: z.email(), password: z.string() });
 
 export const login = form(async (form_data) => {
 	const form = Object.fromEntries(form_data);
@@ -21,8 +16,8 @@ export const login = form(async (form_data) => {
 		};
 	}
 
-	const { cookies, url } = getRequestEvent();
-	let redirect_url = url.pathname;
+	const { cookies } = getRequestEvent();
+	let redirect_to = "/";
 
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/auth/token`, {
@@ -30,8 +25,9 @@ export const login = form(async (form_data) => {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(parsed),
 		});
-		const { data, message } = await res.json();
+		const { message, data } = await res.json();
 		if (!res.ok) {
+			console.log(message);
 			return { message: String(message) };
 		}
 
@@ -43,7 +39,7 @@ export const login = form(async (form_data) => {
 			maxAge: 60 * 60 * 24 * 1, // 1 days
 		});
 
-		redirect_url = "/onboarding";
+		redirect_to = "/dashboard";
 	} catch (_e) {
 		if (_e instanceof Error) {
 			console.error(_e.message);
@@ -51,5 +47,5 @@ export const login = form(async (form_data) => {
 		}
 	}
 
-	// redirect(302, redirect_url);
+	redirect(302, redirect_to);
 });
