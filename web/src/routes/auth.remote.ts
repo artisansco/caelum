@@ -11,11 +11,8 @@ const login_schema = z.object({
 });
 
 export const login = form(async (form_data) => {
-	const {
-		success,
-		data: parsed,
-		error,
-	} = login_schema.safeParse(Object.fromEntries(form_data));
+	const form = Object.fromEntries(form_data);
+	const { success, data: parsed, error } = login_schema.safeParse(form);
 
 	if (!success) {
 		return {
@@ -46,7 +43,7 @@ export const login = form(async (form_data) => {
 			maxAge: 60 * 60 * 24 * 1, // 1 days
 		});
 
-		redirect_url = "/business/onboarding";
+		redirect_url = "/onboarding";
 	} catch (_e) {
 		if (_e instanceof Error) {
 			console.error(_e.message);
@@ -54,9 +51,5 @@ export const login = form(async (form_data) => {
 		}
 	}
 
-	redirect(308, redirect_url);
+	// redirect(302, redirect_url);
 });
-
-export const google_oauth = command(() => ({
-	redirect_url: `${API_ENDPOINT}/api/v1/auth/google`,
-}));

@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { z } from "zod";
-import { form, getRequestEvent } from "$app/server";
+import { form } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 import { cities } from "$lib/constants";
 
@@ -33,24 +33,16 @@ export const register = form(async (form_data) => {
 		return { message, errors: z.treeifyError(error).properties };
 	}
 
-	console.log(parsed);
-
-	const { url, cookies } = getRequestEvent();
-	let redirect_url = url.pathname;
+	const redirect_to = "/";
 
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/schools`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(parsed),
 		});
 		const { data } = await res.json();
 		console.log(data);
-
-		redirect_url = `/business/${data?.id}`;
 	} catch (_e) {
 		if (_e instanceof Error) {
 			console.error(_e.message);
@@ -58,5 +50,5 @@ export const register = form(async (form_data) => {
 		}
 	}
 
-	// redirect(302, redirect_url);
+	redirect(302, redirect_to);
 });

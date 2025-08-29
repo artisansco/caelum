@@ -1,6 +1,6 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
-  import { login, google_oauth } from "./auth.remote";
+  import { login } from "./auth.remote";
 
   const field_errors = $derived(login.result?.errors);
 
@@ -13,7 +13,7 @@
 
 <section class="font-raleway grid min-h-[100dvh] lg:grid-cols-2">
   <div class="bg-primary grid place-content-center p-4 text-center text-white">
-    <h1 class="font-ptsans mb-6 text-5xl font-bold text-white">Galexa</h1>
+    <h1 class="font-ptsans mb-6 text-5xl font-bold text-white">Caelum</h1>
     <p class="rotate-6 transform rounded bg-slate-600 p-2 shadow md:text-lg">
       Something something galaxy ...
     </p>
