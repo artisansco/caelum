@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { Avatar } from "melt/components";
+
+  const tenant = $derived(String(page.params.id));
 </script>
 
 <div
@@ -24,16 +26,16 @@
     <aside class="mt-5 h-full overflow-y-auto">
       <nav class="flex w-full flex-col flex-wrap p-3">
         <ul class="flex flex-col space-y-1">
+          {@render link(`/${tenant}`, "icon-[mdi--view-dashboard]", "Overview")}
           {@render link(
-            page.url.pathname,
-            "icon-[mdi--view-dashboard]",
-            "Overview",
+            `/${tenant}/students`,
+            "icon-[mdi--account-student]",
+            "Students",
           )}
-          {@render link("/students", "icon-[mdi--account-student]", "Students")}
           <!-- {@render link(page.url.pathname, "icon-[mdi--people-group]", "Staff")} -->
           <!-- {@render link(page.url.pathname, "icon-[mdi--bed]", "Rooms")} -->
-          {@render link("/staff", "icon-[mdi--person-tie]", "Staff")}
-          {@render link(page.url.pathname, "icon-[mdi--tag-check]", "Checkins")}
+          {@render link(`/${tenant}/staff`, "icon-[mdi--person-tie]", "Staff")}
+          <!-- {@render link(page.url.pathname, "icon-[mdi--tag-check]", "Checkins")} -->
           <!-- {@render link(
             page.url.pathname,
             "icon-[mdi--message-bubble]",

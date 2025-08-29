@@ -39,7 +39,7 @@ export const login = form(async (form_data) => {
 			maxAge: 60 * 60 * 24 * 1, // 1 days
 		});
 
-		redirect_to = "/dashboard";
+		redirect_to = `/${data.school_id}`;
 	} catch (_e) {
 		if (_e instanceof Error) {
 			console.error(_e.message);

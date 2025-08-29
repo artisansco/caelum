@@ -12,5 +12,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 			Buffer.from(token.split(".")[1], "base64").toString(),
 		);
 		console.log({ decoded });
-	} catch (_e) {}
+	} catch (_e) {
+		redirect(302, "/");
+	}
 };

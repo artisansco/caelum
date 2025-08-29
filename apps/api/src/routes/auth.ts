@@ -24,12 +24,18 @@ app.post("/token", token_validator, async (c) => {
 		);
 	}
 
-	const token = await jwt.sign({ id: user.id }, config.JWT_SECRET);
+	const token = await jwt.sign(
+		{ id: user.id, school_id: user.school_id },
+		config.JWT_SECRET,
+	);
 	return c.json(
 		{
 			status: "success",
 			message: "generated token successfully",
-			data: { token },
+			data: {
+				token,
+				school_id: user.school_id,
+			},
 			meta: {},
 		},
 		201,
