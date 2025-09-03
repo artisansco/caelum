@@ -1,4 +1,6 @@
-import { form, query } from "$app/server";
+import { z } from "zod";
+import { form, getRequestEvent, query } from "$app/server";
+import { API_ENDPOINT } from "$env/static/private";
 
 const staff = [
 	{
@@ -155,32 +157,53 @@ export const get_staff = query(() => {
 	return staff;
 });
 
-export const add_staff = form((form_data) => {
-	const staffData = {
-		id: staff.length + 1,
-		name: form_data.get("name")?.toString(),
-		email: form_data.get("email")?.toString(),
-		contact: form_data.get("contact")?.toString(),
-		username: form_data.get("username")?.toString(),
-		employee_id: form_data.get("employee_id")?.toString(),
-		role: form_data.get("role")?.toString(),
-		department: form_data.get("department")?.toString(),
-		shift: form_data.get("shift")?.toString(),
-		status: form_data.get("status")?.toString() || "active",
-		hire_date: form_data.get("hire_date")?.toString(),
-		// @ts-expect-error
-		salary: Number.parseFloat(form_data.get("salary")) || 0,
-		avatar: "null", // Will be added later
-		certifications: form_data.get("certifications")?.toString().split(","),
-		notes: form_data.get("notes")?.toString() || "",
-	};
+const new_staff_schema = z.object({
+	first_name: z.string().trim().min(2).max(50),
+	middle_name: z.string().trim().min(2).max(100).optional(),
+	last_name: z.string().trim().min(2).max(50),
+	staff_id: z.string().trim().min(2).max(10),
+	email: z.email(),
+	employed_on: z.date(),
+	address: z.string().trim().min(2).max(100),
+	phone_number: z.string().trim().min(6).max(9),
+	password: z.string().trim().min(6).max(100),
+	permissions: z.array(z.string().trim()),
+	role: z.enum(["admin", "staff"]),
+});
 
-	console.log("Adding new staff member:", staffData);
+export const add_staff = form(async (form_data) => {
+	const form = Object.fromEntries(form_data);
+	form.permissions = (form_data.getAll("permissions") ||
+		[]) as unknown as FormDataEntryValue;
+	const { success, data: parsed, error } = new_staff_schema.safeParse(form);
 
-	// In a real app, this would save to database
-	staff.push(staffData);
+	if (!success) {
+		const message = error.issues.at(0)?.message as string;
+		return { message, errors: z.treeifyError(error).properties };
+	}
 
-	return staffData;
+	const { cookies, params } = getRequestEvent();
+	try {
+		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: "Bearer " + cookies.get("token"),
+			},
+			body: JSON.stringify(parsed),
+		});
+		const { data, message } = await res.json();
+		if (!res.ok) {
+			return { message };
+		}
+
+		console.log("new_staff", data);
+	} catch (error) {
+		console.error(error);
+		return { message: "Failed to add staff member" };
+	}
+
+	const redirect_to = "/" + params.school_id + "/staff";
 });
 
 export const get_staff_by_id = query((id) => {

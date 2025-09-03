@@ -1,26 +1,26 @@
 <script lang="ts">
-  import { format } from "@formkit/tempo";
-  import { Avatar } from "melt/components";
-  import { page } from "$app/state";
-  import { get_staff } from "./staff.remote";
+import { format } from "@formkit/tempo";
+import { Avatar } from "melt/components";
+import { page } from "$app/state";
+import { get_staff } from "./staff.remote";
 
-  type Staff = {
-    id: number;
-    name: string;
-    email: string;
-    contact: string;
-    username: string;
-    employee_id: string;
-    role: string;
-    department: string;
-    shift: string;
-    status: string;
-    hire_date: string | Date;
-    salary: number;
-    avatar: string;
-    certifications: string | string[];
-    notes: string;
-  };
+type Staff = {
+	id: number;
+	name: string;
+	email: string;
+	contact: string;
+	username: string;
+	employee_id: string;
+	role: string;
+	department: string;
+	shift: string;
+	status: string;
+	hire_date: string | Date;
+	salary: number;
+	avatar: string;
+	certifications: string | string[];
+	notes: string;
+};
 </script>
 
 <!-- Table Section -->
@@ -45,7 +45,7 @@
 
             <div>
               <div class="inline-flex gap-x-2">
-                <a class="btn btn-sm" href={page.url.pathname}>
+                <a class="btn btn-sm" href="{page.url.pathname}/new">
                   <span class="icon-[lucide--plus] size-4"></span>
                   Add staff
                 </a>

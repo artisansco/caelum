@@ -1,66 +1,195 @@
-<script>
-	import { enhance } from "$app/forms";
-	import BreadCrumbs from "../../../../lib/components/shared/BreadCrumbs.svelte";
-	import Button from "../../../../lib/components/shared/Button.svelte";
-	import Input from "../../../../lib/components/shared/Input.svelte";
+<script lang="ts">
+import { Select } from "melt/components";
+import { toast } from "svelte-sonner";
+import { permissions } from "$lib/constants";
+import { format_permissions } from "$lib/utils";
+import { add_staff } from "../staff.remote";
 
-	export let form;
-	export let data;
+const roles = ["admin", "manager", "staff", "student"];
+const role = $state("staff");
+
+$effect(() => {
+	if (add_staff.result?.message) {
+		toast.info(add_staff.result.message);
+	}
+});
 </script>
 
-<BreadCrumbs>
-	<span slot="title">Add Student</span>
-</BreadCrumbs>
+<section class="max-w-6xl">
+  <form
+    {...add_staff.enhance(async ({ data, submit }) => {
+      data.append("role", role);
+      await submit();
+    })}
+  >
+    <h2 class="mb-6 text-xl">Add new staff</h2>
 
-<form action="" method="post" class="mx-auto max-w-xl mt-10" use:enhance>
-	<fieldset class="grid gap-5">
-		<div>
-			<label for="">Student Name</label>
-			<Input name="name" placeholder="John Doe" />
-		</div>
+    <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div class="flex flex-col space-y-2">
+        <label for="first_name" class="label text-gray-500">First Name</label>
+        <input
+          id="first_name"
+          type="text"
+          name="first_name"
+          placeholder="John"
+          class="input"
+          required
+        />
+      </div>
 
-		<div>
-			<label for="">Student Email</label>
-			<Input type="email" name="email" placeholder="johndoe@gmail.com" />
-		</div>
+      <div class="flex flex-col space-y-2">
+        <label for="middle_name" class="label text-gray-500">Middle Name</label>
+        <input
+          id="middle_name"
+          type="text"
+          name="middle_name"
+          placeholder=""
+          class="input"
+        />
+      </div>
 
-		<div>
-			<label for="">Gender</label>
-			<select
-				name="gender"
-				class="border rounded border-gray-200 text-sm w-full p-2 text-gray-600 block"
-			>
-				<option value="Male">Male</option>
-				<option value="Female">Female</option>
-			</select>
-		</div>
+      <div class="flex flex-col space-y-2">
+        <label for="last_name" class="label text-gray-500">Last Name</label>
+        <input
+          id="last_name"
+          type="text"
+          name="last_name"
+          placeholder="Doe"
+          class="input"
+          required
+        />
+      </div>
 
-		<div>
-			<label for="">Date of Birth</label>
-			<Input type="date" name="dateOfBirth" />
-		</div>
+      <div class="flex flex-col space-y-2">
+        <label for="staff_id" class="label text-gray-500">Staff ID</label>
+        <div class="flex items-center gap-x-3">
+          <input
+            id="staff_id"
+            type="text"
+            name="staff_id"
+            placeholder=""
+            class="input"
+          />
+          <!-- TODO: generate random staff id -->
+          <button type="button" class="btn-sm">
+            <i class="icon-[mdi--rotate-clockwise]"></i>
+            <span class="sr-only text-xs">generate</span>
+          </button>
+        </div>
+      </div>
 
-		<div>
-			<label for="">Student Class</label>
-			<select
-				name="classId"
-				class="border rounded border-gray-200 text-sm w-full p-2 text-gray-600 block"
-			>
-				{#await data.streamed.classes}
-					<option value="" disabled>--------</option>
-				{:then classes}
-					<option value=""> - - - - - - - - </option>
-					{#each classes as class_ (class_.id)}
-						<option value="{class_.id}">{class_.name} {class_?.section ?? ""}</option>
-					{/each}
-				{/await}
-			</select>
-		</div>
+      <div class="flex flex-col space-y-2">
+        <label for="email" class="label text-gray-500">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="johndoe@acme.com"
+          class="input"
+        />
+      </div>
 
-		{#if form?.error}
-			<small class="text-xs text-red-500">{form?.error}</small>
-		{/if}
+      <div class="flex flex-col space-y-2">
+        <label for="employed_on" class="label text-gray-500">
+          Employed Date
+        </label>
+        <input id="employed_on" type="date" name="employed_on" class="input" />
+      </div>
 
-		<Button classes="bg-gray-500 text-white text-sm px-6 py-2 rounded w-fit">Add Student</Button>
-	</fieldset>
-</form>
+      <div class="flex flex-col space-y-2">
+        <label for="address" class="label text-gray-500">Address</label>
+        <input
+          id="address"
+          type="text"
+          name="address"
+          placeholder="2 Wise lane"
+          class="input"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="phone_number" class="label text-gray-500">
+          Phone Number
+        </label>
+        <input
+          id="phone_number"
+          type="tel"
+          name="phone_number"
+          placeholder="+232-99-456-890"
+          class="input"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="password" class="label text-gray-500">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="********"
+          class="input"
+          required
+        />
+      </div>
+
+      <div>
+        <Select bind:value={role}>
+          {#snippet children(select)}
+            <label
+              for={select.ids.trigger}
+              class="label mb-2 text-sm text-gray-500"
+            >
+              Role
+            </label>
+            <button
+              {...select.trigger}
+              class="btn-outline w-full flex items-center justify-between"
+            >
+              {select.value || "Select role"}
+              <i class="icon-[lucide--chevron-down] size-5"></i>
+            </button>
+
+            <div
+              {...select.content}
+              class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+            >
+              {#each roles as role}
+                <div
+                  {...select.getOption(role, role)}
+                  class="{role === select.value &&
+                    'bg-gray-100'} p-2 hover:bg-gray-100"
+                >
+                  {role}
+                </div>
+              {/each}
+            </div>
+          {/snippet}
+        </Select>
+      </div>
+
+      <div class="flex flex-col md:col-span-2">
+        <p class="mb-2 text-sm font-medium text-gray-500">Permissions</p>
+        <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {#each permissions as permission}
+            <label class="label capitalize flex items-center text-gray-600">
+              <input
+                type="checkbox"
+                value={permission}
+                name="permissions"
+                class="checkbox"
+              />
+              {format_permissions(permission)}
+            </label>
+          {/each}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn flex items-center">
+      <i class="icon-[mdi--content-save]"></i>
+      <span>Save Profile</span>
+    </button>
+  </form>
+</section>
