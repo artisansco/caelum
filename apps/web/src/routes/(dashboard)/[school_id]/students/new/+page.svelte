@@ -1,11 +1,11 @@
 <script>
-	import { enhance } from "$app/forms";
-	import BreadCrumbs from "../../../../lib/components/shared/BreadCrumbs.svelte";
-	import Button from "../../../../lib/components/shared/Button.svelte";
-	import Input from "../../../../lib/components/shared/Input.svelte";
+import { enhance } from "$app/forms";
+import BreadCrumbs from "../../../../lib/components/shared/BreadCrumbs.svelte";
+import Button from "../../../../lib/components/shared/Button.svelte";
+import Input from "../../../../lib/components/shared/Input.svelte";
 
-	export let form;
-	export let data;
+export let form;
+export let data;
 </script>
 
 <BreadCrumbs>

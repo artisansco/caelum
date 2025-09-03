@@ -1,8 +1,8 @@
 <script>
-  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
-  import DashboardCard from "./DashboardCard.svelte";
+import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
+import DashboardCard from "./DashboardCard.svelte";
 
-  export let data;
+export let data;
 </script>
 
 <BreadCrumbs />

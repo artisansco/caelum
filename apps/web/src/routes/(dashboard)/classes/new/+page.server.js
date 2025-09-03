@@ -6,21 +6,21 @@ export async function load({}) {}
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request }) => {
-    const form = await request.formData();
-    const name = form.get("name");
+	default: async ({ request }) => {
+		const form = await request.formData();
+		const name = form.get("name");
 
-    const newClass = await prisma.class
-      .create({
-        data: {
-          id: crypto.randomUUID(),
-          name,
-        },
-      })
-      .catch((e) => null);
+		const newClass = await prisma.class
+			.create({
+				data: {
+					id: crypto.randomUUID(),
+					name,
+				},
+			})
+			.catch((e) => null);
 
-    if (!newClass) return { error: "Class already exists!!" };
+		if (!newClass) return { error: "Class already exists!!" };
 
-    throw redirect(302, "/classes");
-  },
+		throw redirect(302, "/classes");
+	},
 };

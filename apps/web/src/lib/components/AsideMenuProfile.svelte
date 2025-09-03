@@ -1,6 +1,6 @@
 <script>
-	import { page } from "$app/stores";
-	import Icon from "@iconify/svelte";
+import Icon from "@iconify/svelte";
+import { page } from "$app/stores";
 </script>
 
 <figure class="text-center mb-5">

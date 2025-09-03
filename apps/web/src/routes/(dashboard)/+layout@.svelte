@@ -1,8 +1,8 @@
 <script>
-  import Header from "./header.svelte";
-  import Sidebar from "./sidebar.svelte";
+import Header from "./header.svelte";
+import Sidebar from "./sidebar.svelte";
 
-  const { children } = $props();
+const { children } = $props();
 </script>
 
 <div class="min-h-screen bg-white">

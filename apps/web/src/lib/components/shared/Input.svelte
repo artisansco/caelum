@@ -1,11 +1,11 @@
 <script>
-	export let type = "text";
-	export let required = true;
-	export let value = "";
-	export let placeholder = "enter something here";
-	export let classes = "";
-	export let name = "";
-	export let disabled = false;
+export const type = "text";
+export const required = true;
+export const value = "";
+export const placeholder = "enter something here";
+export const classes = "";
+export const name = "";
+export const disabled = false;
 </script>
 
 <input

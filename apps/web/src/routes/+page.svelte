@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { toast } from "svelte-sonner";
-  import { login } from "./auth.remote";
+import { toast } from "svelte-sonner";
+import { login } from "./auth.remote";
 
-  const field_errors = $derived(login.result?.errors);
+const field_errors = $derived(login.result?.errors);
 
-  $effect(() => {
-    if (login.result?.message) {
-      toast.error(login.result.message);
-    }
-  });
+$effect(() => {
+	if (login.result?.message) {
+		toast.error(login.result.message);
+	}
+});
 </script>
 
 <section class="font-raleway grid min-h-[100dvh] lg:grid-cols-2">

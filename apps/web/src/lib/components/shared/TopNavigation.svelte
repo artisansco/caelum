@@ -1,5 +1,5 @@
 <script>
-	import Button from "./Button.svelte";
+import Button from "./Button.svelte";
 </script>
 
 <nav class="bg-white flex shadow min-h-10vh px-5 top-0 sticky items-center justify-between">

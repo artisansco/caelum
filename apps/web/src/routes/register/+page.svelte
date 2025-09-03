@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { Select } from "melt/components";
-  import { toast } from "svelte-sonner";
-  import { cities } from "$lib/constants";
-  import { register } from "./register.remote";
+import { Select } from "melt/components";
+import { toast } from "svelte-sonner";
+import { cities } from "$lib/constants";
+import { register } from "./register.remote";
 
-  let city = $state("");
-  const field_errors = $derived(register.result?.errors);
+const city = $state("");
+const field_errors = $derived(register.result?.errors);
 
-  $effect(() => {
-    if (register.result?.message) {
-      toast.error(register.result.message);
-    }
-  });
+$effect(() => {
+	if (register.result?.message) {
+		toast.error(register.result.message);
+	}
+});
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">

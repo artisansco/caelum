@@ -1,9 +1,9 @@
 <script>
-	import Icon from "@iconify/svelte";
+import Icon from "@iconify/svelte";
 
-	export let stat = 0;
-	export let text = "";
-	export let icon = "material-symbols:menu-book-outline-sharp";
+export const stat = 0;
+export const text = "";
+export const icon = "material-symbols:menu-book-outline-sharp";
 </script>
 
 <div class="border rounded bg-gray-50 py-7 px-5 transition-shadow relative hover:shadow-lg">

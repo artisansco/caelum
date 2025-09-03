@@ -1,12 +1,12 @@
 <script>
-  import { enhance } from "$app/forms";
-  import Icon from "@iconify/svelte";
-  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
-  import Button from "$lib/components/shared/Button.svelte";
-  import Input from "$lib/components/shared/Input.svelte";
+import Icon from "@iconify/svelte";
+import { enhance } from "$app/forms";
+import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
+import Button from "$lib/components/shared/Button.svelte";
+import Input from "$lib/components/shared/Input.svelte";
 
-  export let data;
-  export let form;
+export let data;
+export let form;
 </script>
 
 <BreadCrumbs>

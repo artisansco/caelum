@@ -1,36 +1,36 @@
 <script>
-	import AsideMenuProfile from "../AsideMenuProfile.svelte";
+import AsideMenuProfile from "../AsideMenuProfile.svelte";
 
-	const links = [
-		{
-			category: "Classes",
-			subclasses: [
-				{ href: "/classes/new", text: "Add Class" },
-				{ href: "/classes", text: "Manage Classes" },
-			],
-		},
-		{
-			category: "Subjects",
-			subclasses: [
-				{ href: "/subjects/new", text: "Add Subject" },
-				{ href: "/subjects", text: "Manage Subjects" },
-			],
-		},
-		{
-			category: "Students",
-			subclasses: [
-				{ href: "/students/new", text: "Add Student" },
-				{ href: "/students", text: "Manage Students" },
-			],
-		},
-		{
-			category: "Results",
-			subclasses: [
-				{ href: "/results/new", text: "Add Result" },
-				{ href: "/results", text: "Manage Results" },
-			],
-		},
-	];
+const links = [
+	{
+		category: "Classes",
+		subclasses: [
+			{ href: "/classes/new", text: "Add Class" },
+			{ href: "/classes", text: "Manage Classes" },
+		],
+	},
+	{
+		category: "Subjects",
+		subclasses: [
+			{ href: "/subjects/new", text: "Add Subject" },
+			{ href: "/subjects", text: "Manage Subjects" },
+		],
+	},
+	{
+		category: "Students",
+		subclasses: [
+			{ href: "/students/new", text: "Add Student" },
+			{ href: "/students", text: "Manage Students" },
+		],
+	},
+	{
+		category: "Results",
+		subclasses: [
+			{ href: "/results/new", text: "Add Result" },
+			{ href: "/results", text: "Manage Results" },
+		],
+	},
+];
 </script>
 
 <aside class="h-screen bg-gray-100 py-10 px-5 overflow-y-scroll block">
