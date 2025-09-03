@@ -1,12 +1,12 @@
-<script>
-import Icon from "@iconify/svelte";
-import { enhance } from "$app/forms";
-import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
-import Button from "$lib/components/shared/Button.svelte";
-import Input from "$lib/components/shared/Input.svelte";
+<script lang="ts">
+  import Icon from "@iconify/svelte";
+  import { enhance } from "$app/forms";
+  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
+  import Button from "$lib/components/shared/Button.svelte";
+  import Input from "$lib/components/shared/Input.svelte";
+  import type { PageProps } from "./$types";
 
-export let data;
-export let form;
+  const { data, form }: PageProps = $props();
 </script>
 
 <BreadCrumbs>
@@ -20,27 +20,27 @@ export let form;
   use:enhance
 >
   <fieldset class="grid gap-5">
-    <Input type="hidden" name="id" value={data.editClass.id} />
+    <Input type="hidden" name="id" value={data.editClass?.id} />
     <div>
       <label for="">Class Name</label>
       <Input
         name="name"
         placeholder="Eg:- One, Two, Three"
-        value={data.editClass.name}
+        value={data.editClass?.name}
       />
     </div>
 
     <div>
-      <label for="">Subjects ({data.editClass.subjects.length})</label>
+      <label for="">Subjects ({data.editClass?.subjects?.length})</label>
       <div class="mt-2 grid gap-1 gap-2 indent-xs">
-        {#each data.editClass.subjects as subject (subject.id)}
+        {#each data.editClass?.subjects as subject (subject.id)}
           <form
             action="/classes/edit?/removeSubject"
             method="post"
             class="flex items-center"
             use:enhance
           >
-            <Input type="hidden" name="classId" value={data.editClass.id} />
+            <Input type="hidden" name="classId" value={data.editClass?.id} />
             <Input type="hidden" value={subject.id} name="subject_id" />
             <span class="min-w-40 text-gray-600">{subject.name}</span>
             <Button>

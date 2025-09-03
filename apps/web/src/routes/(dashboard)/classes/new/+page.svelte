@@ -1,10 +1,11 @@
-<script>
-import { enhance } from "$app/forms";
-import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
-import Button from "$lib/components/shared/Button.svelte";
-import Input from "$lib/components/shared/Input.svelte";
+<script lang="ts">
+  import { enhance } from "$app/forms";
+  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
+  import Button from "$lib/components/shared/Button.svelte";
+  import Input from "$lib/components/shared/Input.svelte";
+  import type { PageProps } from "./$types";
 
-export let form;
+  const { form }: PageProps = $props();
 </script>
 
 <BreadCrumbs>

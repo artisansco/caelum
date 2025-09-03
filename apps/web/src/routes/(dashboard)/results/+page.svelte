@@ -1,10 +1,7 @@
 <script>
-import BreadCrumbs from "../../../lib/components/shared/BreadCrumbs.svelte";
-
-/** @type {import('./$types').PageData} */
-export let data;
+  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
 </script>
 
 <BreadCrumbs>
-	<span slot="title">Manage Results</span>
+  <span slot="title">Manage Results</span>
 </BreadCrumbs>

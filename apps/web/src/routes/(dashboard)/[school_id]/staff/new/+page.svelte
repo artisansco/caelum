@@ -1,18 +1,18 @@
 <script lang="ts">
-import { Select } from "melt/components";
-import { toast } from "svelte-sonner";
-import { permissions } from "$lib/constants";
-import { format_permissions } from "$lib/utils";
-import { add_staff } from "../staff.remote";
+  import { Select } from "melt/components";
+  import { toast } from "svelte-sonner";
+  import { permissions } from "$lib/constants";
+  import { format_permissions } from "$lib/utils";
+  import { add_staff } from "../staff.remote";
 
-const roles = ["admin", "manager", "staff", "student"];
-const role = $state("staff");
+  const roles = ["admin", "manager", "staff", "student"];
+  let role = $state("staff");
 
-$effect(() => {
-	if (add_staff.result?.message) {
-		toast.info(add_staff.result.message);
-	}
-});
+  $effect(() => {
+    if (add_staff.result?.message) {
+      toast.info(add_staff.result.message);
+    }
+  });
 </script>
 
 <section class="max-w-6xl">
