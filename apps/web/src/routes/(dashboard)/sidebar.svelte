@@ -2,7 +2,7 @@
   import { page } from "$app/state";
   import { Avatar } from "melt/components";
 
-  const tenant = $derived(String(page.params.id));
+  const tenant = $derived(String(page.params.school_id));
 </script>
 
 <div
