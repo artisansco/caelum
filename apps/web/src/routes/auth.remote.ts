@@ -1,7 +1,8 @@
 import { redirect } from "@sveltejs/kit";
 import { z } from "zod";
-import { form, getRequestEvent } from "$app/server";
+import { form } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
+import { set_token } from "$lib/helpers";
 
 const login_schema = z.object({ email: z.email(), password: z.string() });
 
@@ -16,7 +17,6 @@ export const login = form(async (form_data) => {
 		};
 	}
 
-	const { cookies } = getRequestEvent();
 	let redirect_to = "/";
 
 	try {
@@ -31,13 +31,7 @@ export const login = form(async (form_data) => {
 			return { message: String(message) };
 		}
 
-		cookies.set("token", data.token, {
-			path: "/",
-			httpOnly: true,
-			secure: true,
-			sameSite: "strict",
-			maxAge: 60 * 60 * 24 * 1, // 1 days
-		});
+		set_token("token", data.token);
 
 		redirect_to = `/${data.school_id}`;
 	} catch (_e) {
