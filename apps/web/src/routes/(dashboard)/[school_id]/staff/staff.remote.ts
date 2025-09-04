@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
+import { redirect } from "@sveltejs/kit";
 
 const staff = [
 	{
@@ -151,38 +152,42 @@ const staff = [
 	},
 ];
 
-export const get_staff = query(() => {
+export const get_all_staff = query(() => {
+
 	// Simulate API delay
 	// new Promise((r) => setTimeout(() => r, 500));
 	return staff;
 });
 
-const new_staff_schema = z.object({
-	first_name: z.string().trim().min(2).max(50),
-	middle_name: z.string().trim().min(2).max(100).optional(),
-	last_name: z.string().trim().min(2).max(50),
-	staff_id: z.string().trim().min(2).max(10),
+const staff_schema = z.object({
+	first_name: z.string().trim().min(2),
+	middle_name: z.string().trim().min(2).optional(),
+	last_name: z.string().trim().min(2),
+	staff_id: z.string().trim().min(2),
 	email: z.email(),
-	employed_on: z.date(),
-	address: z.string().trim().min(2).max(100),
-	phone_number: z.string().trim().min(6).max(9),
-	password: z.string().trim().min(6).max(100),
+	employed_on: z.iso.date({error: "Invalid date format"}),
+	address: z.string().trim().min(2),
+	phone_number: z.string().trim().min(6),
+	password: z.string().trim().min(6),
 	permissions: z.array(z.string().trim()),
 	role: z.enum(["admin", "staff"]),
+	school_id: z.string({error: "Invalid school ID"}).trim().min(2),
 });
 
 export const add_staff = form(async (form_data) => {
 	const form = Object.fromEntries(form_data);
 	form.permissions = (form_data.getAll("permissions") ||
 		[]) as unknown as FormDataEntryValue;
-	const { success, data: parsed, error } = new_staff_schema.safeParse(form);
+	const { success, data: parsed, error } = staff_schema.safeParse(form);
 
 	if (!success) {
 		const message = error.issues.at(0)?.message as string;
 		return { message, errors: z.treeifyError(error).properties };
 	}
 
-	const { cookies, params } = getRequestEvent();
+	const { cookies,  } = getRequestEvent();
+
+
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`, {
 			method: "POST",
@@ -203,7 +208,7 @@ export const add_staff = form(async (form_data) => {
 		return { message: "Failed to add staff member" };
 	}
 
-	const redirect_to = "/" + params.school_id + "/staff";
+	redirect(302,"/" + parsed.school_id + "/staff");
 });
 
 export const get_staff_by_id = query((id) => {

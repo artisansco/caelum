@@ -4,6 +4,7 @@
   import { permissions } from "$lib/constants";
   import { format_permissions } from "$lib/utils";
   import { add_staff } from "../staff.remote";
+  import { page } from "$app/state";
 
   const roles = ["admin", "manager", "staff", "student"];
   let role = $state("staff");
@@ -31,6 +32,7 @@
     <h2 class="mb-6 text-xl">Add new staff</h2>
 
     <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <input type="hidden" value={page.params.school_id} name="school_id" />
       <div class="flex flex-col space-y-2">
         <label for="first_name" class="label text-gray-500">First Name</label>
         <input
