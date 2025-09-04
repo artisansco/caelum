@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
 import { staff_table } from "../db/schema";
@@ -24,6 +24,31 @@ app.get("/", async (c) => {
 			limit: limit,
 		},
 	});
+});
+
+app.get("/:id", async (c) => {
+	try {
+		const staff = await db.query.staff_table.findFirst({
+			where: eq(staff_table.id, c.req.param("id")),
+		});
+
+		return c.json({
+			status: "success",
+			message: "Staff fetched successfully",
+			data: {
+				...staff,
+				permissions: staff?.permissions?.split(",") || [],
+			},
+		});
+	} catch (_e) {
+		return c.json(
+			{
+				status: "error",
+				message: _e.message,
+			},
+			500,
+		);
+	}
 });
 
 app.post("/", validate_new_staff, async (c) => {

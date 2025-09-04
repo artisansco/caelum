@@ -23,4 +23,25 @@ export const permissions = [
 	"students:create",
 	"students:edit",
 	"students:delete",
+
+	"staff:view",
+	"staff:create",
+	"staff:edit",
+	"staff:delete",
+
+	"class:view",
+	"class:create",
+	"class:edit",
+	"class:delete",
+
+	"subjects:view",
+	"subjects:create",
+	"subjects:edit",
+	"subjects:delete",
+
+	// "reports:view",
+	// "reports:export",
+
+	// "settings:view",
+	// "settings:edit",
 ];

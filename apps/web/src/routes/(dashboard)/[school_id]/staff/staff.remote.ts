@@ -222,9 +222,6 @@ export const add_staff = form(async (form_data) => {
 	redirect(302,"/" + parsed.school_id + "/staff");
 });
 
-export const get_staff_by_id = query((id) => {
-	return staff.find((person) => person.id === parseInt(id));
-});
 
 export const update_staff = form((form_data) => {
 	const id = parseInt(form_data.get("id"));

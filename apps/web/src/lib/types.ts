@@ -12,6 +12,7 @@ export type Staff = {
 	last_name: string;
 	email: string;
 	contact: string;
+	address: string;
 	staff_id: string;
 	role: "staff" | "admin";
 	department: string;
