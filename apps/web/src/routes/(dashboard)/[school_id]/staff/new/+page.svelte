@@ -7,12 +7,18 @@
 
   const roles = ["admin", "manager", "staff", "student"];
   let role = $state("staff");
+  let staff_id = $state("");
 
   $effect(() => {
     if (add_staff.result?.message) {
       toast.info(add_staff.result.message);
     }
   });
+
+  // generate a random staff id
+  function generate_staff_id() {
+    staff_id = Math.random().toString(36).substring(2, 15).toUpperCase();
+  }
 </script>
 
 <section class="max-w-6xl">
@@ -67,11 +73,12 @@
             id="staff_id"
             type="text"
             name="staff_id"
+            bind:value={staff_id}
             placeholder=""
             class="input"
           />
           <!-- TODO: generate random staff id -->
-          <button type="button" class="btn-sm">
+          <button type="button" class="btn-sm" onclick={generate_staff_id}>
             <i class="icon-[mdi--rotate-clockwise]"></i>
             <span class="sr-only text-xs">generate</span>
           </button>
