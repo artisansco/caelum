@@ -1,26 +1,9 @@
 <script lang="ts">
-import { format } from "@formkit/tempo";
-import { Avatar } from "melt/components";
-import { page } from "$app/state";
-import { get_staff } from "./staff.remote";
-
-type Staff = {
-	id: number;
-	name: string;
-	email: string;
-	contact: string;
-	username: string;
-	employee_id: string;
-	role: string;
-	department: string;
-	shift: string;
-	status: string;
-	hire_date: string | Date;
-	salary: number;
-	avatar: string;
-	certifications: string | string[];
-	notes: string;
-};
+  import { format } from "@formkit/tempo";
+  import { Avatar } from "melt/components";
+  import { page } from "$app/state";
+  import { get_all_staff } from "./staff.remote";
+  import type { Staff } from "$lib/types";
 </script>
 
 <!-- Table Section -->
@@ -68,7 +51,7 @@ type Staff = {
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#await get_staff() then staff}
+              {#await get_all_staff() then staff}
                 {#each staff as person}
                   {@render staff_card(person)}
                 {:else}
@@ -91,7 +74,7 @@ type Staff = {
               <p class="text-sm text-gray-600">
                 <svelte:boundary>
                   <span class="font-semibold text-gray-800"
-                    >{(await get_staff()).length || 0}</span
+                    >{(await get_all_staff()).length || 0}</span
                   >
                   results
                   {#snippet pending()}
@@ -135,21 +118,30 @@ type Staff = {
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
         <div class="flex items-center gap-x-3">
-          <Avatar src={staff.avatar}>
+          <Avatar
+            src={staff.avatar_url || `https://robohash.org/${staff.email}`}
+          >
             {#snippet children(avatar)}
               <img
                 {...avatar.image}
-                alt={staff.name}
+                alt={staff.first_name}
                 class="size-10 rounded-full text-xs"
               />
-              <span {...avatar.fallback} class="text-xs">&hellip;</span>
+              <span
+                {...avatar.fallback}
+                class="text-xs size-10 border rounded-full grid justify-center items-center"
+              >
+                {`${staff.first_name[0]}${staff.last_name[0]}`}
+              </span>
             {/snippet}
           </Avatar>
 
           <div class="grow">
-            <span class="block text-sm font-semibold text-gray-800"
-              >{staff.name}</span
-            >
+            <span class="block text-sm font-semibold text-gray-800">
+              {staff.first_name}
+              {staff.middle_name}
+              {staff.last_name}
+            </span>
             <span class="block text-sm text-gray-500">{staff.email}</span>
           </div>
         </div>
@@ -157,16 +149,16 @@ type Staff = {
     </td>
     <td class="h-px w-72 whitespace-nowrap">
       <div class="px-6 py-3">
-        <span class="block text-sm font-semibold text-gray-800"
-          >{staff.role}</span
-        >
-        <span class="block text-sm text-gray-500">{staff.department}</span>
+        <span class="block text-sm font-semibold text-gray-800">
+          {staff.role}
+        </span>
+        <span class="block text-sm text-gray-500">{staff.staff_id}</span>
       </div>
     </td>
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {staff.contact}
+          {staff?.contact || "N/A"}
         </span>
       </div>
     </td>
@@ -177,14 +169,14 @@ type Staff = {
         >
           <span class="icon-[mdi--check-circle]"></span>
           <!-- <span class="icon-[mdi--warning]"></span> -->
-          {staff.status}
+          {staff.status || "N/A"}
         </span>
       </div>
     </td>
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {format({ date: staff.hire_date, format: "DD MMM, HH:mm" })}
+          {format({ date: staff.employed_date, format: "DD MMM, YYYY" })}
         </span>
       </div>
     </td>

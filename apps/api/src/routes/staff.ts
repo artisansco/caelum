@@ -1,9 +1,30 @@
+import { desc } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
 import { staff_table } from "../db/schema";
 import { validate_new_staff } from "../validators/staff";
 
 const app = new Hono().basePath("/staff");
+
+app.get("/", async (c) => {
+	const limit = Number(c.req.query("limit")) || 10;
+
+	const staff = await db.query.staff_table.findMany({
+		limit: limit,
+		orderBy: desc(staff_table.created_at),
+	});
+
+	return c.json({
+		status: "success",
+		message: "All staff fetched successfully",
+		data: { staff },
+		meta: {
+			total: staff.length,
+			page: 1,
+			limit: limit,
+		},
+	});
+});
 
 app.post("/", validate_new_staff, async (c) => {
 	const body = c.req.valid("json");

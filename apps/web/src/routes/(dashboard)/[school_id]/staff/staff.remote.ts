@@ -152,13 +152,6 @@ const staff = [
 	},
 ];
 
-export const get_all_staff = query(() => {
-
-	// Simulate API delay
-	// new Promise((r) => setTimeout(() => r, 500));
-	return staff;
-});
-
 const staff_schema = z.object({
 	first_name: z.string().trim().min(2),
 	middle_name: z.string().trim().min(2).optional(),
@@ -172,6 +165,24 @@ const staff_schema = z.object({
 	permissions: z.array(z.string().trim()),
 	role: z.enum(["admin", "staff"]),
 	school_id: z.string({error: "Invalid school ID"}).trim().min(2),
+});
+
+export const get_all_staff = query(async() => {
+
+  try {
+		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`, );
+		const { data, message } = await res.json();
+		if (!res.ok) {
+			return { message };
+		}
+
+	return data.staff;
+	} catch (_e) {
+		console.error(_e);
+		return { message: "failed to fetch staff" };
+	}
+
+
 });
 
 export const add_staff = form(async (form_data) => {
