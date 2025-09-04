@@ -4,6 +4,9 @@
   import { format } from "@formkit/tempo";
   import { permissions } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
+  import { update_staff } from "../staff.remote";
+  import { page } from "$app/state";
+  import { toast } from "svelte-sonner";
 
   const { data }: PageProps = $props();
   const staff = data.staff;
@@ -11,6 +14,12 @@
   let role = $state(staff.role);
   let status = $state(staff.status);
   let edit_mode = $state(false);
+
+  $effect(() => {
+    if (update_staff.result?.message) {
+      toast.info(update_staff.result.message);
+    }
+  });
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -106,7 +115,17 @@
     </div>
   </header>
 
-  <form id="edit_details">
+  <form
+    id="edit_details"
+    {...update_staff.enhance(async ({ data, submit }) => {
+      data.append("role", role);
+      data.append("status", status);
+      data.append("staff_id", String(page.params?.staff_id));
+      data.append("school_id", String(page.params?.school_id));
+
+      await submit();
+    })}
+  >
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Left Column - Main Information -->
       <section class="lg:col-span-2">
@@ -189,6 +208,7 @@
                 <input
                   type="tel"
                   id="phone_number"
+                  name="phone_number"
                   defaultValue={staff.contact || ""}
                   disabled={!edit_mode}
                   required
@@ -203,6 +223,7 @@
                 <input
                   type="text"
                   id="address"
+                  name="address"
                   defaultValue={staff.address || ""}
                   disabled={!edit_mode}
                   required
@@ -321,6 +342,21 @@
                   class="input border-0 px-0 font-bold"
                 />
               </div>
+
+              <div class="flex flex-col space-y-2">
+                <label for="password" class="label text-sm text-gray-500">
+                  Password
+                </label>
+                <input
+                  type={edit_mode ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={staff.password}
+                  disabled={!edit_mode}
+                  required
+                  class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
+                />
+              </div>
             </div>
           </article>
 
@@ -342,6 +378,7 @@
                     type="checkbox"
                     id={permission}
                     name="permissions"
+                    value={permission}
                     checked={staff.permissions.includes(permission)}
                     disabled={!edit_mode}
                     class="checkbox rounded {edit_mode

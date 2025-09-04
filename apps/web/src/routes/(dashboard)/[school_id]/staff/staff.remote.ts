@@ -153,18 +153,18 @@ const staff = [
 ];
 
 const staff_schema = z.object({
-	first_name: z.string().trim().min(2),
-	middle_name: z.string().trim().min(2).optional(),
-	last_name: z.string().trim().min(2),
-	staff_id: z.string().trim().min(2),
-	email: z.email(),
+	first_name: z.string({error:"First name is required"}).trim().min(2,{error:"First name must be at least 2 characters long"}),
+	middle_name: z.string({error:"Middle name is required"}).trim().min(2,{error:"Middle name must be at least 2 characters long"}).optional(),
+	last_name: z.string({error:"Last name is required"}).trim().min(2,{error:"Last name must be at least 2 characters long"}),
+	staff_id: z.string({error:"Staff ID is required"}).trim().min(2,{error:"Staff ID must be at least 2 characters long"}),
+	email: z.email({error:"Invalid email address"}),
 	employed_on: z.iso.date({error: "Invalid date format"}),
-	address: z.string().trim().min(2),
-	phone_number: z.string().trim().min(6),
-	password: z.string().trim().min(6),
+	address: z.string({error: "Invalid address"}).trim().min(2,{error:"Address must be at least 2 characters long"}),
+	phone_number: z.string({error: "Invalid phone number"}).trim().min(6,{error:"Phone number must be at least 6 characters long"}),
+	password: z.string({error: "Invalid password"}).trim().min(6,{error:"Password must be at least 6 characters long"}),
 	permissions: z.array(z.string().trim()),
 	role: z.enum(["admin", "staff"]),
-	school_id: z.string({error: "Invalid school ID"}).trim().min(2),
+	school_id: z.string({error: "Invalid school ID"}).trim().min(2,{error:"School ID must be at least 2 characters long"}),
 });
 
 export const get_all_staff = query(async() => {
@@ -223,7 +223,21 @@ export const add_staff = form(async (form_data) => {
 });
 
 
-export const update_staff = form((form_data) => {
+export const update_staff = form(async (form_data) => {
+ 	const form = Object.fromEntries(form_data);
+	form.permissions = (form_data.getAll("permissions") ||
+		[]) as unknown as FormDataEntryValue;
+	const { success, data: parsed, error } = staff_schema.omit({
+	employed_on:true,
+	}).safeParse(form);
+
+	if (!success) {
+		const message = error.issues.at(0)?.message as string;
+		return { message, errors: z.treeifyError(error).properties };
+	}
+
+	console.log({parsed})
+	return {message: "Staff member updated successfully"}
 	const id = parseInt(form_data.get("id"));
 	const staffIndex = staff.findIndex((person) => person.id === id);
 

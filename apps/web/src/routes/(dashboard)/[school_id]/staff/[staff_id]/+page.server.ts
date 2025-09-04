@@ -12,7 +12,6 @@ export const load:PageServerLoad = async ({ params,fetch }) => {
 			error(500,{message});
 		}
 
-		console.log("staff", data);
     return { staff: data as Staff }
 	} catch (_e) {
 		console.error(_e);
