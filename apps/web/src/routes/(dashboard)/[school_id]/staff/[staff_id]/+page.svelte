@@ -4,7 +4,7 @@
   import { format } from "@formkit/tempo";
   import { permissions } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
-  import { update_staff } from "../staff.remote";
+  import { get_staff_by_id, update_staff } from "../staff.remote";
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
 
@@ -12,8 +12,9 @@
   const staff = data.staff;
 
   let role = $state(staff.role);
-  let status = $state(staff.status);
-  let edit_mode = $state(false);
+  let status = $state(staff.status || "active");
+  let edit_mode = $state(true);
+  let view_password = $state(true);
 
   $effect(() => {
     if (update_staff.result?.message) {
@@ -78,21 +79,29 @@
 
       <div class="flex items-center gap-3">
         {#if edit_mode}
-          <button
-            type="button"
-            onclick={() => (edit_mode = !edit_mode)}
-            class="btn-destructive btn-sm flex items-center gap-2"
-          >
-            <i class="icon-[mdi--close]"></i>
-            Cancel
-          </button>
+          {#if update_staff.pending === 0}
+            <button
+              type="button"
+              onclick={() => (edit_mode = !edit_mode)}
+              class="btn-destructive btn-sm flex items-center gap-2"
+            >
+              <i class="icon-[mdi--close]"></i>
+              Cancel
+            </button>
+          {/if}
           <button
             type="submit"
             form="edit_details"
+            disabled={update_staff.pending > 0}
             class="btn-sm flex items-center gap-2"
           >
-            <i class="icon-[mdi--check]"></i>
-            Save Changes
+            {#if update_staff.pending > 0}
+              <i class="icon-[mdi--loading] animate-spin"></i>
+              Saving...
+            {:else}
+              <i class="icon-[mdi--check]"></i>
+              Save Changes
+            {/if}
           </button>
         {:else}
           <button
@@ -123,7 +132,12 @@
       data.append("staff_id", String(page.params?.staff_id));
       data.append("school_id", String(page.params?.school_id));
 
+      if (String(data.get("password")).trim() === "") {
+        data.delete("password");
+      }
+
       await submit();
+      edit_mode = false;
     })}
   >
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -326,36 +340,41 @@
               </div>
 
               <div class="flex flex-col space-y-2">
-                <label for="employed_on" class="label text-sm text-gray-500">
-                  Employed Date
-                </label>
-                <input
-                  type="text"
-                  id="employed_on"
-                  name="employed_date"
-                  value={format({
+                <span class="label text-sm text-gray-500"> Employed Date </span>
+                <p class="font-bold text-gray-600">
+                  {format({
                     date: staff.employed_date,
                     format: "MMM DD, YYYY",
                   })}
-                  disabled
-                  readonly
-                  class="input border-0 px-0 font-bold"
-                />
+                </p>
               </div>
 
               <div class="flex flex-col space-y-2">
                 <label for="password" class="label text-sm text-gray-500">
                   Password
                 </label>
-                <input
-                  type={edit_mode ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={staff.password}
-                  disabled={!edit_mode}
-                  required
-                  class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
-                />
+                <div class="flex items-center gap-1">
+                  <input
+                    type={view_password ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    placeholder="********"
+                    disabled={!edit_mode}
+                    class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
+                  />
+                  <button
+                    type="button"
+                    onclick={() => (view_password = !view_password)}
+                    class="btn-sm"
+                  >
+                    {#if view_password}
+                      <i class="icon-[mdi--eye-off] size-4"></i>
+                    {:else}
+                      <i class="icon-[mdi--eye] size-4"></i>
+                    {/if}
+                    <span class="sr-only">view</span>
+                  </button>
+                </div>
               </div>
             </div>
           </article>

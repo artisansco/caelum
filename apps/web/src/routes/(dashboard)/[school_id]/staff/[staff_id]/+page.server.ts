@@ -1,23 +1,8 @@
-import { API_ENDPOINT } from "$env/static/private";
-import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type { Staff } from "$lib/types";
+import { get_staff_by_id } from "../staff.remote";
 
-export const load:PageServerLoad = async ({ params,fetch }) => {
+export const load:PageServerLoad = async ({ params,}) => {
+  const staff = await get_staff_by_id(params.staff_id)
 
-  try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${params.staff_id}`, );
-		const { data, message } = await res.json();
-		if (!res.ok) {
-			error(500,{message});
-		}
-
-    return { staff: data as Staff }
-	} catch (_e) {
-		console.error(_e);
-		error(500,{message:"failed to fetch staff member"})
-	}
-
-
-
+return {staff}
 }

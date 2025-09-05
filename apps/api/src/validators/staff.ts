@@ -1,7 +1,7 @@
 import { validator } from "hono/validator";
 import { z } from "zod";
 
-const new_staff_schema = z.object({
+const staff_schema = z.object({
 	first_name: z
 		.string({ error: "first name must be a string" })
 		.trim()
@@ -47,11 +47,22 @@ const new_staff_schema = z.object({
 });
 
 export const validate_new_staff = validator("json", (value, c) => {
-	const { success, data, error } = new_staff_schema.safeParse(value);
-	console.log(value);
+	const { success, data, error } = staff_schema.safeParse(value);
 	if (!success) {
 		const message = error.issues.at(0)?.message as string;
-		console.log(message);
+		return c.json({ status: "fail", message: message }, 400);
+	}
+
+	return data;
+});
+
+export const validate_update_staff = validator("json", (value, c) => {
+	const { success, data, error } = staff_schema
+		.partial({ password: true })
+		.omit({ employed_on: true })
+		.safeParse(value);
+	if (!success) {
+		const message = error.issues.at(0)?.message as string;
 		return c.json({ status: "fail", message: message }, 400);
 	}
 

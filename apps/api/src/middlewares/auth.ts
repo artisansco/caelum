@@ -4,7 +4,7 @@ import type { JWTPayload } from "hono/utils/jwt/types";
 import { config } from "../lib/config";
 
 export const check_jwt = createMiddleware<{
-	Variables: { user_id: string; org_id: string };
+	Variables: { user_id: string; school_id: string };
 }>(async (c, next) => {
 	const token = c.req.header("Authorization")?.split(" ")[1];
 	if (!token) {
@@ -15,10 +15,10 @@ export const check_jwt = createMiddleware<{
 		const decoded = (await jwt.verify(
 			token,
 			config.JWT_SECRET,
-		)) as JWTPayload & { id: string; org_id: string };
+		)) as JWTPayload & { id: string; school_id: string };
 
 		c.set("user_id", decoded.id);
-		c.set("org_id", decoded.org_id);
+		c.set("school_id", decoded.school_id);
 
 		await next();
 	} catch (_e) {

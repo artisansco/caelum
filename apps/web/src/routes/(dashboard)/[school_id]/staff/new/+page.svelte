@@ -16,7 +16,7 @@
     }
   });
 
-  // generate a random staff id
+  /** generate a random staff id */
   function generate_staff_id() {
     staff_id = Math.random().toString(36).substring(2, 15).toUpperCase();
   }

@@ -2,7 +2,8 @@ import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
 import { staff_table } from "../db/schema";
-import { validate_new_staff } from "../validators/staff";
+import { check_jwt } from "../middlewares/auth";
+import { validate_new_staff, validate_update_staff } from "../validators/staff";
 
 const app = new Hono().basePath("/staff");
 
@@ -78,6 +79,32 @@ app.post("/", validate_new_staff, async (c) => {
 		},
 		201,
 	);
+});
+
+app.put("/:id", check_jwt, validate_update_staff, async (c) => {
+	const body = c.req.valid("json");
+
+	const [staff] = await db
+		.update(staff_table)
+		.set({
+			first_name: body.first_name,
+			middle_name: body.middle_name,
+			last_name: body.last_name,
+			email: body.email,
+			role: body.role,
+			permissions: body.permissions,
+			password: body.password,
+		})
+		.where(eq(staff_table.id, body.staff_id))
+		.returning();
+	console.log(staff);
+	console.log(body);
+
+	return c.json({
+		status: "success",
+		message: "Staff updated successfully",
+		data: staff,
+	});
 });
 
 export default app;
