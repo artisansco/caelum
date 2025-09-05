@@ -1,220 +1,105 @@
 <script lang="ts">
-// {
-// 	category: "Classes",
-// 	subclasses: [
-// 		{ href: "/classes/new", text: "Add Class" },
-// 		{ href: "/classes", text: "Manage Classes" },
-// 	],
-// },
-// {
-// 	category: "Subjects",
-// 	subclasses: [
-// 		{ href: "/subjects/new", text: "Add Subject" },
-// 		{ href: "/subjects", text: "Manage Subjects" },
-// 	],
-// },
+  import { page } from "$app/state";
+  import { toast } from "svelte-sonner";
+  import { add_subject } from "./subjects.remote";
 
-const business_types = [
-	"hotel",
-	"motel",
-	"guest-house",
-	"bed-breakfast",
-	"resort",
-	"hostel",
-];
-
-// Owner/Manager Information
-// name: '',
-// email: '',
-// phone: '',
-// title: '',
-
-// Property Details
-// totalRooms: '',
-// maxGuests: '',
-// amenities: '',
-// checkInTime: '',
-// checkOutTime: '',
-
-// Legal & Licensing
-// businessLicense: '',
-// taxId: '',
-// insured: false,
-// compliance: false,
-
-// Profile data
-const businessProfile = {
-	name: "",
-	description: "",
-	address: "",
-	phone: "",
-	email: "",
-	website: "",
-	propertyType: "hotel",
-	amenities: [],
-	checkInTime: "15:00",
-	checkOutTime: "11:00",
-};
-
-// const propertyTypes = ['hotel', 'motel', 'guest-house', 'bed-breakfast', 'resort', 'hostel'];
-const propertyTypes = business_types;
-const availableAmenities = [
-	"WiFi",
-	"Parking",
-	"Pool",
-	"Gym",
-	"Restaurant",
-	"Bar",
-	"Spa",
-	"Pet Friendly",
-	"Air Conditioning",
-	"Room Service",
-];
-
-function saveProfile() {
-	console.log("Saving profile...", businessProfile);
-	// Implementation for saving profile
-}
+  $effect(() => {
+    if (add_subject.result?.message) {
+      toast.info(add_subject.result.message);
+    }
+  });
 </script>
 
-<section class="max-w-4xl">
-  <h2
-    class="mb-6 border-b-2 border-gray-200 pb-2 text-2xl font-semibold text-gray-800"
-  >
-    Property Profile
-  </h2>
-  <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-    <div class="flex flex-col">
-      <label for="business-name" class="mb-2 text-sm font-medium text-gray-700"
-        >Property Name</label
-      >
-      <input
-        id="business-name"
-        type="text"
-        bind:value={businessProfile.name}
-        placeholder="e.g., Grand Oak Hotel"
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col">
-      <label for="property-type" class="mb-2 text-sm font-medium text-gray-700"
-        >Property Type</label
-      >
-      <select
-        id="property-type"
-        bind:value={businessProfile.propertyType}
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      >
-        <option value="" disabled selected>Select Property Type</option>
-        {#each propertyTypes as type}
-          <option value={type}>
-            {type.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-          </option>
-        {/each}
-      </select>
-    </div>
-
-    <div class="flex flex-col md:col-span-2">
-      <label for="description" class="mb-2 text-sm font-medium text-gray-700"
-        >Description</label
-      >
-      <textarea
-        id="description"
-        bind:value={businessProfile.description}
-        placeholder="Describe your property, its unique features, and what makes it special..."
-        class="min-h-[100px] resize-y rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-        rows="4"
-      ></textarea>
-    </div>
-
-    <div class="flex flex-col md:col-span-2">
-      <label for="address" class="mb-2 text-sm font-medium text-gray-700"
-        >Address</label
-      >
-      <input
-        id="address"
-        type="text"
-        bind:value={businessProfile.address}
-        placeholder="Full address"
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col">
-      <label for="phone" class="mb-2 text-sm font-medium text-gray-700"
-        >Phone Number</label
-      >
-      <input
-        id="phone"
-        type="tel"
-        bind:value={businessProfile.phone}
-        placeholder="+1 (555) 123-4567"
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col">
-      <label for="email" class="mb-2 text-sm font-medium text-gray-700"
-        >Contact Email</label
-      >
-      <input
-        id="email"
-        type="email"
-        bind:value={businessProfile.email}
-        placeholder="contact@property.com"
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col">
-      <label for="checkin" class="mb-2 text-sm font-medium text-gray-700"
-        >Check-in Time</label
-      >
-      <input
-        id="checkin"
-        type="time"
-        bind:value={businessProfile.checkInTime}
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col">
-      <label for="checkout" class="mb-2 text-sm font-medium text-gray-700"
-        >Check-out Time</label
-      >
-      <input
-        id="checkout"
-        type="time"
-        bind:value={businessProfile.checkOutTime}
-        class="rounded-lg border-2 border-gray-200 bg-white px-3 py-3 text-base transition-colors duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col md:col-span-2">
-      <label class="mb-2 text-sm font-medium text-gray-700">Amenities</label>
-      <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {#each availableAmenities as amenity}
-          <label class="flex cursor-pointer items-center text-sm text-gray-700">
-            <input
-              type="checkbox"
-              value={amenity}
-              bind:group={businessProfile.amenities}
-              class="mr-2 scale-110 transform"
-            />
-            {amenity}
-          </label>
-        {/each}
-      </div>
-    </div>
+<section class="max-w-6xl">
+  <div class="border-b-2 tabs w-full mb-15">
+    <nav class="w-full py-2">
+      <a href="{page.url.pathname}/" class="btn-outline">Subjects</a>
+      <a href="{page.url.pathname}/" class="btn-outline">Classes</a>
+      <a href="{page.url.pathname}/" class="btn-outline">Results</a>
+    </nav>
   </div>
 
-  <div class="flex gap-4 border-t border-gray-200 pt-4">
-    <button
-      on:click={saveProfile}
-      class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-blue-500 px-6 py-3 text-base font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600"
-    >
-      Save Profile
-    </button>
+  <div class="grid grid-cols-[1fr_25rem] gap-8">
+    <!-- Table -->
+    <table class="table min-w-full divide-y divide-gray-200 h-fit">
+      <thead class="bg-gray-50">
+        <tr>
+          {@render table_header("Subject Name")}
+          {@render table_header("Subject Code")}
+          <th scope="col" class="px-6 py-3 text-end"></th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200">
+        <!-- {#await get_all_staff() then staff} -->
+        {#each { length: 0 } as clas}
+          <tr>
+            <td class="px-5 py-3">Mathematics</td>
+            <td class="px-5 py-3">CODE-001</td>
+            <td class="px-5 py-3">
+              <button type="button" class="btn-sm-ghost">
+                <i class="icon-[mdi--pencil] size-4"></i>
+                <span class="sr-only">edit</span>
+              </button>
+            </td>
+          </tr>
+        {:else}
+          <tr>
+            <td colspan="3" class="italic text-center">no data</td>
+          </tr>
+        {/each}
+        <!-- {/await} -->
+      </tbody>
+    </table>
+    <!-- End Table -->
+
+    <!-- Form to add subjects -->
+    <aside class="block shadow p-5 rounded-lg border h-fit">
+      <form {...add_subject}>
+        <h3 class="font-semibold mb-5">Add New Subject</h3>
+
+        <fieldset class="grid gap-4">
+          <input type="hidden" name="school_id" value={page.params.school_id} />
+          <div class="flex flex-col gap-1">
+            <label for="name" class="label">Subject Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Mathemathics"
+              class="input"
+              required
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label for="code" class="label">Subject Code</label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              placeholder="CODE-001"
+              class="input"
+            />
+          </div>
+
+          <button type="submit" class="btn" disabled={add_subject.pending > 0}>
+            {#if add_subject.pending > 0}
+              <i class="icon-[mdi--loading] animate-spin"></i>
+              Adding Class...
+            {:else}
+              <i class="icon-[mdi--content-save]"></i>
+              Add Class
+            {/if}
+          </button>
+        </fieldset>
+      </form>
+    </aside>
   </div>
 </section>
+
+{#snippet table_header(label: string)}
+  <th scope="col" class="px-5 py-3 text-start">
+    <span class="font-semibold text-gray-700 capitalize">{label}</span>
+  </th>
+{/snippet}

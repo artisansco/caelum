@@ -73,9 +73,9 @@
             <div>
               <p class="text-sm text-gray-600">
                 <svelte:boundary>
-                  <span class="font-semibold text-gray-800"
-                    >{(await get_all_staff()).length || 0}</span
-                  >
+                  <span class="font-semibold text-gray-800">
+                    {(await get_all_staff()).length || 0}
+                  </span>
                   results
                   {#snippet pending()}
                     <span>0</span>

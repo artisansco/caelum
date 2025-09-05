@@ -225,7 +225,7 @@
                 type="checkbox"
                 value={permission}
                 name="permissions"
-                class="checkbox rounded"
+                class="checkbox rounded border-gray-400"
               />
               {format_permissions(permission)}
             </label>
