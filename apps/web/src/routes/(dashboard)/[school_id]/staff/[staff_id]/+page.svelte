@@ -4,7 +4,7 @@
   import { format } from "@formkit/tempo";
   import { permissions } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
-  import { get_staff_by_id, update_staff } from "../staff.remote";
+  import { update_staff } from "../staff.remote";
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
 
@@ -13,8 +13,8 @@
 
   let role = $state(staff.role);
   let status = $state(staff.status || "active");
-  let edit_mode = $state(true);
-  let view_password = $state(true);
+  let edit_mode = $state(false);
+  let view_password = $state(false);
 
   $effect(() => {
     if (update_staff.result?.message) {
@@ -362,18 +362,20 @@
                     disabled={!edit_mode}
                     class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                   />
-                  <button
-                    type="button"
-                    onclick={() => (view_password = !view_password)}
-                    class="btn-sm"
-                  >
-                    {#if view_password}
-                      <i class="icon-[mdi--eye-off] size-4"></i>
-                    {:else}
-                      <i class="icon-[mdi--eye] size-4"></i>
-                    {/if}
-                    <span class="sr-only">view</span>
-                  </button>
+                  {#if edit_mode}
+                    <button
+                      type="button"
+                      onclick={() => (view_password = !view_password)}
+                      class="btn-sm"
+                    >
+                      {#if view_password}
+                        <i class="icon-[mdi--eye-off] size-4"></i>
+                      {:else}
+                        <i class="icon-[mdi--eye] size-4"></i>
+                      {/if}
+                      <span class="sr-only">view</span>
+                    </button>
+                  {/if}
                 </div>
               </div>
             </div>
