@@ -307,27 +307,27 @@ export const update_staff = form(async (form_data) => {
 	}
 });
 
-export const delete_staff = form(async(form) => {
-	const id = (form.get("staff_id") as string);
+export const delete_staff = form(async (form) => {
+	const id = form.get("staff_id") as string;
 
 	const { cookies } = getRequestEvent();
-	try{
-const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${id}`, {
-	method: "DELETE",
-	headers: {
-	"Content-Type": "application/json",
-	Authorization: `Bearer ${cookies.get("token")}`,
-	},
-});
-const { message, data } = await res.json();
-if (!res.ok) {
-	return { message };
-}
-console.log({ data });
-}catch(_e){
-	// @ts-expect-error
-	return { message: _e.message };
-}
+	try {
+		const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${id}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies.get("token")}`,
+			},
+		});
+		const { message, data } = await res.json();
+		if (!res.ok) {
+			return { message };
+		}
+		console.log({ data });
+	} catch (_e) {
+		// @ts-expect-error
+		return { message: _e.message };
+	}
 
-redirect(308, "./");
+	redirect(308, "./");
 });
