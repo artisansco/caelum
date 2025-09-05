@@ -105,4 +105,16 @@ app.put("/:id", check_jwt, validate_update_staff, async (c) => {
 	});
 });
 
+app.delete("/:id", check_jwt, async (c) => {
+	await db
+		.delete(staff_table)
+		.where(eq(staff_table.id, c.req.param("id")))
+		.returning();
+
+	return c.json({
+		status: "success",
+		message: "Staff updated successfully",
+	});
+});
+
 export default app;

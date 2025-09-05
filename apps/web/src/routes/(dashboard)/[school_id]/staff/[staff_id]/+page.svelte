@@ -4,7 +4,7 @@
   import { format } from "@formkit/tempo";
   import { permissions } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
-  import { update_staff } from "../staff.remote";
+  import { delete_staff, update_staff } from "../staff.remote";
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
 
@@ -112,13 +112,20 @@
             <i class="icon-[mdi--pencil]"></i>
             Edit
           </button>
-          <button
-            type="button"
-            class="btn-destructive btn-sm flex items-center gap-2"
-          >
-            <i class="icon-[mdi--trash]"></i>
-            Delete
-          </button>
+          <form {...delete_staff}>
+            <input
+              type="hidden"
+              name="staff_id"
+              value={page.params?.staff_id}
+            />
+            <button
+              type="submit"
+              class="btn-destructive btn-sm flex items-center gap-2"
+            >
+              <i class="icon-[mdi--trash]"></i>
+              Delete
+            </button>
+          </form>
         {/if}
       </div>
     </div>

@@ -307,16 +307,27 @@ export const update_staff = form(async (form_data) => {
 	}
 });
 
-export const delete_staff = form((form_data) => {
-	const id = parseInt(form_data.get("id"));
-	const staffIndex = staff.findIndex((person) => person.id === id);
+export const delete_staff = form(async(form) => {
+	const id = (form.get("staff_id") as string);
 
-	if (staffIndex === -1) {
-		throw new Error("Staff member not found");
-	}
+	const { cookies } = getRequestEvent();
+	try{
+const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${id}`, {
+	method: "DELETE",
+	headers: {
+	"Content-Type": "application/json",
+	Authorization: `Bearer ${cookies.get("token")}`,
+	},
+});
+const { message, data } = await res.json();
+if (!res.ok) {
+	return { message };
+}
+console.log({ data });
+}catch(_e){
+	// @ts-expect-error
+	return { message: _e.message };
+}
 
-	const deletedStaff = staff.splice(staffIndex, 1)[0];
-	console.log("Deleted staff member:", deletedStaff);
-
-	return deletedStaff;
+redirect(308, "./");
 });
