@@ -1,13 +1,14 @@
 <script lang="ts">
   import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
-  import { permissions } from "$lib/constants";
+  import { employment_types, permissions, staff_roles } from "$lib/constants";
   import { format_permissions } from "$lib/utils";
   import { add_staff } from "../staff.remote";
   import { page } from "$app/state";
 
-  const roles = ["admin", "manager", "staff", "student"];
-  let role = $state("staff");
+  let role: (typeof staff_roles)[number] = $state("staff");
+  let emp_type: (typeof employment_types)[number] = $state("full-time");
+
   let staff_id = $state("");
 
   $effect(() => {
@@ -26,6 +27,8 @@
   <form
     {...add_staff.enhance(async ({ data, submit }) => {
       data.append("role", role);
+      data.append("emp_type", emp_type);
+
       await submit();
     })}
   >
@@ -79,7 +82,7 @@
             placeholder=""
             class="input"
           />
-          <!-- TODO: generate random staff id -->
+
           <button type="button" class="btn-sm" onclick={generate_staff_id}>
             <i class="icon-[mdi--rotate-clockwise]"></i>
             <span class="sr-only text-xs">generate</span>
@@ -124,7 +127,7 @@
         <input
           id="phone_number"
           type="tel"
-          name="phone_number"
+          name="contact"
           placeholder="+232-99-456-890"
           class="input"
           required
@@ -154,7 +157,7 @@
             </label>
             <button
               {...select.trigger}
-              class="btn-outline w-full flex items-center justify-between"
+              class="btn-outline w-full justify-between capitalize"
             >
               {select.value || "Select role"}
               <i class="icon-[lucide--chevron-down] size-5"></i>
@@ -164,14 +167,49 @@
               {...select.content}
               class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
             >
-              {#each roles as role}
-                <div
+              {#each staff_roles as role}
+                <p
                   {...select.getOption(role, role)}
                   class="{role === select.value &&
-                    'bg-gray-100'} p-2 hover:bg-gray-100"
+                    'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
                 >
                   {role}
-                </div>
+                </p>
+              {/each}
+            </div>
+          {/snippet}
+        </Select>
+      </div>
+
+      <div>
+        <Select bind:value={emp_type}>
+          {#snippet children(select)}
+            <label
+              for={select.ids.trigger}
+              class="label mb-2 text-sm text-gray-500"
+            >
+              Employment Type
+            </label>
+            <button
+              {...select.trigger}
+              class="btn-outline w-full justify-between capitalize"
+            >
+              {select.value || "Select employment type"}
+              <i class="icon-[lucide--chevron-down] size-5"></i>
+            </button>
+
+            <div
+              {...select.content}
+              class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+            >
+              {#each employment_types as emp_type}
+                <p
+                  {...select.getOption(emp_type, emp_type)}
+                  class="{emp_type === select.value &&
+                    'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
+                >
+                  {emp_type}
+                </p>
               {/each}
             </div>
           {/snippet}
@@ -187,7 +225,7 @@
                 type="checkbox"
                 value={permission}
                 name="permissions"
-                class="checkbox"
+                class="checkbox rounded"
               />
               {format_permissions(permission)}
             </label>
@@ -196,9 +234,14 @@
       </div>
     </div>
 
-    <button type="submit" class="btn flex items-center">
-      <i class="icon-[mdi--content-save]"></i>
-      <span>Save Profile</span>
+    <button type="submit" class="btn" disabled={add_staff.pending > 0}>
+      {#if add_staff.pending > 0}
+        <i class="icon-[mdi--loading] animate-spin"></i>
+        <span>Saving...</span>
+      {:else}
+        <i class="icon-[mdi--content-save]"></i>
+        <span>Save Profile</span>
+      {/if}
     </button>
   </form>
 </section>

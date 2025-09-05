@@ -35,6 +35,13 @@ export const staff_table = sqliteTable("staff", {
 	email: text(),
 	password: text().notNull(),
 	avatar_url: text(),
+	// // contact: text().notNull(),
+	// // address: text().notNull(),
+	// status: text({
+	// 	enum: ["active", "vacation", "sick", "resigned"],
+	// }).default("active"),
+	// employment_type: text({ enum: ["full-time", "part-time", "contract", "intern"] }).notNull().default("full-time"),
+	// notes: text(),
 	school_id: text()
 		.notNull()
 		.references(() => schools_table.id, {
@@ -48,6 +55,19 @@ export const staff_table = sqliteTable("staff", {
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
+// TODO: enable emergency contact table for teachers/staff
+// export const emergency_contacts_table = sqliteTable("emergency_contacts", {
+// 	id: text().primaryKey().$defaultFn(nanoid),
+// 	staff_id: text().notNull().references(() => staff_table.id, {
+// 		onDelete: "cascade",
+// 	}),
+// 	name: text().notNull(),
+// 	relationship: text().notNull(),
+// 	phone_number: text().notNull(),
+// 	email: text(),
+// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+// });
 
 export const schools_table = sqliteTable("schools", {
 	id: text().primaryKey().$defaultFn(nanoid),
@@ -61,3 +81,29 @@ export const schools_table = sqliteTable("schools", {
 		.notNull()
 		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
+
+// TODO: subscription table for schools
+// export const subscriptions_table = sqliteTable("subscriptions", {
+// 	id: text().primaryKey().$defaultFn(nanoid),
+// 	school_id: text().notNull().references(() => schools_table.id, {
+// 		onDelete: "cascade",
+// 	}),
+// 	plan_id: text().notNull().references(() => plans_table.id, {
+// 		onDelete: "cascade",
+// 	}),
+// 	start_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	end_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	status: text({ enum: ["active", "inactive"] }).notNull().default("active"),
+// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+// });
+
+// TODO: plans table for subscriptions
+// export const plans_table = sqliteTable("plans", {
+// 	id: text().primaryKey().$defaultFn(nanoid),
+// 	name: text().notNull(),
+// 	description: text().notNull(),
+// 	price: text().notNull(),
+// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+// });

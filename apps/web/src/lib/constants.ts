@@ -45,3 +45,22 @@ export const permissions = [
 	// "settings:view",
 	// "settings:edit",
 ];
+
+export const staff_roles = ["admin", "staff", "volunteer", "intern"] as const;
+
+export const staff_statuses = [
+	"active",
+	"on-leave",
+	"terminated",
+	"retired",
+	"vacation",
+	"sick",
+	"resigned",
+] as const;
+
+export const employment_types = [
+	"full-time",
+	"part-time",
+	"contract",
+	"intern",
+] as const;

@@ -77,6 +77,7 @@ export const get_staff_by_id = query(
 			return data as Staff;
 		} catch (_e) {
 			console.error(_e);
+			// @ts-ignore
 			error(500, { message: _e.message });
 		}
 	},
@@ -109,10 +110,10 @@ export const add_staff = form(async (form_data) => {
 			return { message };
 		}
 
-		console.log("new_staff", data);
-	} catch (error) {
-		console.error(error);
-		return { message: "Failed to add staff member" };
+	} catch (_e) {
+		console.error(_e);
+		// @ts-ignore
+		return { message: _e.message };
 	}
 
 	redirect(302, "/" + parsed.school_id + "/staff");
