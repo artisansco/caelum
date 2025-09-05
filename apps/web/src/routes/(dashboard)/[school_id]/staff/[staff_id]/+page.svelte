@@ -7,6 +7,8 @@
   import { delete_staff, update_staff } from "../staff.remote";
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
+  import Dialog from "$lib/components/dialog.svelte";
+  import { melt } from "@melt-ui/svelte";
 
   const { data }: PageProps = $props();
   const staff = data.staff;
@@ -27,10 +29,7 @@
   <!-- Header Section -->
   <header class="mb-8">
     <nav class="mb-4">
-      <a
-        href="./"
-        class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
-      >
+      <a href="./" class="btn-sm-ghost">
         <i class="icon-[mdi--arrow-left] mr-2"></i>
         Back to Staff
       </a>
@@ -62,15 +61,11 @@
           </h1>
           <div class="mt-1 flex items-center gap-4">
             <p class="text-gray-600 capitalize">{staff.role}:</p>
-            <p class="text-gray-600 font-semibold flex items-center gap-1">
+            <p class="btn-sm-ghost">
               <i class="icon-[mdi--tag] size-4"></i>
               {staff.staff_id}
             </p>
-            <span
-              class="rounded-full px-2.5 py-0.5 text-xs font-medium {get_status_pill(
-                staff.status,
-              )}"
-            >
+            <span class={get_status_pill(staff.status || "active")}>
               {staff.status || "active"}
             </span>
           </div>
@@ -83,7 +78,7 @@
             <button
               type="button"
               onclick={() => (edit_mode = !edit_mode)}
-              class="btn-destructive btn-sm flex items-center gap-2"
+              class="btn-sm-destructive"
             >
               <i class="icon-[mdi--close]"></i>
               Cancel
@@ -93,7 +88,7 @@
             type="submit"
             form="edit_details"
             disabled={update_staff.pending > 0}
-            class="btn-sm flex items-center gap-2"
+            class="btn-sm"
           >
             {#if update_staff.pending > 0}
               <i class="icon-[mdi--loading] animate-spin"></i>
@@ -107,25 +102,31 @@
           <button
             type="button"
             onclick={() => (edit_mode = !edit_mode)}
-            class="btn-sm flex items-center gap-2"
+            class="btn-sm"
           >
             <i class="icon-[mdi--pencil]"></i>
             Edit
           </button>
-          <form {...delete_staff}>
-            <input
-              type="hidden"
-              name="staff_id"
-              value={page.params?.staff_id}
-            />
-            <button
-              type="submit"
-              class="btn-destructive btn-sm flex items-center gap-2"
-            >
-              <i class="icon-[mdi--trash]"></i>
-              Delete
-            </button>
-          </form>
+          <Dialog label="Dialog Title" outside_close={false}>
+            {#snippet trigger_btn($trigger: any)}
+              <button use:melt={$trigger} class="btn-sm-destructive">
+                <i class="icon-[mdi--trash] size-4"></i>
+                Delete
+              </button>
+            {/snippet}
+
+            <p class="mb-5 mt-2 leading-normal text-zinc-600">
+              This action cannot be undone. This will permanently delete the
+              staff and remove it from our servers.
+            </p>
+            <form {...delete_staff}>
+              <input type="hidden" name="staff_id" value={staff.id} />
+              <button type="submit" class="btn-destructive w-full">
+                <i class="icon-[mdi--trash] size-4"></i>
+                Confirm Delete
+              </button>
+            </form>
+          </Dialog>
         {/if}
       </div>
     </div>

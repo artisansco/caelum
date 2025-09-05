@@ -6,12 +6,12 @@ export function format_permissions(permission: string) {
 export function get_status_pill(status: "active" | "inactive" | "on leave") {
 	switch (status) {
 		case "active":
-			return "bg-green-100 text-green-800";
+			return "badge";
 		case "inactive":
-			return "bg-red-100 text-red-800";
+			return "badge bg-gray-500";
 		case "on leave":
-			return "bg-yellow-100 text-yellow-800";
+			return "badge-secondary";
 		default:
-			return "bg-gray-100 text-gray-800";
+			return "badge-outline";
 	}
 }
