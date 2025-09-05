@@ -97,8 +97,6 @@ app.put("/:id", check_jwt, validate_update_staff, async (c) => {
 		})
 		.where(eq(staff_table.id, body.staff_id))
 		.returning();
-	console.log(staff);
-	console.log(body);
 
 	return c.json({
 		status: "success",
