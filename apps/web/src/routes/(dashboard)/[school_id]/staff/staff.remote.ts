@@ -77,7 +77,7 @@ export const get_staff_by_id = query(
 			return data as Staff;
 		} catch (_e) {
 			console.error(_e);
-			// @ts-ignore
+			// @ts-expect-error
 			error(500, { message: _e.message });
 		}
 	},
@@ -109,10 +109,9 @@ export const add_staff = form(async (form_data) => {
 		if (!res.ok) {
 			return { message };
 		}
-
 	} catch (_e) {
 		console.error(_e);
-		// @ts-ignore
+		// @ts-expect-error
 		return { message: _e.message };
 	}
 
