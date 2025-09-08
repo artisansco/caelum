@@ -82,6 +82,17 @@ export const schools_table = sqliteTable("schools", {
 		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
+export const subjects_table = sqliteTable("subjects", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	name: text().notNull(),
+	code: text(),
+	school_id: text().references(() => schools_table.id, { onDelete: "cascade" }),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text()
+		.notNull()
+		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
 // TODO: subscription table for schools
 // export const subscriptions_table = sqliteTable("subscriptions", {
 // 	id: text().primaryKey().$defaultFn(nanoid),

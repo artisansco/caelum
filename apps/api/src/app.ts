@@ -7,8 +7,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import auth from "./routes/auth";
 import schools from "./routes/schools";
 import staff from "./routes/staff";
-
-// import users from "./routes/users";
+import subjects from "./routes/subjects";
 
 const app = new Hono();
 
@@ -19,13 +18,14 @@ app.use(secureHeaders());
 app.use(
 	bodyLimit({
 		maxSize: 1024 * 1024 * 5, // 5MB,
-		onError: (c) =>
-			c.json({ status: "error", message: "Payload Too Large" }, 413),
+		onError: (c) => {
+			return c.json({ status: "error", message: "Payload Too Large" }, 413);
+		},
 	}),
 );
 
 app.route("/api/v1", auth);
-// app.route("/api/v1", users);
+app.route("/api/v1", subjects);
 app.route("/api/v1", staff);
 app.route("/api/v1", schools);
 

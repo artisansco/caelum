@@ -1,7 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
-  import { add_subject } from "./subjects.remote";
+  import {
+    add_subject,
+    delete_subject,
+    get_all_subjects,
+  } from "./subjects.remote";
 
   $effect(() => {
     if (add_subject.result?.message) {
@@ -30,26 +34,33 @@
         </tr>
       </thead>
 
-      <tbody class="divide-y divide-gray-200">
-        <!-- {#await get_all_staff() then staff} -->
-        {#each { length: 0 } as clas}
-          <tr>
-            <td class="px-5 py-3">Mathematics</td>
-            <td class="px-5 py-3">CODE-001</td>
-            <td class="px-5 py-3">
-              <button type="button" class="btn-sm-ghost">
-                <i class="icon-[mdi--pencil] size-4"></i>
-                <span class="sr-only">edit</span>
-              </button>
-            </td>
-          </tr>
-        {:else}
-          <tr>
-            <td colspan="3" class="italic text-center">no data</td>
-          </tr>
-        {/each}
-        <!-- {/await} -->
-      </tbody>
+      <svelte:boundary>
+        <tbody class="divide-y divide-gray-200">
+          {#await get_all_subjects() then subjects}
+            {#each subjects as subject}
+              <tr class="group">
+                <td class="px-5 py-3">{subject.name}</td>
+                <td class="px-5 py-3">{subject.code || "N/A"}</td>
+                <td
+                  class="px-5 py-3 group-hover:opacity-100 opacity-0 transition-opacity"
+                >
+                  <form {...delete_subject}>
+                    <input type="hidden" name="subject_id" value={subject.id} />
+                    <button type="submit" class="btn-sm-ghost">
+                      <i class="icon-[mdi--trash] size-4 bg-red-500"></i>
+                      <span class="sr-only">delete</span>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {:else}
+              <tr>
+                <td colspan="3" class="italic text-center">no data</td>
+              </tr>
+            {/each}
+          {/await}
+        </tbody>
+      </svelte:boundary>
     </table>
     <!-- End Table -->
 
