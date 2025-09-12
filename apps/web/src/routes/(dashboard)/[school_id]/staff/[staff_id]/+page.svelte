@@ -48,7 +48,7 @@
               {...avatar.fallback}
               class="size-20 rounded-full text-gray-500 grid place-content-center border"
             >
-              {staff.first_name[0]}{staff.last_name[0]}
+              {staff.first_name?.at(0)}{staff.last_name?.at(0)}
             </span>
           {/snippet}
         </Avatar>
@@ -187,7 +187,7 @@
                   type="text"
                   id="middle_name"
                   name="middle_name"
-                  defaultValue={staff.middle_name}
+                  defaultValue={staff.middle_name || "N/A"}
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />

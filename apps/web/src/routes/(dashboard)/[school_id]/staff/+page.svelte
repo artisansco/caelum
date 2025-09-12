@@ -176,7 +176,8 @@
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {format({ date: staff.employed_date, format: "DD MMM, YYYY" })}
+          {staff.employed_date}
+          <!-- {format({ date: staff.employed_date, format: "DD MMM, YYYY" })} -->
         </span>
       </div>
     </td>

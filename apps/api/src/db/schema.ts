@@ -35,13 +35,17 @@ export const staff_table = sqliteTable("staff", {
 	email: text(),
 	password: text().notNull(),
 	avatar_url: text(),
-	// // contact: text().notNull(),
-	// // address: text().notNull(),
-	// status: text({
-	// 	enum: ["active", "vacation", "sick", "resigned"],
-	// }).default("active"),
-	// employment_type: text({ enum: ["full-time", "part-time", "contract", "intern"] }).notNull().default("full-time"),
-	// notes: text(),
+	contact: text().notNull(),
+	address: text().notNull(),
+	status: text({
+		enum: ["active", "vacation", "sick", "resigned"],
+	}).default("active"),
+	employment_type: text({
+		enum: ["full-time", "part-time", "contract", "intern", "volunteer"],
+	})
+		.notNull()
+		.default("full-time"),
+	notes: text(),
 	school_id: text()
 		.notNull()
 		.references(() => schools_table.id, {

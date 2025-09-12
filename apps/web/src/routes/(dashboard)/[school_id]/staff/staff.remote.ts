@@ -101,7 +101,7 @@ export const add_staff = form(async (form_data) => {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: "Bearer " + cookies.get("token"),
+				Authorization: `Bearer ${cookies.get("token")}`,
 			},
 			body: JSON.stringify(parsed),
 		});
@@ -115,7 +115,7 @@ export const add_staff = form(async (form_data) => {
 		return { message: _e.message };
 	}
 
-	redirect(302, "/" + parsed.school_id + "/staff");
+	redirect(302, `/${parsed.school_id}/staff`);
 });
 
 export const update_staff = form(async (form_data) => {
@@ -150,7 +150,6 @@ export const update_staff = form(async (form_data) => {
 		if (!res.ok) {
 			return { message };
 		}
-		console.log({ data });
 		return { message: "Staff member updated successfully" };
 	} catch (_e) {
 		// @ts-expect-error
