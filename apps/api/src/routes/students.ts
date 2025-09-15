@@ -1,12 +1,14 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
 import { students_table } from "../db/schema";
 
-const app = new Hono().basePath("/users");
+const app = new Hono().basePath("/students");
 
 app.get("/", async (c) => {
-	const students = await db.query.students_table.findMany();
+	const students = await db.query.students_table.findMany({
+		orderBy: desc(students_table.admission_date),
+	});
 
 	return c.json({
 		status: "success",

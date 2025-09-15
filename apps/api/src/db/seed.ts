@@ -16,6 +16,7 @@ async function seed_data() {
 		{
 			staff: schema.staff_table,
 			schools: schema.schools_table,
+			students: schema.students_table,
 		},
 	).refine(async (funcs) => ({
 		schools: {
@@ -28,6 +29,7 @@ async function seed_data() {
 				created_at: funcs.date(),
 				updated_at: funcs.date(),
 			},
+			count: 5,
 		},
 
 		staff: {
@@ -61,6 +63,26 @@ async function seed_data() {
 				updated_at: funcs.timestamp(),
 			},
 		},
+
+		students: {
+			columns: {
+				admission_number: funcs.default({ defaultValue: nanoid() }),
+				first_name: funcs.firstName(),
+				middle_name: funcs.default({ defaultvalue: undefined }),
+				last_name: funcs.lastName(),
+				email: funcs.email(),
+				password: await bcrypt.hash("password", 12),
+				avatar_url: funcs.default({ defaultValue: "" }),
+				contact: funcs.phoneNumber(),
+				address: funcs.streetAddress(),
+				status: funcs.default({ defaultValue: "active" }),
+				admission_date: funcs.timestamp(),
+				created_at: funcs.timestamp(),
+				updated_at: funcs.timestamp(),
+			},
+		},
+
+		// end
 	}));
 
 	await seed_admin();

@@ -1,26 +1,9 @@
 <script lang="ts">
-import { format } from "@formkit/tempo";
-import { Avatar } from "melt/components";
-import { page } from "$app/state";
-import { get_staff } from "./students.remote";
-
-type Staff = {
-	id: number;
-	name: string;
-	email: string;
-	contact: string;
-	username: string;
-	employee_id: string;
-	role: string;
-	department: string;
-	shift: string;
-	status: string;
-	hire_date: string | Date;
-	salary: number;
-	avatar: string;
-	certifications: string | string[];
-	notes: string;
-};
+  import { format } from "@formkit/tempo";
+  import { Avatar } from "melt/components";
+  import { page } from "$app/state";
+  import { get_all_students } from "./students.remote";
+  import type { Student } from "$lib/types";
 </script>
 
 <!-- Table Section -->
@@ -52,7 +35,7 @@ type Staff = {
 									View all
 								</a> -->
 
-                <a class="btn btn-sm" href={page.url.pathname}>
+                <a class="btn-sm" href="{page.url.pathname}/new">
                   <span class="icon-[lucide--plus] size-4"></span>
                   Add student
                 </a>
@@ -66,24 +49,32 @@ type Staff = {
             <thead class="bg-gray-50">
               <tr>
                 {@render table_header("Name")}
-                {@render table_header("Unknown")}
+                {@render table_header("Class")}
                 {@render table_header("Contact")}
                 {@render table_header("Status")}
-                {@render table_header("joined on")}
+                {@render table_header("Admission Date")}
                 <th scope="col" class="px-6 py-3 text-end"></th>
               </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#await get_staff() then staff}
-                {#each staff as person}
-                  {@render staff_card(person)}
+              <svelte:boundary>
+                {#each await get_all_students() as student}
+                  {@render student_card(student)}
                 {:else}
                   <tr>
                     <td colspan="6" class="px-6 py-4 text-center">no data</td>
                   </tr>
                 {/each}
-              {/await}
+
+                {#snippet pending()}
+                  <tr>
+                    <td colspan="6" class="px-6 py-4 text-center">
+                      <i class="icon-[mdi--loading] size-5 animate-spin"></i>
+                    </td>
+                  </tr>
+                {/snippet}
+              </svelte:boundary>
             </tbody>
           </table>
           <!-- End Table -->
@@ -95,10 +86,9 @@ type Staff = {
             <div>
               <p class="text-sm text-gray-600">
                 <svelte:boundary>
-                  <span class="font-semibold text-gray-800"
-                    >{(await get_staff()).length || 0}</span
-                  >
-                  results
+                  <span class="font-semibold text-gray-800">
+                    {(await get_all_students()).length || 0} results
+                  </span>
                   {#snippet pending()}
                     <span>0</span>
                   {/snippet}
@@ -107,12 +97,12 @@ type Staff = {
             </div>
 
             <div class="inline-flex gap-x-4">
-              <button type="button" class="btn-outline">
+              <button type="button" class="btn-sm-outline">
                 <span class="icon-[lucide--chevron-left]"></span>
                 Prev
               </button>
 
-              <button type="button" class="btn-outline">
+              <button type="button" class="btn-sm-outline">
                 Next
                 <span class="icon-[lucide--chevron-right]"></span>
               </button>
@@ -135,61 +125,72 @@ type Staff = {
   </th>
 {/snippet}
 
-{#snippet staff_card(staff: Staff)}
+{#snippet student_card(student: Student)}
   <tr>
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
         <div class="flex items-center gap-x-3">
-          <Avatar src={staff.avatar}>
+          <Avatar
+            src={student.avatar_url ||
+              `https://robohash.org/${student.first_name}`}
+          >
             {#snippet children(avatar)}
               <img
                 {...avatar.image}
-                alt={staff.name}
+                alt={student.first_name}
                 class="size-10 rounded-full text-xs"
               />
-              <span {...avatar.fallback} class="text-xs">&hellip;</span>
+              <span
+                {...avatar.fallback}
+                class="text-xs size-10 border rounded-full grid justify-center items-center"
+              >
+                {`${student.first_name[0]}${student.last_name[0]}`}
+              </span>
             {/snippet}
           </Avatar>
 
           <div class="grow">
-            <span class="block text-sm font-semibold text-gray-800"
-              >{staff.name}</span
-            >
-            <span class="block text-sm text-gray-500">{staff.email}</span>
+            <span class="block text-sm font-semibold text-gray-800">
+              {student.first_name}
+              {student.middle_name}
+              {student.last_name}
+            </span>
+            <span class="block text-sm text-gray-500">{student.email}</span>
           </div>
         </div>
       </div>
     </td>
     <td class="h-px w-72 whitespace-nowrap">
       <div class="px-6 py-3">
-        <span class="block text-sm font-semibold text-gray-800"
-          >{staff.role}</span
-        >
-        <span class="block text-sm text-gray-500">{staff.department}</span>
-      </div>
-    </td>
-    <td class="size-px whitespace-nowrap">
-      <div class="px-6 py-3">
-        <span class="text-sm text-gray-500">
-          {staff.contact}
+        <span class="block text-sm font-semibold text-gray-800">
+          {student.class || "N/A"}
+        </span>
+        <span class="block text-sm text-gray-500">
+          {student.status || "enrolled"}
         </span>
       </div>
     </td>
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
-        <span
-          class="inline-flex items-center gap-x-1 rounded-full bg-teal-100 px-1.5 py-1 text-xs font-medium text-teal-800"
-        >
+        <span class="text-sm text-gray-500">
+          {student.contact || "N/A"}
+        </span>
+      </div>
+    </td>
+    <td class="size-px whitespace-nowrap">
+      <div class="px-6 py-3">
+        <span class="badge bg-teal-100 text-xs font-medium text-teal-800">
           <span class="icon-[mdi--check-circle]"></span>
           <!-- <span class="icon-[mdi--warning]"></span> -->
-          {staff.status}
+          {student.status}
         </span>
       </div>
     </td>
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {format({ date: staff.hire_date, format: "DD MMM, HH:mm" })}
+          {format({ date: new Date(), format: "DD MMM, YYYY" })}
+          <!-- {format({ date: staff?.admission_date, format: "DD MMM, HH:mm" })} -->
         </span>
       </div>
     </td>
@@ -197,7 +198,7 @@ type Staff = {
       <div class="px-6 py-1.5">
         <a
           class="btn-link text-sm text-blue-600"
-          href="{page.url.pathname}/{staff.id}"
+          href="{page.url.pathname}/{student.id}"
         >
           <span class="icon-[mdi--eye] size-4"></span>
           <span class="sr-only">view</span>

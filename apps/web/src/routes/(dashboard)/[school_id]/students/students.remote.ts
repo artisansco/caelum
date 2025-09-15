@@ -1,4 +1,5 @@
 import { form, query } from "$app/server";
+import { API_ENDPOINT } from "$env/static/private";
 
 const staff = [
 	{
@@ -148,6 +149,21 @@ const staff = [
 		notes: "Clean driving record, experienced with luxury vehicles",
 	},
 ];
+
+export const get_all_students = query(async () => {
+	try {
+		const res = await fetch(`${API_ENDPOINT}/api/v1/students`);
+		const { message, data } = await res.json();
+
+		if (!res.ok) {
+			return { message };
+		}
+
+		return data.students;
+	} catch (_e) {
+		return { message: _e.message };
+	}
+});
 
 export const get_staff = query(() => {
 	// Simulate API delay

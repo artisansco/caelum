@@ -26,3 +26,19 @@ export type Staff = {
 	created_at?: string | Date;
 	updated_at?: string | Date;
 };
+
+export type Student = {
+	id?: string;
+	first_name: string;
+	middle_name?: string;
+	last_name: string;
+	email?: string;
+	contact?: string;
+	avatar_url?: string;
+	school_id: string;
+	class?: string;
+	status: "enrolled" | "graduated" | "alumni";
+	admission_date: string | Date;
+	created_at?: string | Date;
+	updated_at?: string | Date;
+};

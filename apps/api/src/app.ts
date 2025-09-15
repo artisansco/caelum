@@ -7,6 +7,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import auth from "./routes/auth";
 import schools from "./routes/schools";
 import staff from "./routes/staff";
+import students from "./routes/students";
 import subjects from "./routes/subjects";
 
 const app = new Hono();
@@ -27,6 +28,7 @@ app.use(
 app.route("/api/v1", auth);
 app.route("/api/v1", subjects);
 app.route("/api/v1", staff);
+app.route("/api/v1", students);
 app.route("/api/v1", schools);
 
 export default app;
