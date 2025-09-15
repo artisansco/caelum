@@ -7,4 +7,6 @@ export const load: LayoutServerLoad = async () => {
 	if (!user) {
 		redirect(302, "/");
 	}
+
+	return { current_user: user };
 };

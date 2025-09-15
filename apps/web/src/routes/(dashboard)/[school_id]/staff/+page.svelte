@@ -51,8 +51,8 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#await get_all_staff() then staff}
-                {#each staff as person}
+              <svelte:boundary>
+                {#each await get_all_staff() as person}
                   {@render staff_card(person)}
                 {:else}
                   <tr>
@@ -61,7 +61,15 @@
                     </td>
                   </tr>
                 {/each}
-              {/await}
+
+                {#snippet pending()}
+                  <tr>
+                    <td colspan="6" class="px-6 py-4 text-center">
+                      <i class="icon-[mdi--loading] animate-spin size-5"></i>
+                    </td>
+                  </tr>
+                {/snippet}
+              </svelte:boundary>
             </tbody>
           </table>
           <!-- End Table -->
