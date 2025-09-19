@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Avatar } from "melt/components";
-  import { page } from "$app/state";
+import { Avatar } from "melt/components";
+import { page } from "$app/state";
 
-  const tenant = $derived(String(page.params.school_id));
+const tenant = $derived(String(page.params.school_id));
 </script>
 
 <div
@@ -42,7 +42,7 @@
           )}
           {@render link(
             `/${tenant}/assignments`,
-            "icon-[mdi--message-bubble]",
+            "icon-[mdi--assignment]",
             "Assignments",
           )}
           <!-- {@render link(

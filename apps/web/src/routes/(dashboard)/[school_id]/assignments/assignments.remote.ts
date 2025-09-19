@@ -1,4 +1,5 @@
-import { query } from "$app/server";
+import { form, query } from "$app/server";
+import z from "zod";
 
 // Mock function to get assignments - replace with actual database query
 const getAssignments = async () => {
@@ -34,8 +35,30 @@ const getAssignments = async () => {
 	];
 };
 
+const assignment_schema = z.object({
+	class_id: z.string(),
+	title: z.string().trim().min(2),
+	description: z.string().trim().optional(),
+	due_date: z.iso.date(),
+	file: z.file().optional(),
+});
+
 export const get_assignments = query(async () => {
 	const assignments = await getAssignments();
 
 	return assignments;
+});
+
+export const upload_assignment = form((form_data) => {
+	const form = Object.fromEntries(form_data);
+	console.log(form.file);
+	const { success, data, error } = assignment_schema.safeParse(form);
+
+	if (!success) {
+		const message = error.issues.at(0)?.message;
+		console.log({ message });
+		return { message };
+	}
+
+	console.log(data);
 });

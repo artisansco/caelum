@@ -4,21 +4,22 @@
   import { toast } from "svelte-sonner";
   import { Select } from "melt/components";
   import type { PageProps } from "./$types";
-  import { get_assignments } from "./assignments.remote";
+  import { get_assignments, upload_assignment } from "./assignments.remote";
 
   const { data, form }: PageProps = $props();
 
   let selected_file: File | null = $state(null);
   let isUploading = $state(false);
 
-  let role = $state("");
+  let selected_class = $state("");
 
   // Get assignments from server data
   let assignments = $state(data.assignments);
 
-  function handleFileSelect(event: Event) {
+  function handle_file_select(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
+    console.log(target.value);
+    if (target.files?.[0]) {
       selected_file = target.files[0];
     }
   }
@@ -34,12 +35,12 @@
     }
   }
 
-  function formatFileSize(bytes: number): string {
+  function format_file_size(bytes: number): string {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   }
 
   let fileInput: HTMLInputElement;
@@ -69,12 +70,21 @@
           Upload Assignment
         </h2>
 
-        <form class="space-y-6" enctype="multipart/form-data">
+        <form
+          {...upload_assignment.enhance(async ({ data, submit }) => {
+            data.append("class_id", selected_class);
+            console.log(fileInput);
+            console.log(data);
+            // await submit();
+          })}
+          class="space-y-6"
+          enctype="multipart/form-data"
+        >
           <input type="hidden" name="school_id" value={page.params.school_id} />
           <!-- Class Selection -->
 
           <div>
-            <Select bind:value={role}>
+            <Select bind:value={selected_class}>
               {#snippet children(select)}
                 <label
                   for={select.ids.trigger}
@@ -141,7 +151,7 @@
             <input
               type="date"
               id="dueDate"
-              name="dueDate"
+              name="due_date"
               class="input"
               min={new Date().toISOString().split("T")[0]}
             />
@@ -149,7 +159,7 @@
 
           <!-- File Upload Area -->
           <div class="flex flex-col space-y-2">
-            <label class="label text-gray-500">
+            <label for="file" class="label text-gray-500">
               Assignment File <span class="text-red-500">*</span>
             </label>
 
@@ -171,7 +181,7 @@
                         {selected_file.name}
                       </p>
                       <p class="text-xs text-gray-500">
-                        {formatFileSize(selected_file.size)}
+                        {format_file_size(selected_file.size)}
                       </p>
                     </div>
                   </div>
@@ -201,7 +211,7 @@
                     name="file"
                     class="hidden"
                     accept=".pdf,.doc,.docx,.ppt,.pptx"
-                    onchange={handleFileSelect}
+                    onchange={handle_file_select}
                     bind:this={fileInput}
                   />
                   <button
