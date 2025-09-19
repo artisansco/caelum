@@ -3,47 +3,28 @@
   import { enhance } from "$app/forms";
   import { toast } from "svelte-sonner";
   import { Select } from "melt/components";
-  import type { PageProps } from "./$types";
-  import { get_assignments, upload_assignment } from "./assignments.remote";
+  import {
+    delete_assignment,
+    get_assignments,
+    upload_assignment,
+  } from "./assignments.remote";
+  import { format } from "@formkit/tempo";
 
-  const { data, form }: PageProps = $props();
+  let class_id = $state("");
 
-  let selected_file: File | null = $state(null);
-  let isUploading = $state(false);
+  // function deleteAssignment(id: number) {
+  //   if (confirm("Are you sure you want to delete this assignment?")) {
+  //     assignments = assignments.filter((assignment) => assignment.id !== id);
+  //     toast.success("Assignment deleted successfully!");
+  //   }
+  // }
+  //
 
-  let selected_class = $state("");
-
-  // Get assignments from server data
-  let assignments = $state(data.assignments);
-
-  function handle_file_select(event: Event) {
-    const target = event.target as HTMLInputElement;
-    console.log(target.value);
-    if (target.files?.[0]) {
-      selected_file = target.files[0];
+  $effect(() => {
+    if (upload_assignment.result?.message) {
+      toast.info(upload_assignment.result.message);
     }
-  }
-
-  function remove_uploaded_file() {
-    selected_file = null;
-  }
-
-  function deleteAssignment(id: number) {
-    if (confirm("Are you sure you want to delete this assignment?")) {
-      assignments = assignments.filter((assignment) => assignment.id !== id);
-      toast.success("Assignment deleted successfully!");
-    }
-  }
-
-  function format_file_size(bytes: number): string {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-  }
-
-  let fileInput: HTMLInputElement;
+  });
 
   const classes = [
     "Class 1",
@@ -72,19 +53,18 @@
 
         <form
           {...upload_assignment.enhance(async ({ data, submit }) => {
-            data.append("class_id", selected_class);
-            console.log(fileInput);
+            data.append("class_id", class_id);
             console.log(data);
-            // await submit();
+            await submit();
           })}
           class="space-y-6"
           enctype="multipart/form-data"
         >
           <input type="hidden" name="school_id" value={page.params.school_id} />
-          <!-- Class Selection -->
 
+          <!-- Class Selection -->
           <div>
-            <Select bind:value={selected_class}>
+            <Select bind:value={class_id}>
               {#snippet children(select)}
                 <label
                   for={select.ids.trigger}
@@ -163,72 +143,32 @@
               Assignment File <span class="text-red-500">*</span>
             </label>
 
-            <!-- Drag & Drop Area -->
+            <!-- Upload Area -->
             <div class="border-2 border-dashed rounded-lg p-6 text-center">
-              {#if selected_file}
-                <!-- File Selected -->
-                <div
-                  class="flex items-center justify-between bg-gray-50 p-3 rounded border"
-                >
-                  <div class="flex items-center space-x-3">
-                    <i
-                      class="icon-[mdi--file-document-outline] text-blue-500 text-xl"
-                    ></i>
-                    <div class="text-left">
-                      <p
-                        class="text-sm font-medium text-gray-900 truncate max-w-40"
-                      >
-                        {selected_file.name}
-                      </p>
-                      <p class="text-xs text-gray-500">
-                        {format_file_size(selected_file.size)}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onclick={remove_uploaded_file}
-                    class="text-red-500 hover:text-red-700 p-1"
-                  >
-                    <i class="icon-[mdi--close] text-lg"></i>
-                    <span class="sr-only">Remove</span>
-                  </button>
-                </div>
-              {:else}
-                <!-- Upload Area -->
-                <div class="space-y-3">
-                  <i
-                    class="icon-[mdi--cloud-upload] text-gray-400 size-7 mx-auto block"
-                  ></i>
-                  <div>
-                    <p class="text-sm text-gray-600">Upload files</p>
-                    <p class="text-xs text-gray-500">
-                      PDF, DOC, DOCX, PPT, PPTX up to 10MB
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    name="file"
-                    class="hidden"
-                    accept=".pdf,.doc,.docx,.ppt,.pptx"
-                    onchange={handle_file_select}
-                    bind:this={fileInput}
-                  />
-                  <button
-                    type="button"
-                    class="btn-sm-outline"
-                    onclick={() => fileInput?.click()}
-                  >
-                    Choose File
-                  </button>
-                </div>
-              {/if}
+              <i
+                class="icon-[mdi--cloud-upload] text-gray-400 size-7 mx-auto block"
+              ></i>
+              <p class="text-sm text-gray-600">Upload files</p>
+              <p class="text-xs text-gray-500 mb-2">
+                PDF, DOC, DOCX, PPT, PPTX up to 10MB
+              </p>
+              <input
+                type="file"
+                name="file"
+                class="input"
+                accept=".pdf,.doc,.docx,.ppt,.pptx"
+                required
+              />
             </div>
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" disabled={isUploading} class="btn w-full">
-            {#if isUploading}
+          <button
+            type="submit"
+            disabled={upload_assignment.pending > 0}
+            class="btn w-full"
+          >
+            {#if upload_assignment.pending > 0}
               <i class="icon-[mdi--loading] animate-spin"></i>
               Uploading...
             {:else}
@@ -253,58 +193,73 @@
           <!-- {#if assignments.length > 0} -->
           <svelte:boundary>
             {#snippet pending()}{/snippet}
-            {#each await get_assignments() as assignment}
+            {#each await get_assignments(String(page.params.school_id)) as assignment}
               <div class="p-6 hover:bg-gray-50 transition-colors">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
                     <div class="flex items-center space-x-3 mb-2">
                       <h3 class="text-base font-medium text-gray-900">
-                        {assignment.title}
+                        {assignment?.title}
                       </h3>
-                      <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {assignment.className}
+                      <span class="badge font-light bg-blue-100 text-blue-800">
+                        {assignment?.class_name || "N/A"}
                       </span>
                     </div>
 
-                    {#if assignment.description}
-                      <p class="text-sm text-gray-600 mb-3">
-                        {assignment.description}
-                      </p>
-                    {/if}
+                    <p class="text-sm text-gray-600 mb-3">
+                      {assignment.description}
+                    </p>
 
                     <div
                       class="flex items-center space-x-4 text-sm text-gray-500"
                     >
                       <div class="flex items-center space-x-1">
                         <i class="icon-[mdi--file-document-outline]"></i>
-                        <span>{assignment.fileName}</span>
+                        <span>{assignment.file_name || "example.docx"}</span>
                       </div>
                       <div class="flex items-center space-x-1">
                         <i class="icon-[mdi--calendar]"></i>
-                        <span>Due: {assignment.dueDate}</span>
+                        <span>
+                          Due: {format({
+                            date: assignment.due_date,
+                            format: "DD MMM, YYYY",
+                          })}
+                        </span>
                       </div>
                       <div class="flex items-center space-x-1">
                         <i class="icon-[mdi--clock-outline]"></i>
-                        <span>Uploaded: {assignment.uploadedDate}</span>
+                        <span>
+                          Uploaded: {format({
+                            date: assignment.created_at,
+                            format: "DD MMM, YYYY",
+                          })}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   <div class="flex items-center space-x-2 ml-4">
-                    <button
-                      class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded transition-colors"
-                      title="Download"
-                    >
-                      <i class="icon-[mdi--download]"></i>
+                    <button type="button" class="btn-sm bg-blue-50">
+                      <i class="icon-[mdi--download] text-blue-800"></i>
+                      <span class="sr-only">Download</span>
                     </button>
                     <button
-                      class="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded transition-colors"
-                      title="Edit"
+                      type="button"
+                      class="btn-sm-destructive bg-red-50"
+                      onclick={async () => {
+                        const error = await delete_assignment({
+                          school_id: String(page.params?.school_id),
+                          assignment_id: String(assignment?.id),
+                        });
+                        if (error) {
+                          toast.error(error.message);
+                        }
+                      }}
                     >
-                      <i class="icon-[mdi--pencil]"></i>
+                      <i class="icon-[mdi--trash-can-outline] text-red-800"></i>
+                      <span class="sr-only">Delete</span>
                     </button>
+
                     <form
                       method="post"
                       action="?/delete"
@@ -319,9 +274,9 @@
                       <button
                         type="submit"
                         class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
                       >
                         <i class="icon-[mdi--trash-can-outline]"></i>
+                        <span class="sr-only">Delete</span>
                       </button>
                     </form>
                   </div>

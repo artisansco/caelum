@@ -1,5 +1,6 @@
-import { form, query } from "$app/server";
 import z from "zod";
+import { command, form, getRequestEvent, query } from "$app/server";
+import { API_ENDPOINT } from "$env/static/private";
 
 // Mock function to get assignments - replace with actual database query
 const getAssignments = async () => {
@@ -36,6 +37,7 @@ const getAssignments = async () => {
 };
 
 const assignment_schema = z.object({
+	school_id: z.string(),
 	class_id: z.string(),
 	title: z.string().trim().min(2),
 	description: z.string().trim().optional(),
@@ -43,22 +45,150 @@ const assignment_schema = z.object({
 	file: z.file().optional(),
 });
 
-export const get_assignments = query(async () => {
-	const assignments = await getAssignments();
+/*
+if (!allowedTypes.includes(file.type)) {
+			return fail(400, {
+				error:
+					"Invalid file type. Only PDF, DOC, DOCX, PPT, and PPTX files are allowed",
+				title,
+				description,
+				classId,
+				dueDate,
+			});
+		}
 
-	return assignments;
-});
+		// Validate file size (10MB limit)
+		const maxSize = 10 * 1024 * 1024; // 10MB
+		if (file.size > maxSize) {
+			return fail(400, {
+				error: "File size too large. Maximum size is 10MB",
+				title,
+				description,
+				classId,
+				dueDate,
+			});
+		}
+*/
 
-export const upload_assignment = form((form_data) => {
+export const get_assignments = query(
+	z.string().trim().min(5),
+	async (school_id) => {
+		// TODO: collect the school_id from getRequestEvent when supported
+		const assignments = await getAssignments();
+
+		try {
+			const res = await fetch(
+				`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments`,
+			);
+			const { message, data } = await res.json();
+
+			if (!res.ok) {
+				return { message };
+			}
+
+			console.log(data.assignments);
+			return data.assignments;
+		} catch (_e) {}
+
+		console.log({ assignments });
+	},
+);
+
+export const upload_assignment = form(async (form_data) => {
 	const form = Object.fromEntries(form_data);
-	console.log(form.file);
-	const { success, data, error } = assignment_schema.safeParse(form);
+	const { success, data: parsed, error } = assignment_schema.safeParse(form);
 
 	if (!success) {
 		const message = error.issues.at(0)?.message;
-		console.log({ message });
 		return { message };
 	}
 
-	console.log(data);
+	const { cookies } = getRequestEvent();
+	try {
+		const res = await fetch(
+			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/assignments`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authentication: `Bearer ${cookies.get("token")}`,
+				},
+				body: JSON.stringify(parsed),
+			},
+		);
+		const { message } = await res.json();
+
+		if (!res.ok) {
+			return { message };
+		}
+
+		get_assignments(parsed.school_id).refresh();
+	} catch (_e) {
+		console.log(_e);
+	}
 });
+
+export const delete_assignment = command(
+	z.object({
+		school_id: z.string().trim(),
+		assignment_id: z.string().trim(),
+	}),
+	async ({ school_id, assignment_id }) => {
+		const { cookies } = getRequestEvent();
+
+		try {
+			const res = await fetch(
+				`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments/${assignment_id}`,
+				{
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+						Authentication: `Bearer ${cookies.get("token")}`,
+					},
+				},
+			);
+			const { message } = await res.json();
+
+			if (!res.ok) {
+				return { message: message as string };
+			}
+
+			// get_assignments(parsed.school_id).refresh();
+		} catch (_e) {
+			console.log(_e);
+		}
+	},
+);
+
+const classes = [
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 10",
+		schoolId: "019962d7-0dbc-7732-a799-0f533a2d49fd",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 9",
+		schoolId: "019962d7-2af0-72f2-9145-ebc06e942d38",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 11",
+		schoolId: "019962d7-4d3c-71a0-b310-83949279c6a3",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 8",
+		schoolId: "019962d7-65e2-7ac3-b694-245b7b6a902b",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+];
+
+export const get_classes = query(async () => classes);

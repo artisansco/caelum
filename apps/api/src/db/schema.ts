@@ -97,6 +97,35 @@ export const subjects_table = sqliteTable("subjects", {
 		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
+// assignments table schema
+export const assignments_table = sqliteTable("assignments", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	title: text().notNull(),
+	description: text(),
+	due_date: text().notNull(),
+	file_name: text().notNull(),
+	class_id: text(),
+	// .references(() => classes_table.id, {
+	// 	onDelete: "cascade",
+	// }),
+	school_id: text().references(() => schools_table.id, {
+		onDelete: "cascade",
+	}),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
+// minimal classes table schema
+// export const classes_table = sqliteTable("classes", {
+// 	id: text().primaryKey().$defaultFn(nanoid),
+// 	name: text().notNull(),
+// 	school_id: text().references(() => schools_table.id, {
+// 		onDelete: "cascade",
+// 	}),
+// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+// });
+
 // TODO: subscription table for schools
 // export const subscriptions_table = sqliteTable("subscriptions", {
 // 	id: text().primaryKey().$defaultFn(nanoid),
