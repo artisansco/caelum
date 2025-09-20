@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import { db } from "../db/drizzle";
@@ -97,6 +97,25 @@ app.post("/:school_id/assignments", async (c) => {
 			},
 			201,
 		);
+	} catch (_e) {
+		console.log(_e);
+		// @ts-expect-error
+		return c.json({ status: "error", message: _e.message });
+	}
+});
+
+// route to delete assignment for the school
+app.delete("/:school_id/assignments/:assignment_id", async (c) => {
+	try {
+		await db
+			.delete(assignments_table)
+			.where(eq(assignments_table.id, c.req.param("assignment_id")));
+
+		return c.json({
+			status: "success",
+			message: "assignment deleted successfully",
+			data: null,
+		});
 	} catch (_e) {
 		console.log(_e);
 		// @ts-expect-error

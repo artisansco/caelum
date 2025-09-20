@@ -42,3 +42,24 @@ export type Student = {
 	created_at?: string | Date;
 	updated_at?: string | Date;
 };
+
+export type Assignment = {
+	id?: string;
+	title: string;
+	description?: string;
+	class_id: string;
+	school_id: string;
+	file_name: string;
+	due_date: Date | string;
+	created_at?: string | Date;
+	updated_at?: string | Date;
+};
+
+export type Class = {
+	id?: string;
+	name: string;
+	code?: string;
+	school_id: string;
+	created_at: string | Date;
+	updated_at: string | Date;
+};

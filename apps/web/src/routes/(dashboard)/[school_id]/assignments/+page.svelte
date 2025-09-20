@@ -1,45 +1,22 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { enhance } from "$app/forms";
   import { toast } from "svelte-sonner";
   import { Select } from "melt/components";
   import {
     delete_assignment,
     get_assignments,
+    get_classes,
     upload_assignment,
   } from "./assignments.remote";
   import { format } from "@formkit/tempo";
 
   let class_id = $state("");
 
-  // function deleteAssignment(id: number) {
-  //   if (confirm("Are you sure you want to delete this assignment?")) {
-  //     assignments = assignments.filter((assignment) => assignment.id !== id);
-  //     toast.success("Assignment deleted successfully!");
-  //   }
-  // }
-  //
-
   $effect(() => {
     if (upload_assignment.result?.message) {
       toast.info(upload_assignment.result.message);
     }
   });
-
-  const classes = [
-    "Class 1",
-    "Class 2",
-    "Class 3",
-    "Class 4",
-    "Class 5",
-    "Class 6",
-    "Class 7",
-    "Class 8",
-    "Class 9",
-    "Class 10",
-    "Class 11",
-    "Class 12",
-  ];
 </script>
 
 <section class="max-w-7xl">
@@ -52,10 +29,11 @@
         </h2>
 
         <form
-          {...upload_assignment.enhance(async ({ data, submit }) => {
+          {...upload_assignment.enhance(async ({ data, submit, form }) => {
             data.append("class_id", class_id);
-            console.log(data);
             await submit();
+            form.reset();
+            class_id = "";
           })}
           class="space-y-6"
           enctype="multipart/form-data"
@@ -82,17 +60,20 @@
 
                 <div
                   {...select.content}
-                  class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+                  class="max-h-37 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
                 >
-                  {#each classes as class_}
-                    <p
-                      {...select.getOption(class_, class_)}
-                      class="{class_ === select.value &&
-                        'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
-                    >
-                      {class_}
-                    </p>
-                  {/each}
+                  <svelte:boundary>
+                    {#snippet pending()}{/snippet}
+                    {#each await get_classes() as { id, name }}
+                      <p
+                        {...select.getOption(name, id)}
+                        class="{id === select.value &&
+                          'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
+                      >
+                        {name}
+                      </p>
+                    {/each}
+                  </svelte:boundary>
                 </div>
               {/snippet}
             </Select>
@@ -185,6 +166,10 @@
       <div class="bg-white shadow rounded-lg border">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-lg font-semibold text-gray-900">
+            <svelte:boundary>
+              {#snippet pending()}0{/snippet}
+              {(await get_assignments(String(page.params.school_id))).length}
+            </svelte:boundary>
             Uploaded Assignments
           </h2>
         </div>
@@ -253,32 +238,14 @@
                         });
                         if (error) {
                           toast.error(error.message);
+                        } else {
+                          toast.success("assignment deleted successfully");
                         }
                       }}
                     >
                       <i class="icon-[mdi--trash-can-outline] text-red-800"></i>
                       <span class="sr-only">Delete</span>
                     </button>
-
-                    <form
-                      method="post"
-                      action="?/delete"
-                      use:enhance
-                      class="inline"
-                    >
-                      <input
-                        type="hidden"
-                        name="assignmentId"
-                        value={assignment.id}
-                      />
-                      <button
-                        type="submit"
-                        class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <i class="icon-[mdi--trash-can-outline]"></i>
-                        <span class="sr-only">Delete</span>
-                      </button>
-                    </form>
                   </div>
                 </div>
               </div>

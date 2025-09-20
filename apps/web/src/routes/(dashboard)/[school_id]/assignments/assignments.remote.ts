@@ -1,40 +1,7 @@
 import z from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-
-// Mock function to get assignments - replace with actual database query
-const getAssignments = async () => {
-	return [
-		{
-			id: 1,
-			title: "Math Homework Chapter 5",
-			description: "Complete exercises 1-20 from Chapter 5",
-			className: "Grade 10 - Section A",
-			classId: 1,
-			dueDate: "2024-01-15",
-			uploadedDate: "2024-01-10",
-			fileName: "math_homework_ch5.pdf",
-			filePath: "/uploads/assignments/math_homework_ch5.pdf",
-			fileSize: 1024000,
-			uploadedBy: "admin",
-			schoolId: "019958a5-b4de-7662-839c-fd3f74e9754b",
-		},
-		{
-			id: 2,
-			title: "Science Lab Report",
-			description: "Write a detailed lab report on the chemistry experiment",
-			className: "Grade 9 - Section B",
-			classId: 2,
-			dueDate: "2024-01-20",
-			uploadedDate: "2024-01-12",
-			fileName: "science_lab_report.docx",
-			filePath: "/uploads/assignments/science_lab_report.docx",
-			fileSize: 512000,
-			// uploadedBy: locals?.user?.username,
-			schoolId: "019958a5-941a-77b2-8a6c-9d2930e10dc3",
-		},
-	];
-};
+import type { Assignment } from "$lib/types";
 
 const assignment_schema = z.object({
 	school_id: z.string(),
@@ -74,7 +41,6 @@ export const get_assignments = query(
 	z.string().trim().min(5),
 	async (school_id) => {
 		// TODO: collect the school_id from getRequestEvent when supported
-		const assignments = await getAssignments();
 
 		try {
 			const res = await fetch(
@@ -86,11 +52,10 @@ export const get_assignments = query(
 				return { message };
 			}
 
-			console.log(data.assignments);
-			return data.assignments;
-		} catch (_e) {}
-
-		console.log({ assignments });
+			return data.assignments as Assignment[];
+		} catch (_e) {
+			return { message: _e.message };
+		}
 	},
 );
 
@@ -150,10 +115,10 @@ export const delete_assignment = command(
 			const { message } = await res.json();
 
 			if (!res.ok) {
-				return { message: message as string };
+				return { message };
 			}
 
-			// get_assignments(parsed.school_id).refresh();
+			get_assignments(school_id).refresh();
 		} catch (_e) {
 			console.log(_e);
 		}
@@ -186,6 +151,20 @@ const classes = [
 		id: crypto.randomUUID(),
 		name: "Grade 8",
 		schoolId: "019962d7-65e2-7ac3-b694-245b7b6a902b",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 12",
+		schoolId: "0199686e-8fa9-70b3-8e7c-299a2462f469",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	},
+	{
+		id: crypto.randomUUID(),
+		name: "Grade 13",
+		schoolId: "0199686e-a7ad-7241-9615-507db33645aa",
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 	},
