@@ -16,35 +16,35 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
-		"@iconify-json/lucide": "^1.2.67",
+		"@iconify-json/lucide": "^1.2.68",
 		"@iconify-json/mdi": "^1.2.3",
-		"@iconify/svelte": "^5.0.1",
+		"@iconify/svelte": "^5.0.2",
 		"@iconify/tailwind4": "^1.0.6",
 		"@melt-ui/pp": "^0.3.2",
 		"@melt-ui/svelte": "^0.86.6",
 		"@sveltejs/adapter-node": "^5.3.2",
-		"@sveltejs/kit": "^2.39.0",
+		"@sveltejs/kit": "^2.43.0",
 		"@sveltejs/vite-plugin-svelte": "^6.2.0",
 		"@tailwindcss/forms": "^0.5.10",
-		"@tailwindcss/typography": "^0.5.16",
+		"@tailwindcss/typography": "^0.5.18",
 		"@tailwindcss/vite": "^4.1.13",
-		"@types/node": "^24.3.1",
-		"svelte": "^5.38.10",
-		"svelte-check": "^4.3.1",
+		"@types/node": "^24.5.2",
+		"svelte": "^5.39.4",
+		"svelte-check": "^4.3.2",
 		"tailwindcss": "^4.1.13",
 		"typescript": "^5.9.2",
-		"vite": "^7.1.5"
+		"vite": "^7.1.7"
 	},
 	"dependencies": {
 		"@formkit/tempo": "^0.1.2",
 		"@lucide/svelte": "^0.544.0",
-		"@tiptap/extension-link": "^3.4.2",
-		"@tiptap/starter-kit": "^3.4.2",
+		"@tiptap/extension-link": "^3.4.5",
+		"@tiptap/starter-kit": "^3.4.5",
 		"basecoat-css": "^0.3.2",
 		"chart.js": "^4.5.0",
 		"dayjs": "^1.11.18",
 		"melt": "^0.40.2",
 		"svelte-sonner": "^1.0.5",
-		"zod": "^4.1.8"
+		"zod": "^4.1.11"
 	}
 }
