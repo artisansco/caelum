@@ -6,9 +6,12 @@ import type { Assignment } from "$lib/types";
 const assignment_schema = z.object({
 	school_id: z.string(),
 	class_id: z.string(),
-	title: z.string().trim().min(2),
+	title: z
+		.string({ error: "title is required" })
+		.trim()
+		.min(2, { error: "title must be at least 2 characters long" }),
 	description: z.string().trim().optional(),
-	due_date: z.iso.date(),
+	due_date: z.iso.date({ error: "please select a valid due date" }),
 	file: z.file().optional(),
 });
 
@@ -37,38 +40,28 @@ if (!allowedTypes.includes(file.type)) {
 		}
 */
 
-export const get_assignments = query(
-	z.string().trim().min(5),
-	async (school_id) => {
-		// TODO: collect the school_id from getRequestEvent when supported
+export const get_assignments = query(async () => {
+	const { params, fetch } = getRequestEvent();
 
-		try {
-			const res = await fetch(
-				`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments`,
-			);
-			const { message, data } = await res.json();
+	try {
+		const res = await fetch(
+			`${API_ENDPOINT}/api/v1/schools/${params.school_id}/assignments`,
+		);
+		const { message, data } = await res.json();
 
-			if (!res.ok) {
-				return { message };
-			}
-
-			return data.assignments as Assignment[];
-		} catch (_e) {
-			return { message: _e.message };
+		if (!res.ok) {
+			return { message };
 		}
-	},
-);
 
-export const upload_assignment = form(async (form_data) => {
-	const form = Object.fromEntries(form_data);
-	const { success, data: parsed, error } = assignment_schema.safeParse(form);
-
-	if (!success) {
-		const message = error.issues.at(0)?.message;
-		return { message };
+		return data.assignments as Assignment[];
+	} catch (_e) {
+		return { message: _e.message };
 	}
+});
 
-	const { cookies } = getRequestEvent();
+export const upload_assignment = form(assignment_schema, async (parsed) => {
+	const { cookies, fetch } = getRequestEvent();
+
 	try {
 		const res = await fetch(
 			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/assignments`,
@@ -87,7 +80,7 @@ export const upload_assignment = form(async (form_data) => {
 			return { message };
 		}
 
-		get_assignments(parsed.school_id).refresh();
+		await get_assignments().refresh();
 	} catch (_e) {
 		console.log(_e);
 	}
@@ -99,7 +92,7 @@ export const delete_assignment = command(
 		assignment_id: z.string().trim(),
 	}),
 	async ({ school_id, assignment_id }) => {
-		const { cookies } = getRequestEvent();
+		const { cookies, fetch } = getRequestEvent();
 
 		try {
 			const res = await fetch(
@@ -118,7 +111,7 @@ export const delete_assignment = command(
 				return { message };
 			}
 
-			get_assignments(school_id).refresh();
+			await get_assignments().refresh();
 		} catch (_e) {
 			console.log(_e);
 		}

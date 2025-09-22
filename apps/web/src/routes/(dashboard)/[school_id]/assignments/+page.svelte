@@ -1,16 +1,18 @@
 <script lang="ts">
-  import { page } from "$app/state";
-  import { toast } from "svelte-sonner";
+  import { format } from "@formkit/tempo";
   import { Select } from "melt/components";
+  import { toast } from "svelte-sonner";
+  import { page } from "$app/state";
   import {
     delete_assignment,
     get_assignments,
     get_classes,
     upload_assignment,
   } from "./assignments.remote";
-  import { format } from "@formkit/tempo";
 
   let class_id = $state("");
+  let assignments = $derived(await get_assignments());
+  const classes = $derived(await get_classes());
 
   $effect(() => {
     if (upload_assignment.result?.message) {
@@ -29,18 +31,13 @@
         </h2>
 
         <form
-          {...upload_assignment.enhance(async ({ data, submit, form }) => {
-            data.append("class_id", class_id);
-            await submit();
-            form.reset();
-            class_id = "";
-          })}
+          {...upload_assignment}
           class="space-y-6"
           enctype="multipart/form-data"
         >
+          <input type="hidden" bind:value={class_id} name="class_id" />
           <input type="hidden" name="school_id" value={page.params.school_id} />
 
-          <!-- Class Selection -->
           <div>
             <Select bind:value={class_id}>
               {#snippet children(select)}
@@ -57,12 +54,15 @@
                   {select.value || "Select Class"}
                   <i class="icon-[lucide--chevron-down] size-5"></i>
                 </button>
+                <p class="text-xs text-red-500">
+                  {upload_assignment.issues?.class_id?.at(0)?.message}
+                </p>
 
                 <div
                   {...select.content}
                   class="max-h-37 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
                 >
-                  {#each await get_classes() as { id, name }}
+                  {#each classes as { id, name }}
                     <p
                       {...select.getOption(name, id)}
                       class="{id === select.value &&
@@ -89,6 +89,9 @@
               class="input"
               required
             />
+            <p class="text-xs text-red-500 -mt-1">
+              {upload_assignment.issues?.title?.at(0)?.message}
+            </p>
           </div>
 
           <div class="flex flex-col space-y-2">
@@ -113,6 +116,9 @@
               class="input"
               min={new Date().toISOString().split("T")[0]}
             />
+            <p class="text-xs text-red-500 -mt-1">
+              {upload_assignment.issues?.due_date?.at(0)?.message}
+            </p>
           </div>
 
           <!-- File Upload Area -->
@@ -126,7 +132,7 @@
               <i
                 class="icon-[mdi--cloud-upload] text-gray-400 size-7 mx-auto block"
               ></i>
-              <p class="text-sm text-gray-600">Upload files</p>
+              <p class="text-sm text-gray-600">Upload file</p>
               <p class="text-xs text-gray-500 mb-2">
                 PDF, DOC, DOCX, PPT, PPTX up to 10MB
               </p>
@@ -137,6 +143,9 @@
                 accept=".pdf,.doc,.docx,.ppt,.pptx"
                 required
               />
+              <p class="text-xs text-red-500 -mt-1">
+                {upload_assignment.issues?.file?.at(0)?.message}
+              </p>
             </div>
           </div>
 
@@ -163,13 +172,13 @@
       <div class="bg-white shadow rounded-lg border">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-lg font-semibold text-gray-900">
-            {(await get_assignments(String(page.params.school_id))).length}
+            {assignments.length || 0}
             Uploaded Assignments
           </h2>
         </div>
 
         <div class="divide-y divide-gray-200">
-          {#each await get_assignments(String(page.params.school_id)) as assignment}
+          {#each assignments as assignment}
             <div class="p-6 hover:bg-gray-50 transition-colors">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
