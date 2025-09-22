@@ -62,18 +62,15 @@
                   {...select.content}
                   class="max-h-37 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
                 >
-                  <svelte:boundary>
-                    {#snippet pending()}{/snippet}
-                    {#each await get_classes() as { id, name }}
-                      <p
-                        {...select.getOption(name, id)}
-                        class="{id === select.value &&
-                          'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
-                      >
-                        {name}
-                      </p>
-                    {/each}
-                  </svelte:boundary>
+                  {#each await get_classes() as { id, name }}
+                    <p
+                      {...select.getOption(name, id)}
+                      class="{id === select.value &&
+                        'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
+                    >
+                      {name}
+                    </p>
+                  {/each}
                 </div>
               {/snippet}
             </Select>
@@ -166,103 +163,96 @@
       <div class="bg-white shadow rounded-lg border">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-lg font-semibold text-gray-900">
-            <svelte:boundary>
-              {#snippet pending()}0{/snippet}
-              {(await get_assignments(String(page.params.school_id))).length}
-            </svelte:boundary>
+            {(await get_assignments(String(page.params.school_id))).length}
             Uploaded Assignments
           </h2>
         </div>
 
         <div class="divide-y divide-gray-200">
-          <!-- {#if assignments.length > 0} -->
-          <svelte:boundary>
-            {#snippet pending()}{/snippet}
-            {#each await get_assignments(String(page.params.school_id)) as assignment}
-              <div class="p-6 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-2">
-                      <h3 class="text-base font-medium text-gray-900">
-                        {assignment?.title}
-                      </h3>
-                      <span class="badge font-light bg-blue-100 text-blue-800">
-                        {assignment?.class_name || "N/A"}
+          {#each await get_assignments(String(page.params.school_id)) as assignment}
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <h3 class="text-base font-medium text-gray-900">
+                      {assignment?.title}
+                    </h3>
+                    <span class="badge font-light bg-blue-100 text-blue-800">
+                      {assignment?.class_name || "N/A"}
+                    </span>
+                  </div>
+
+                  <p class="text-sm text-gray-600 mb-3">
+                    {assignment.description}
+                  </p>
+
+                  <div
+                    class="flex items-center space-x-4 text-sm text-gray-500"
+                  >
+                    <div class="flex items-center space-x-1">
+                      <i class="icon-[mdi--file-document-outline]"></i>
+                      <span>{assignment.file_name || "example.docx"}</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                      <i class="icon-[mdi--calendar]"></i>
+                      <span>
+                        Due: {format({
+                          date: assignment.due_date,
+                          format: "DD MMM, YYYY",
+                        })}
                       </span>
                     </div>
-
-                    <p class="text-sm text-gray-600 mb-3">
-                      {assignment.description}
-                    </p>
-
-                    <div
-                      class="flex items-center space-x-4 text-sm text-gray-500"
-                    >
-                      <div class="flex items-center space-x-1">
-                        <i class="icon-[mdi--file-document-outline]"></i>
-                        <span>{assignment.file_name || "example.docx"}</span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <i class="icon-[mdi--calendar]"></i>
-                        <span>
-                          Due: {format({
-                            date: assignment.due_date,
-                            format: "DD MMM, YYYY",
-                          })}
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <i class="icon-[mdi--clock-outline]"></i>
-                        <span>
-                          Uploaded: {format({
-                            date: assignment.created_at,
-                            format: "DD MMM, YYYY",
-                          })}
-                        </span>
-                      </div>
+                    <div class="flex items-center space-x-1">
+                      <i class="icon-[mdi--clock-outline]"></i>
+                      <span>
+                        Uploaded: {format({
+                          date: assignment.created_at,
+                          format: "DD MMM, YYYY",
+                        })}
+                      </span>
                     </div>
                   </div>
+                </div>
 
-                  <div class="flex items-center space-x-2 ml-4">
-                    <button type="button" class="btn-sm bg-blue-50">
-                      <i class="icon-[mdi--download] text-blue-800"></i>
-                      <span class="sr-only">Download</span>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn-sm-destructive bg-red-50"
-                      onclick={async () => {
-                        const error = await delete_assignment({
-                          school_id: String(page.params?.school_id),
-                          assignment_id: String(assignment?.id),
-                        });
-                        if (error) {
-                          toast.error(error.message);
-                        } else {
-                          toast.success("assignment deleted successfully");
-                        }
-                      }}
-                    >
-                      <i class="icon-[mdi--trash-can-outline] text-red-800"></i>
-                      <span class="sr-only">Delete</span>
-                    </button>
-                  </div>
+                <div class="flex items-center space-x-2 ml-4">
+                  <button type="button" class="btn-sm bg-blue-50">
+                    <i class="icon-[mdi--download] text-blue-800"></i>
+                    <span class="sr-only">Download</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-sm-destructive bg-red-50"
+                    onclick={async () => {
+                      const error = await delete_assignment({
+                        school_id: String(page.params?.school_id),
+                        assignment_id: String(assignment?.id),
+                      });
+                      if (error) {
+                        toast.error(error.message);
+                      } else {
+                        toast.success("assignment deleted successfully");
+                      }
+                    }}
+                  >
+                    <i class="icon-[mdi--trash-can-outline] text-red-800"></i>
+                    <span class="sr-only">Delete</span>
+                  </button>
                 </div>
               </div>
-            {:else}
-              <div class="p-12 text-center">
-                <i
-                  class="icon-[mdi--file-document-outline] text-gray-300 text-6xl mb-4 block mx-auto"
-                ></i>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">
-                  No assignments uploaded
-                </h3>
-                <p class="text-gray-500">
-                  Upload your first assignment to get started.
-                </p>
-              </div>
-            {/each}
-          </svelte:boundary>
+            </div>
+          {:else}
+            <div class="p-12 text-center">
+              <i
+                class="icon-[mdi--file-document-outline] text-gray-300 text-6xl mb-4 block mx-auto"
+              ></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">
+                No assignments uploaded
+              </h3>
+              <p class="text-gray-500">
+                Upload your first assignment to get started.
+              </p>
+            </div>
+          {/each}
         </div>
       </div>
     </div>

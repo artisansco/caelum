@@ -58,23 +58,13 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              <svelte:boundary>
-                {#each await get_all_students() as student}
-                  {@render student_card(student)}
-                {:else}
-                  <tr>
-                    <td colspan="6" class="px-6 py-4 text-center">no data</td>
-                  </tr>
-                {/each}
-
-                {#snippet pending()}
-                  <tr>
-                    <td colspan="6" class="px-6 py-4 text-center">
-                      <i class="icon-[mdi--loading] size-5 animate-spin"></i>
-                    </td>
-                  </tr>
-                {/snippet}
-              </svelte:boundary>
+              {#each await get_all_students() as student}
+                {@render student_card(student)}
+              {:else}
+                <tr>
+                  <td colspan="6" class="px-6 py-4 text-center">no data</td>
+                </tr>
+              {/each}
             </tbody>
           </table>
           <!-- End Table -->
@@ -85,14 +75,9 @@
           >
             <div>
               <p class="text-sm text-gray-600">
-                <svelte:boundary>
-                  <span class="font-semibold text-gray-800">
-                    {(await get_all_students()).length || 0} results
-                  </span>
-                  {#snippet pending()}
-                    <span>0</span>
-                  {/snippet}
-                </svelte:boundary>
+                <span class="font-semibold text-gray-800">
+                  {(await get_all_students()).length || 0} results
+                </span>
               </p>
             </div>
 

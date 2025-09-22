@@ -10,6 +10,6 @@
   <Sidebar />
 
   <section class="w-full *:p-4 *:sm:p-6 lg:ps-57 *:lg:p-8">
-    <svelte:boundary>{@render children?.()}</svelte:boundary>
+    {@render children?.()}
   </section>
 </div>
