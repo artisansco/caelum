@@ -2,7 +2,12 @@ import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import { db } from "../db/drizzle";
-import { assignments_table, schools_table, staff_table } from "../db/schema";
+import {
+	assignments_table,
+	classes_table,
+	schools_table,
+	staff_table,
+} from "../db/schema";
 import { validate_onboarding } from "../validators/schools";
 
 const app = new Hono().basePath("/schools");
@@ -114,6 +119,66 @@ app.delete("/:school_id/assignments/:assignment_id", async (c) => {
 		return c.json({
 			status: "success",
 			message: "assignment deleted successfully",
+			data: null,
+		});
+	} catch (_e) {
+		console.log(_e);
+		// @ts-expect-error
+		return c.json({ status: "error", message: _e.message });
+	}
+});
+
+// route to get classes for the school
+app.get("/:school_id/classes", async (c) => {
+	try {
+		const classes = await db.query.classes_table.findMany({
+			where: eq(classes_table.school_id, c.req.param("school_id")),
+			orderBy: desc(classes_table.created_at),
+		});
+
+		return c.json({
+			status: "success",
+			message: "classes fetched successfully",
+			data: { classes },
+		});
+	} catch (_e) {
+		console.log(_e);
+		// @ts-expect-error
+		return c.json({ status: "error", message: _e.message });
+	}
+});
+
+// route to create class for the school
+app.post("/:school_id/classes", async (c) => {
+	const body = await c.req.json();
+	try {
+		const [new_class] = await db
+			.insert(classes_table)
+			.values({ name: body.name, school_id: c.req.param("school_id") })
+			.returning();
+
+		return c.json({
+			status: "success",
+			message: "class created successfully",
+			data: new_class,
+		});
+	} catch (_e) {
+		console.log(_e);
+		// @ts-expect-error
+		return c.json({ status: "error", message: _e.message });
+	}
+});
+
+// route to delete class for the school
+app.delete("/:school_id/classes/:class_id", async (c) => {
+	try {
+		await db
+			.delete(classes_table)
+			.where(eq(classes_table.id, c.req.param("class_id")));
+
+		return c.json({
+			status: "success",
+			message: "class deleted successfully",
 			data: null,
 		});
 	} catch (_e) {

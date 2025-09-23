@@ -1,7 +1,7 @@
 import z from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-import type { Assignment } from "$lib/types";
+import type { Assignment, Class } from "$lib/types";
 
 const assignment_schema = z.object({
 	school_id: z.string(),
@@ -163,4 +163,23 @@ const classes = [
 	},
 ];
 
-export const get_classes = query(async () => classes);
+export const get_classes = query(async () => {
+	const { fetch, params } = getRequestEvent();
+
+	try {
+		const res = await fetch(
+			`${API_ENDPOINT}/api/v1/schools/${params.school_id}/classes`,
+		);
+		const { message, data } = await res.json();
+
+		if (!res.ok) {
+			return { message };
+		}
+
+		return data.classes as Class[];
+	} catch (_e) {
+		console.log(_e);
+	}
+
+	return classes;
+});

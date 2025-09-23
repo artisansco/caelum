@@ -116,15 +116,15 @@ export const assignments_table = sqliteTable("assignments", {
 });
 
 // minimal classes table schema
-// export const classes_table = sqliteTable("classes", {
-// 	id: text().primaryKey().$defaultFn(nanoid),
-// 	name: text().notNull(),
-// 	school_id: text().references(() => schools_table.id, {
-// 		onDelete: "cascade",
-// 	}),
-// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
-// });
+export const classes_table = sqliteTable("classes", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	name: text().notNull(),
+	school_id: text().references(() => schools_table.id, {
+		onDelete: "cascade",
+	}),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
 
 // TODO: subscription table for schools
 // export const subscriptions_table = sqliteTable("subscriptions", {
