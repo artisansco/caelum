@@ -29,7 +29,7 @@
             <div>
               <div class="inline-flex gap-x-2">
                 <a class="btn btn-sm" href="{page.url.pathname}/new">
-                  <span class="icon-[lucide--plus] size-4"></span>
+                  <span class="icon-[lucide--plus]"></span>
                   Add staff
                 </a>
               </div>

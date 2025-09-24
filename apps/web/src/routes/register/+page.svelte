@@ -2,10 +2,10 @@
   import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
   import { cities } from "$lib/constants";
-  import { register } from "./register.remote";
+  import { register } from "../auth.remote";
 
   let city = $state("");
-  const field_errors = $derived(register.result?.errors);
+  const field_errors = $derived(register.issues);
 
   $effect(() => {
     if (register.result?.message) {
@@ -28,12 +28,7 @@
   <!-- Form -->
   <div class="mx-auto max-w-4xl px-6 py-8">
     <div class="rounded-2xl bg-white p-8 shadow-lg">
-      <form
-        {...register.enhance(async ({ data, submit }) => {
-          data.append("city", city);
-          await submit();
-        })}
-      >
+      <form {...register}>
         <div class="space-y-8">
           <!-- School Information -->
           <fieldset class="space-y-6 [&_input]:placeholder:text-xs">
@@ -41,6 +36,7 @@
               School Information
             </legend>
 
+            <input type="hidden" name="city" bind:value={city} />
             <div class="grid gap-6">
               <div class="">
                 <label for="name" class="label mb-2 text-sm text-gray-700">
@@ -55,7 +51,7 @@
                   required
                 />
                 <span class="text-xs text-red-500">
-                  {field_errors?.name?.errors.at(0)}
+                  {field_errors?.name?.at(0)?.message}
                 </span>
               </div>
 
@@ -72,7 +68,7 @@
                   required
                 />
                 <span class="text-xs text-red-500">
-                  {field_errors?.address?.errors.at(0)}
+                  {field_errors?.address?.at(0)?.message}
                 </span>
               </div>
 
@@ -92,7 +88,7 @@
                     <i class="icon-[lucide--chevron-down] size-5"></i>
                   </button>
                   <span class="-mt-5 text-xs italic text-red-500">
-                    {field_errors?.city?.errors.at(0)}
+                    {field_errors?.city?.at(0)?.message}
                   </span>
 
                   <div
@@ -126,7 +122,7 @@
                   required
                 />
                 <span class="text-xs text-red-500">
-                  {field_errors?.license?.errors.at(0)}
+                  {field_errors?.license?.at(0)?.message}
                 </span>
               </div>
             </div>
@@ -151,7 +147,7 @@
                 required
               />
               <span class="text-xs text-red-500">
-                {field_errors?.email?.errors.at(0)}
+                {field_errors?.email?.at(0)?.message}
               </span>
             </div>
 
@@ -168,7 +164,7 @@
                 required
               />
               <span class="text-xs text-red-500">
-                {field_errors?.password?.errors.at(0)}
+                {field_errors?.password?.at(0)?.message}
               </span>
             </div>
           </fieldset>

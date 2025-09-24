@@ -67,6 +67,8 @@ app.post("/", validate_new_staff, async (c) => {
 			role: body.role,
 			permissions: body.permissions,
 			password: body.password,
+			contact: body.phone_number,
+			address: body.address,
 			school_id: body.school_id,
 		})
 		.returning();

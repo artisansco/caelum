@@ -7,7 +7,7 @@
   import { page } from "$app/state";
 
   let role: (typeof staff_roles)[number] = $state("staff");
-  let emp_type: (typeof employment_types)[number] = $state("full-time");
+  let employee_type: (typeof employment_types)[number] = $state("full-time");
 
   let staff_id = $state("");
 
@@ -17,6 +17,8 @@
     }
   });
 
+  $inspect(add_staff.issues);
+
   /** generate a random staff id */
   function generate_staff_id() {
     staff_id = Math.random().toString(36).substring(2, 15).toUpperCase();
@@ -24,18 +26,14 @@
 </script>
 
 <section class="max-w-6xl">
-  <form
-    {...add_staff.enhance(async ({ data, submit }) => {
-      data.append("role", role);
-      data.append("emp_type", emp_type);
-
-      await submit();
-    })}
-  >
+  <form {...add_staff}>
     <h2 class="mb-6 text-xl">Add new staff</h2>
 
     <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
       <input type="hidden" value={page.params.school_id} name="school_id" />
+      <input type="hidden" bind:value={role} name="role" />
+      <input type="hidden" bind:value={employee_type} name="employee_type" />
+
       <div class="flex flex-col space-y-2">
         <label for="first_name" class="label text-gray-500">First Name</label>
         <input
@@ -127,7 +125,7 @@
         <input
           id="phone_number"
           type="tel"
-          name="contact"
+          name="phone_number"
           placeholder="+232-99-456-890"
           class="input"
           required
@@ -182,7 +180,7 @@
       </div>
 
       <div>
-        <Select bind:value={emp_type}>
+        <Select bind:value={employee_type}>
           {#snippet children(select)}
             <label
               for={select.ids.trigger}
@@ -224,7 +222,7 @@
               <input
                 type="checkbox"
                 value={permission}
-                name="permissions"
+                name="permissions[]"
                 class="checkbox rounded border-gray-400"
               />
               {format_permissions(permission)}

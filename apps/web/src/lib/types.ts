@@ -1,3 +1,5 @@
+import type { staff_statuses } from "./constants";
+
 export type CurrentUser = {
 	id: string;
 	email?: string;
@@ -6,7 +8,7 @@ export type CurrentUser = {
 };
 
 export type Staff = {
-	id: number;
+	id: string;
 	first_name: string;
 	middle_name?: string;
 	last_name: string;
@@ -16,7 +18,7 @@ export type Staff = {
 	staff_id: string;
 	role: "staff" | "admin";
 	department: string;
-	status: "active" | "on leave";
+	status: (typeof staff_statuses)[number];
 	permissions: string[];
 	employed_date: string | Date;
 	avatar_url?: string;

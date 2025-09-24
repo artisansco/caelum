@@ -1,7 +1,8 @@
 import { error, redirect } from "@sveltejs/kit";
 import { z } from "zod";
-import { form, getRequestEvent, query } from "$app/server";
+import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
+import { staff_roles } from "$lib/constants";
 import type { Staff } from "$lib/types";
 
 const staff_schema = z.object({
@@ -39,7 +40,7 @@ const staff_schema = z.object({
 	permissions: z
 		.array(z.string().trim(), { error: "Permissions are required" })
 		.min(1, { error: "At least one permission is required" }),
-	role: z.enum(["admin", "staff"]),
+	role: z.enum(staff_roles),
 	school_id: z
 		.string({ error: "Invalid school ID" })
 		.trim()
@@ -47,6 +48,8 @@ const staff_schema = z.object({
 });
 
 export const get_all_staff = query(async () => {
+	const { fetch } = getRequestEvent();
+
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`);
 		const { data, message } = await res.json();
@@ -61,40 +64,26 @@ export const get_all_staff = query(async () => {
 	}
 });
 
-export const get_staff_by_id = query(
-	z
-		.string()
-		.trim()
-		.min(2, { error: "Staff ID must be at least 2 characters long" }),
-	async (staff_id) => {
-		try {
-			const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${staff_id}`);
-			const { data, message } = await res.json();
-			if (!res.ok) {
-				error(404, { message });
-			}
+export const get_staff_by_id = query(z.string().trim(), async (staff_id) => {
+	const { fetch } = getRequestEvent();
 
-			return data as Staff;
-		} catch (_e) {
-			console.error(_e);
-			// @ts-expect-error
-			error(500, { message: _e.message });
+	try {
+		const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${staff_id}`);
+		const { data, message } = await res.json();
+		if (!res.ok) {
+			error(404, { message });
 		}
-	},
-);
 
-export const add_staff = form(async (form_data) => {
-	const form = Object.fromEntries(form_data);
-	form.permissions = (form_data.getAll("permissions") ||
-		[]) as unknown as FormDataEntryValue;
-	const { success, data: parsed, error } = staff_schema.safeParse(form);
-
-	if (!success) {
-		const message = error.issues.at(0)?.message as string;
-		return { message, errors: z.treeifyError(error).properties };
+		return data as Staff;
+	} catch (_e) {
+		console.error(_e);
+		// @ts-expect-error
+		error(500, { message: _e.message });
 	}
+});
 
-	const { cookies } = getRequestEvent();
+export const add_staff = form(staff_schema, async (parsed) => {
+	const { cookies, fetch } = getRequestEvent();
 
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`, {
@@ -105,7 +94,7 @@ export const add_staff = form(async (form_data) => {
 			},
 			body: JSON.stringify(parsed),
 		});
-		const { data, message } = await res.json();
+		const { message } = await res.json();
 		if (!res.ok) {
 			return { message };
 		}
@@ -118,49 +107,40 @@ export const add_staff = form(async (form_data) => {
 	redirect(302, `/${parsed.school_id}/staff`);
 });
 
-export const update_staff = form(async (form_data) => {
-	const form = Object.fromEntries(form_data);
-	form.permissions = (form_data.getAll("permissions") ||
-		[]) as unknown as FormDataEntryValue;
-	const {
-		success,
-		data: parsed,
-		error,
-	} = staff_schema
-		.partial({ password: true })
-		.omit({ employed_on: true })
-		.safeParse(form);
+export const update_staff = form(
+	staff_schema.omit({ employed_on: true, password: true }),
+	async (parsed) => {
+		const { cookies, fetch } = getRequestEvent();
 
-	if (!success) {
-		const message = error.issues.at(0)?.message as string;
-		return { message, errors: z.treeifyError(error).properties };
-	}
+		try {
+			const res = await fetch(
+				`${API_ENDPOINT}/api/v1/staff/${parsed.staff_id}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${cookies.get("token")}`,
+					},
+					body: JSON.stringify(parsed),
+				},
+			);
+			const { message } = await res.json();
+			if (!res.ok) {
+				return { message };
+			}
 
-	const { cookies } = getRequestEvent();
-	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${parsed.staff_id}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-			body: JSON.stringify(parsed),
-		});
-		const { message, data } = await res.json();
-		if (!res.ok) {
-			return { message };
+			await get_staff_by_id(parsed.staff_id).refresh();
+			return { message: "Staff member updated successfully" };
+		} catch (_e) {
+			// @ts-expect-error
+			return { message: _e.message };
 		}
-		return { message: "Staff member updated successfully" };
-	} catch (_e) {
-		// @ts-expect-error
-		return { message: _e.message };
-	}
-});
+	},
+);
 
-export const delete_staff = form(async (form) => {
-	const id = form.get("staff_id") as string;
+export const delete_staff = command(z.string(), async (id) => {
+	const { cookies, fetch } = getRequestEvent();
 
-	const { cookies } = getRequestEvent();
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/staff/${id}`, {
 			method: "DELETE",
@@ -178,6 +158,4 @@ export const delete_staff = form(async (form) => {
 		// @ts-expect-error
 		return { message: _e.message };
 	}
-
-	redirect(308, "./");
 });

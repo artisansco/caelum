@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { get_current_user } from "$lib/helpers";
+import { get_current_user } from "../auth.remote";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async () => {
@@ -7,6 +7,4 @@ export const load: LayoutServerLoad = async () => {
 	if (!user) {
 		redirect(302, "/");
 	}
-
-	return { current_user: user };
 };

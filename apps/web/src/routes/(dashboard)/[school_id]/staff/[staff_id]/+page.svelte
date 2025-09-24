@@ -1,18 +1,15 @@
 <script lang="ts">
   import { Avatar, Select } from "melt/components";
-  import type { PageProps } from "./$types";
   import { format } from "@formkit/tempo";
-  import { permissions } from "$lib/constants";
+  import { permissions, staff_roles, staff_statuses } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
-  import { delete_staff, update_staff } from "../staff.remote";
+  import { delete_staff, get_staff_by_id, update_staff } from "../staff.remote";
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
   import { melt } from "@melt-ui/svelte";
 
-  const { data }: PageProps = $props();
-  const staff = data.staff;
-
+  const staff = $derived(await get_staff_by_id(String(page.params.staff_id)));
   let role = $state(staff.role);
   let status = $state(staff.status || "active");
   let edit_mode = $state(false);
@@ -23,6 +20,8 @@
       toast.info(update_staff.result.message);
     }
   });
+
+  $inspect(update_staff.issues);
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -30,7 +29,7 @@
   <header class="mb-8">
     <nav class="mb-4">
       <a href="./" class="btn-sm-ghost">
-        <i class="icon-[mdi--arrow-left] mr-2"></i>
+        <i class="icon-[mdi--arrow-left]"></i>
         Back to Staff
       </a>
     </nav>
@@ -119,35 +118,25 @@
               This action cannot be undone. This will permanently delete the
               staff and remove it from our servers.
             </p>
-            <form {...delete_staff}>
-              <input type="hidden" name="staff_id" value={staff.id} />
-              <button type="submit" class="btn-destructive w-full">
-                <i class="icon-[mdi--trash] size-4"></i>
-                Confirm Delete
-              </button>
-            </form>
+            <button
+              type="button"
+              class="btn-destructive w-full"
+              onclick={async () => {
+                await delete_staff(staff.id);
+                toast.success("Staff deleted successfully");
+                window.location.href = "./";
+              }}
+            >
+              <i class="icon-[mdi--trash]"></i>
+              Confirm Delete
+            </button>
           </Dialog>
         {/if}
       </div>
     </div>
   </header>
 
-  <form
-    id="edit_details"
-    {...update_staff.enhance(async ({ data, submit }) => {
-      data.append("role", role);
-      data.append("status", status);
-      data.append("staff_id", String(page.params?.staff_id));
-      data.append("school_id", String(page.params?.school_id));
-
-      if (String(data.get("password")).trim() === "") {
-        data.delete("password");
-      }
-
-      await submit();
-      edit_mode = false;
-    })}
-  >
+  <form id="edit_details" {...update_staff}>
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Left Column - Main Information -->
       <section class="lg:col-span-2">
@@ -162,6 +151,19 @@
                 Personal Information
               </h2>
             </header>
+
+            <input type="hidden" name="role" bind:value={role} />
+            <input type="hidden" name="status" bind:value={status} />
+            <input
+              type="hidden"
+              name="staff_id"
+              value={page.params?.staff_id}
+            />
+            <input
+              type="hidden"
+              name="school_id"
+              value={page.params?.school_id}
+            />
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div class="flex flex-col space-y-2">
@@ -293,7 +295,7 @@
                       {...select.content}
                       class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
                     >
-                      {#each ["staff", "admin"] as role}
+                      {#each staff_roles as role}
                         <p
                           {...select.getOption(role, role)}
                           class="{role === select.value &&
@@ -333,7 +335,7 @@
                       {...select.content}
                       class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
                     >
-                      {#each ["active", "on leave", "retired", "resigned", "suspended"] as status}
+                      {#each staff_statuses as status}
                         <p
                           {...select.getOption(status, status)}
                           class="{status === select.value &&
@@ -350,14 +352,15 @@
               <div class="flex flex-col space-y-2">
                 <span class="label text-sm text-gray-500"> Employed Date </span>
                 <p class="font-bold text-gray-600">
+                  <!-- date: staff.employed_date, -->
                   {format({
-                    date: staff.employed_date,
+                    date: new Date(),
                     format: "MMM DD, YYYY",
                   })}
                 </p>
               </div>
 
-              <div class="flex flex-col space-y-2">
+              <!-- <div class="flex flex-col space-y-2">
                 <label for="password" class="label text-sm text-gray-500">
                   Password
                 </label>
@@ -385,7 +388,7 @@
                     </button>
                   {/if}
                 </div>
-              </div>
+              </div> -->
             </div>
           </article>
 
@@ -402,11 +405,10 @@
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
               {#each permissions as permission}
-                <div class="flex items-center">
+                <label class="label ml-3 text-sm text-gray-700 capitalize">
                   <input
                     type="checkbox"
-                    id={permission}
-                    name="permissions"
+                    name="permissions[]"
                     value={permission}
                     checked={staff.permissions.includes(permission)}
                     disabled={!edit_mode}
@@ -414,17 +416,10 @@
                       ? 'border-gray-300'
                       : 'border-gray-100'}"
                   />
-                  <label
-                    for={permission}
-                    class="label ml-3 text-sm text-gray-700 capitalize"
-                  >
-                    <span
-                      class="rounded bg-gray-100 px-2 py-1 font-mono text-xs"
-                    >
-                      {format_permissions(permission)}
-                    </span>
-                  </label>
-                </div>
+                  <span class="rounded bg-gray-100 p-2 font-mono text-xs">
+                    {format_permissions(permission)}
+                  </span>
+                </label>
               {/each}
             </div>
           </article>
