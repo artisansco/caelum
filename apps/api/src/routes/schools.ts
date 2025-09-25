@@ -12,6 +12,22 @@ import { validate_onboarding } from "../validators/schools";
 
 const app = new Hono().basePath("/schools");
 
+app.get("/:id", async (c) => {
+	const school = await db.query.schools_table.findFirst({
+		where: eq(schools_table.id, c.req.param("id")),
+	});
+
+	if (!school) {
+		return c.json({ status: "error", message: "school not found" }, 404);
+	}
+
+	return c.json({
+		status: "success",
+		message: "school fetched successfully",
+		data: school,
+	});
+});
+
 app.post("/", validate_onboarding, async (c) => {
 	const body = c.req.valid("json");
 
@@ -31,6 +47,8 @@ app.post("/", validate_onboarding, async (c) => {
 			first_name: "School",
 			last_name: "Admin",
 			role: "admin",
+			address: body.address,
+			contact: body.contact,
 			email: body.email,
 			password: body.password,
 			school_id: school.id,

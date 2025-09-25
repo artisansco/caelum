@@ -15,6 +15,10 @@ const school_schema = z.object({
 		.string({ error: "address must be a string" })
 		.trim()
 		.min(2, { error: "address must be at least 2 characters long" }),
+	contact: z
+		.string()
+		.trim()
+		.min(2, { error: "contact must be at least 2 characters long" }),
 	city: z.enum(cities, { error: "City is invalid or not in the list" }),
 	email: z.email(),
 	password: z

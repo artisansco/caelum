@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { page } from "$app/state";
+  import { get_school } from "./school.remote";
   import { Avatar, Popover } from "melt/components";
+
+  const school = $derived(await get_school(String(page.params.school_id)));
 </script>
 
 <header
@@ -7,7 +11,7 @@
 >
   <nav class="mx-auto flex w-full items-center px-4 sm:px-6">
     <div class="ms-auto flex w-full items-center justify-end gap-x-3">
-      <p class="mr-auto -ml-5 font-bold">Acme Inc.</p>
+      <p class="mr-auto -ml-5 font-bold">{school.name}</p>
 
       <div class="flex flex-row items-center justify-end gap-1">
         <button type="button" class="btn-sm-ghost">
@@ -23,14 +27,16 @@
         <Popover sameWidth={false}>
           {#snippet children(popover)}
             <button {...popover.trigger} class="">
-              <Avatar src="https://placehold.co/400?text=A">
+              <Avatar src="https://placehold.co/400?text={school.name[0]}">
                 {#snippet children(avatar)}
                   <img
                     {...avatar.image}
-                    alt="Acme"
+                    alt={school.name}
                     class="size-10 rounded-full"
                   />
-                  <span {...avatar.fallback} class="text-xs">A</span>
+                  <span {...avatar.fallback} class="text-xs">
+                    {school.name}
+                  </span>
                 {/snippet}
               </Avatar>
             </button>
@@ -53,7 +59,7 @@
               </div>
               <hr class="mx-auto h-0.5 w-[90%] border-0 bg-gray-500/20" />
               <a
-                href="/business/acme/staff/name"
+                href="/{school.id}/staff/name"
                 class="mt-2 flex w-full items-center gap-2 rounded p-2 text-sm text-gray-800 hover:bg-gray-100"
               >
                 <span class="icon-[lucide--cog] size-4"></span>

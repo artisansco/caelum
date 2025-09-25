@@ -1,8 +1,10 @@
 <script lang="ts">
   import { Avatar } from "melt/components";
   import { page } from "$app/state";
+  import { get_school } from "./school.remote";
 
   const tenant = $derived(String(page.params.school_id));
+  const school = $derived(await get_school(tenant));
 </script>
 
 <div
@@ -14,10 +16,12 @@
         href={page.url.pathname}
         class="flex items-center rounded-full size-20 overflow-clip justify-center"
       >
-        <Avatar src="https://placehold.co/150?text=A">
+        <Avatar src="https://placehold.co/150?text={school.name[0]}">
           {#snippet children(avatar)}
-            <img {...avatar.image} alt="Acme" class="size-20" />
-            <span {...avatar.fallback} class="text-4xl font-extrabold">A</span>
+            <img {...avatar.image} alt={school.name} class="size-20" />
+            <span {...avatar.fallback} class="text-4xl font-extrabold"
+              >{school.name[0]}</span
+            >
           {/snippet}
         </Avatar>
       </a>

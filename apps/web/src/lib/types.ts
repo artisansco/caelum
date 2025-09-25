@@ -1,4 +1,4 @@
-import type { staff_statuses, student_statuses } from "./constants";
+import type { cities, staff_statuses, student_statuses } from "./constants";
 
 export type CurrentUser = {
 	id: string;
@@ -66,4 +66,15 @@ export type Class = {
 	school_id: string;
 	created_at: string | Date;
 	updated_at: string | Date;
+};
+
+export type School = {
+	id?: string;
+	name: string;
+	address: string;
+	license: string;
+	city: (typeof cities)[number];
+	logo_url?: string;
+	created_at?: string | Date;
+	updated_at?: string | Date;
 };
