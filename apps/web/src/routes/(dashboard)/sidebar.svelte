@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Avatar } from "melt/components";
-import { page } from "$app/state";
+  import { Avatar } from "melt/components";
+  import { page } from "$app/state";
 
-const tenant = $derived(String(page.params.school_id));
+  const tenant = $derived(String(page.params.school_id));
 </script>
 
 <div
@@ -50,7 +50,7 @@ const tenant = $derived(String(page.params.school_id));
             "icon-[mdi--calendar-task]",
             "Tasks",
           )} -->
-          <!-- {@render link(page.url.pathname, "icon-[mdi--cog]", "Settings")} -->
+          {@render link(`/${tenant}/billing`, "icon-[mdi--cog]", "Billings")}
         </ul>
       </nav>
     </aside>
