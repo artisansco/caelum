@@ -3,11 +3,12 @@ import { z } from "zod";
 import { form, getRequestEvent } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 import { cities } from "$lib/constants";
-import type { CurrentUser } from "$lib/types";
+import { set_token } from "$lib/user";
 
 export const login = form(
 	z.object({ email: z.email(), password: z.string() }),
 	async (parsed) => {
+		const { fetch } = getRequestEvent();
 		let redirect_to = "/";
 
 		try {
@@ -57,6 +58,8 @@ const register_schema = z.object({
 });
 
 export const register = form(register_schema, async (parsed) => {
+	const { fetch } = getRequestEvent();
+
 	try {
 		const res = await fetch(`${API_ENDPOINT}/api/v1/schools`, {
 			method: "POST",
@@ -78,31 +81,3 @@ export const register = form(register_schema, async (parsed) => {
 
 	redirect(302, "/");
 });
-
-export function set_token(key: string, value: string, days = 1) {
-	const { cookies } = getRequestEvent();
-
-	cookies.set(key, value, {
-		path: "/",
-		httpOnly: true,
-		secure: true,
-		sameSite: "strict",
-		maxAge: 60 * 60 * 24 * days, // number of days
-	});
-}
-
-export function get_current_user() {
-	const { cookies } = getRequestEvent();
-	const token = cookies.get("token");
-	if (!token) return null;
-
-	try {
-		const decoded = JSON.parse(
-			Buffer.from(token.split(".")[1], "base64").toString(),
-		);
-
-		return decoded as CurrentUser;
-	} catch (_e) {
-		return null;
-	}
-}

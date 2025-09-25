@@ -1,67 +1,152 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
-  import BreadCrumbs from "$lib/components/shared/BreadCrumbs.svelte";
-  import Button from "$lib/components/shared/Button.svelte";
-  import Input from "$lib/components/shared/Input.svelte";
-  import type { PageProps } from "./$types";
+  import { toast } from "svelte-sonner";
+  import { page } from "$app/state";
+  import { add_student } from "../students.remote";
 
-  const { data, form }: PageProps = $props();
+  let admission_number = $state("");
+
+  $effect(() => {
+    if (add_student.result?.message) {
+      toast.info(add_student.result.message);
+    }
+  });
+
+  $inspect(add_student.issues);
+
+  /** generate a random admission number */
+  function generate_admission_number() {
+    admission_number = Math.random()
+      .toString(36)
+      .substring(2, 15)
+      .toUpperCase();
+  }
 </script>
 
-<BreadCrumbs>
-  <span slot="title">Add Student</span>
-</BreadCrumbs>
+<section class="max-w-6xl">
+  <form {...add_student}>
+    <h2 class="mb-6 text-xl">Add new student</h2>
 
-<form action="" method="post" class="mx-auto max-w-xl mt-10" use:enhance>
-  <fieldset class="grid gap-5">
-    <div>
-      <label for="">Student Name</label>
-      <Input name="name" placeholder="John Doe" />
-    </div>
+    <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <input type="hidden" value={page.params.school_id} name="school_id" />
 
-    <div>
-      <label for="">Student Email</label>
-      <Input type="email" name="email" placeholder="johndoe@gmail.com" />
-    </div>
+      <div class="flex flex-col space-y-2">
+        <label for="first_name" class="label text-gray-500">First Name</label>
+        <input
+          id="first_name"
+          type="text"
+          name="first_name"
+          placeholder="John"
+          class="input"
+          required
+        />
+      </div>
 
-    <div>
-      <label for="">Gender</label>
-      <select
-        name="gender"
-        class="border rounded border-gray-200 text-sm w-full p-2 text-gray-600 block"
-      >
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-      </select>
-    </div>
+      <div class="flex flex-col space-y-2">
+        <label for="middle_name" class="label text-gray-500">Middle Name</label>
+        <input
+          id="middle_name"
+          type="text"
+          name="middle_name"
+          placeholder=""
+          class="input"
+        />
+      </div>
 
-    <div>
-      <label for="">Date of Birth</label>
-      <Input type="date" name="dateOfBirth" />
-    </div>
+      <div class="flex flex-col space-y-2">
+        <label for="last_name" class="label text-gray-500">Last Name</label>
+        <input
+          id="last_name"
+          type="text"
+          name="last_name"
+          placeholder="Doe"
+          class="input"
+          required
+        />
+      </div>
 
-    <div>
-      <label for="">Student Class</label>
-      <select
-        name="classId"
-        class="border rounded border-gray-200 text-sm w-full p-2 text-gray-600 block"
-      >
-        <option value="" disabled>--------</option>
-        <option value=""> - - - - - - - - </option>
-        {#each [] as class_ (class_?.id)}
-          <option value={class_?.id}
-            >{class_?.name} {class_?.section ?? ""}</option
+      <div class="flex flex-col space-y-2">
+        <label for="admission_number" class="label text-gray-500">
+          Admission Number
+        </label>
+        <div class="flex items-center gap-x-3">
+          <input
+            id="admission_number"
+            type="text"
+            name="admission_number"
+            bind:value={admission_number}
+            placeholder=""
+            class="input"
+          />
+
+          <button
+            type="button"
+            class="btn-sm"
+            onclick={generate_admission_number}
           >
-        {/each}
-      </select>
+            <i class="icon-[mdi--rotate-clockwise]"></i>
+            <span class="sr-only text-xs">generate</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="email" class="label text-gray-500">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="johndoe@acme.com"
+          class="input"
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="address" class="label text-gray-500">Address</label>
+        <input
+          id="address"
+          type="text"
+          name="address"
+          placeholder="2 Wise lane"
+          class="input"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="admission_date" class="label text-gray-500">
+          Admission Date
+        </label>
+        <input
+          id="admission_date"
+          type="date"
+          name="admission_date"
+          class="input"
+        />
+      </div>
+
+      <div class="flex flex-col space-y-2">
+        <label for="phone_number" class="label text-gray-500">
+          Phone Number
+        </label>
+        <input
+          id="phone_number"
+          type="tel"
+          name="phone_number"
+          placeholder="+232-99-456-890"
+          class="input"
+          required
+        />
+      </div>
     </div>
 
-    {#if form?.error}
-      <small class="text-xs text-red-500">{form?.error}</small>
-    {/if}
-
-    <Button classes="bg-gray-500 text-white text-sm px-6 py-2 rounded w-fit"
-      >Add Student</Button
-    >
-  </fieldset>
-</form>
+    <button type="submit" class="btn" disabled={add_student.pending > 0}>
+      {#if add_student.pending > 0}
+        <i class="icon-[mdi--loading] animate-spin"></i>
+        <span>Adding student...</span>
+      {:else}
+        <i class="icon-[mdi--content-save]"></i>
+        <span>Add Student</span>
+      {/if}
+    </button>
+  </form>
+</section>

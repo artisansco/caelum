@@ -58,6 +58,13 @@ export const staff_statuses = [
 	"resigned",
 ] as const;
 
+export const student_statuses = [
+	"enrolled",
+	"graduated",
+	"alumni",
+	"expelled",
+] as const;
+
 export const employment_types = [
 	"full-time",
 	"part-time",

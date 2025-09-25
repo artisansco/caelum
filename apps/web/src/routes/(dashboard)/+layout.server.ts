@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { get_current_user } from "../auth.remote";
+import { get_current_user } from "$lib/user";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async () => {

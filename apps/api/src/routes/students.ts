@@ -18,16 +18,28 @@ app.get("/", async (c) => {
 	});
 });
 
+app.get("/:id", async (c) => {
+	const student = await db.query.students_table.findFirst({
+		where: eq(students_table.id, c.req.param("id")),
+	});
+
+	return c.json({
+		status: "success",
+		message: "student fetched successfully",
+		data: student,
+	});
+});
+
 app.post("/", async (c) => {
 	const body = await c.req.json();
 
-	const user = await db.insert(students_table).values(body);
+	const [student] = await db.insert(students_table).values(body).returning();
 
 	return c.json(
 		{
 			status: "success",
 			message: "User created successfully",
-			data: user,
+			data: student,
 			meta: {},
 		},
 		201,
@@ -50,15 +62,16 @@ app.delete("/:id", async (c) => {
 app.put("/:id", async (c) => {
 	const body = await c.req.json();
 
-	const user = await db
+	const [student] = await db
 		.update(students_table)
 		.set(body)
-		.where(eq(students_table.id, c.req.param("id")));
+		.where(eq(students_table.id, c.req.param("id")))
+		.returning();
 
 	return c.json({
 		status: "success",
 		message: "User updated successfully",
-		data: user,
+		data: student,
 		meta: {},
 	});
 });

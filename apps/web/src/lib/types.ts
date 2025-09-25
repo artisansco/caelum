@@ -1,4 +1,4 @@
-import type { staff_statuses } from "./constants";
+import type { staff_statuses, student_statuses } from "./constants";
 
 export type CurrentUser = {
 	id: string;
@@ -34,12 +34,14 @@ export type Student = {
 	first_name: string;
 	middle_name?: string;
 	last_name: string;
+	admission_number: string;
+	address: string;
 	email?: string;
-	contact?: string;
+	phone_number?: string;
 	avatar_url?: string;
 	school_id: string;
 	class?: string;
-	status: "enrolled" | "graduated" | "alumni";
+	status: (typeof student_statuses)[number];
 	admission_date: string | Date;
 	created_at?: string | Date;
 	updated_at?: string | Date;
