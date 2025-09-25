@@ -1,1 +1,488 @@
-<h1>something of a dashboard</h1>
+<script lang="ts">
+  import { onMount } from "svelte";
+  import Chart from "chart.js/auto";
+
+  let studentGrowthChart: HTMLCanvasElement;
+  let subjectPerformanceChart: HTMLCanvasElement;
+  let engagementChart: HTMLCanvasElement;
+  let attendanceChart: HTMLCanvasElement;
+  let studentGrowthChartInstance: Chart;
+
+  // Year filter for student growth chart
+  let selectedYear = 2024;
+
+  // Sample data - replace with real API calls
+  const dashboardData = {
+    totalStudents: 1247,
+    activeClasses: 28,
+    avgGrade: 85,
+    attendanceRate: 92,
+    pendingAssignments: 156,
+    upcomingEvents: 8,
+    totalTeachers: 42,
+    resourcesUsed: 78,
+  };
+
+  const upcomingEvents = [
+    { date: "Today, 2:00 PM", event: "Staff Meeting", type: "meeting" },
+    { date: "Tomorrow, 9:00 AM", event: "Grade 12 Physics Exam", type: "exam" },
+    {
+      date: "Wed, 10:00 AM",
+      event: "Parent-Teacher Conference",
+      type: "conference",
+    },
+    { date: "Thu, 3:00 PM", event: "Sports Day Preparation", type: "event" },
+    {
+      date: "Fri, 11:00 AM",
+      event: "Monthly Assessment Review",
+      type: "review",
+    },
+  ];
+
+  // Student data for different years
+  const studentDataByYear = {
+    2024: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      enrollment: [
+        1000, 1050, 1120, 1180, 1220, 1247, 1255, 1263, 1270, 1285, 1292, 1300,
+      ],
+      expelled: [2, 1, 3, 2, 1, 0, 1, 2, 1, 0, 1, 2],
+      graduated: [0, 0, 0, 0, 0, 145, 0, 0, 0, 0, 0, 178],
+    },
+    2023: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      enrollment: [
+        920, 965, 1010, 1055, 1095, 1130, 1145, 1160, 1175, 1185, 1195, 1000,
+      ],
+      expelled: [1, 2, 1, 3, 2, 1, 2, 1, 0, 1, 2, 1],
+      graduated: [0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 195],
+    },
+    2022: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      enrollment: [
+        850, 885, 920, 955, 985, 1015, 1025, 1035, 1045, 1055, 1065, 920,
+      ],
+      expelled: [3, 1, 2, 1, 1, 2, 1, 3, 1, 0, 1, 2],
+      graduated: [0, 0, 0, 0, 0, 110, 0, 0, 0, 0, 0, 145],
+    },
+  };
+
+  function updateStudentGrowthChart() {
+    const data = studentDataByYear[selectedYear];
+
+    studentGrowthChartInstance.data = {
+      labels: data.labels,
+      datasets: [
+        {
+          label: "Student Enrollment",
+          data: data.enrollment,
+          borderColor: "rgb(59, 130, 246)",
+          backgroundColor: "rgba(59, 130, 246, 0.1)",
+          fill: true,
+          tension: 0.4,
+        },
+        {
+          label: "Expelled Students",
+          data: data.expelled,
+          borderColor: "rgb(239, 68, 68)",
+          backgroundColor: "rgba(239, 68, 68, 0.1)",
+          fill: false,
+          tension: 0.4,
+        },
+        {
+          label: "Graduated Students",
+          data: data.graduated,
+          borderColor: "rgb(34, 197, 94)",
+          backgroundColor: "rgba(34, 197, 94, 0.1)",
+          fill: false,
+          tension: 0.4,
+        },
+      ],
+    };
+    studentGrowthChartInstance.update();
+  }
+
+  onMount(() => {
+    // Student Growth Chart
+    const data = studentDataByYear[selectedYear];
+    studentGrowthChartInstance = new Chart(studentGrowthChart, {
+      type: "line",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Student Enrollment",
+            data: data.enrollment,
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Expelled Students",
+            data: data.expelled,
+            borderColor: "rgb(239, 68, 68)",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            fill: false,
+            tension: 0.4,
+          },
+          {
+            label: "Graduated Students",
+            data: data.graduated,
+            borderColor: "rgb(34, 197, 94)",
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            fill: false,
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: `Student Growth Trends - ${selectedYear}`,
+          },
+          legend: {
+            position: "bottom",
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+
+    // Subject Performance Chart
+    new Chart(subjectPerformanceChart, {
+      type: "radar",
+      data: {
+        labels: [
+          "Mathematics",
+          "Science",
+          "English",
+          "History",
+          "Art",
+          "Physical Ed",
+        ],
+        datasets: [
+          {
+            label: "Average Scores",
+            data: [85, 78, 88, 82, 75, 90],
+            borderColor: "rgb(168, 85, 247)",
+            backgroundColor: "rgba(168, 85, 247, 0.2)",
+            pointBackgroundColor: "rgb(168, 85, 247)",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgb(168, 85, 247)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: "Subject Performance Overview",
+          },
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              stepSize: 20,
+            },
+          },
+        },
+      },
+    });
+
+    // Engagement Chart
+    new Chart(engagementChart, {
+      type: "doughnut",
+      data: {
+        labels: [
+          "Assignments Submitted",
+          "Late Submissions",
+          "Missing Assignments",
+        ],
+        datasets: [
+          {
+            data: [78, 15, 7],
+            backgroundColor: [
+              "rgb(34, 197, 94)",
+              "rgb(251, 191, 36)",
+              "rgb(239, 68, 68)",
+            ],
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: "Assignment Engagement",
+          },
+          legend: {
+            position: "bottom",
+          },
+        },
+      },
+    });
+
+    // Attendance Chart
+    new Chart(attendanceChart, {
+      type: "bar",
+      data: {
+        labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+        datasets: [
+          {
+            label: "Present",
+            data: [95, 92, 88, 94, 91],
+            backgroundColor: "rgba(34, 197, 94, 0.8)",
+            borderRadius: 4,
+          },
+          {
+            label: "Absent",
+            data: [5, 8, 12, 6, 9],
+            backgroundColor: "rgba(239, 68, 68, 0.8)",
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: "Weekly Attendance",
+          },
+          legend: {
+            position: "bottom",
+          },
+        },
+        scales: {
+          x: {
+            stacked: true,
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      },
+    });
+  });
+
+  function getEventIcon(type: string): string {
+    switch (type) {
+      case "meeting":
+        return "icon-[mdi--account-group]";
+      case "exam":
+        return "icon-[mdi--clipboard-text]";
+      case "conference":
+        return "icon-[mdi--handshake]";
+      case "event":
+        return "icon-[mdi--calendar-star]";
+      case "review":
+        return "icon-[mdi--clipboard-check-multiple]";
+      default:
+        return "icon-[mdi--calendar]";
+    }
+  }
+</script>
+
+<svelte:head>
+  <title>Student Dashboard Overview</title>
+</svelte:head>
+
+<div class="min-h-screen bg-gray-50 p-6">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
+    <p class="text-gray-600">
+      Welcome back! Here's what's happening at your school today.
+    </p>
+  </header>
+
+  <!-- Key Metrics Cards -->
+  <section class="mb-8 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+    {@render stat_card(
+      "icon-[mdi--account-group]",
+      dashboardData.totalStudents,
+      "Total Students",
+      "text-blue-600",
+      "bg-blue-50",
+    )}
+
+    <!-- {@render stat_card(
+      "icon-[mdi--chart-line]",
+      `${dashboardData.avgGrade}%`,
+      "Average Grade",
+      "text-purple-600",
+      "bg-purple-50",
+    )} -->
+    {@render stat_card(
+      "icon-[mdi--account-tie]",
+      dashboardData.totalTeachers,
+      "Total Teachers",
+      "text-cyan-600",
+      "bg-cyan-50",
+    )}
+    {@render stat_card(
+      "icon-[mdi--clipboard-list]",
+      dashboardData.pendingAssignments,
+      "Uploaded Assignments",
+      "text-orange-600",
+      "bg-orange-50",
+    )}
+    {@render stat_card(
+      "icon-[mdi--calendar-check]",
+      dashboardData.upcomingEvents,
+      "Upcoming Events",
+      "text-indigo-600",
+      "bg-indigo-50",
+    )}
+  </section>
+
+  <!-- Charts Section -->
+  <section class="mb-8 grid">
+    <!-- Student Growth Chart -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">
+          Student Growth Trends
+        </h3>
+        <div class="flex items-center space-x-2">
+          <label for="year-filter" class="text-sm text-gray-600">Year:</label>
+          <select
+            id="year-filter"
+            bind:value={selectedYear}
+            on:change={updateStudentGrowthChart}
+            class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={2024}>2024</option>
+            <option value={2023}>2023</option>
+            <option value={2022}>2022</option>
+          </select>
+        </div>
+      </div>
+      <div class="h-80">
+        <canvas bind:this={studentGrowthChart}></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Activity and Events Section -->
+  <section class="grid gap-6 grid-cols-1 lg:grid-cols-2">
+    <!-- Engagement Chart -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="h-80">
+        <canvas bind:this={engagementChart}></canvas>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="bg-white rounded-lg shadow-sm border">
+      <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="icon-[mdi--calendar-clock] mr-2 text-gray-600"></i>
+          Upcoming Events
+        </h3>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          {#each upcomingEvents as event}
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0">
+                <i class="{getEventIcon(event.type)} text-gray-500 text-xl"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm text-gray-900">{event.event}</p>
+                <p class="text-xs text-gray-500">{event.date}</p>
+              </div>
+            </div>
+          {/each}
+        </div>
+        <button
+          class="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"
+        >
+          View all events →
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+{#snippet stat_card(
+  icon: string,
+  stat: string | number,
+  text: string,
+  iconColor: string,
+  bgColor: string,
+)}
+  <div
+    class="bg-white rounded-lg shadow-sm border p-6 transition-all duration-200 hover:shadow-md"
+  >
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-2xl font-bold text-gray-900">{stat}</p>
+        <p class="text-sm text-gray-600 mt-1">{text}</p>
+      </div>
+      <div class="{bgColor} p-3 rounded-lg">
+        <i class="{icon} {iconColor} text-2xl"></i>
+      </div>
+    </div>
+  </div>
+{/snippet}
