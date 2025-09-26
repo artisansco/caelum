@@ -2,13 +2,16 @@ import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
 import { students_table } from "../db/schema";
+import { check_jwt } from "../middlewares/auth";
 
 const app = new Hono().basePath("/students");
 
-app.get("/", async (c) => {
+app.get("/", check_jwt, async (c) => {
 	const students = await db.query.students_table.findMany({
 		orderBy: desc(students_table.admission_date),
 	});
+
+	const payload = c.get("jwtPayload");
 
 	return c.json({
 		status: "success",
