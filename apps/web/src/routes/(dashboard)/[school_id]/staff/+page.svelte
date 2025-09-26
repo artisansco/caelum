@@ -4,6 +4,8 @@
   import { page } from "$app/state";
   import { get_all_staff } from "./staff.remote";
   import type { Staff } from "$lib/types";
+
+  const { params } = $props();
 </script>
 
 <!-- Table Section -->
@@ -51,7 +53,7 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#each await get_all_staff() as person}
+              {#each await get_all_staff(params.school_id) as person}
                 {@render staff_card(person)}
               {:else}
                 <tr>
@@ -71,7 +73,7 @@
             <div>
               <p class="text-sm text-gray-600">
                 <span class="font-semibold text-gray-800">
-                  {(await get_all_staff()).length || 0}
+                  {(await get_all_staff(params.school_id)).length || 0}
                 </span>
                 results
               </p>
@@ -111,9 +113,7 @@
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
         <div class="flex items-center gap-x-3">
-          <Avatar
-            src={staff.avatar_url || `https://robohash.org/${staff.email}`}
-          >
+          <Avatar src={staff.avatar_url}>
             {#snippet children(avatar)}
               <img
                 {...avatar.image}
@@ -169,8 +169,7 @@
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {staff.employed_date}
-          <!-- {format({ date: staff.employed_date, format: "DD MMM, YYYY" })} -->
+          {format({ date: staff.employed_date, format: "DD MMM, YYYY" })}
         </span>
       </div>
     </td>

@@ -47,21 +47,15 @@ const staff_schema = z.object({
 		.min(2, { error: "School ID must be at least 2 characters long" }),
 });
 
-export const get_all_staff = query(async () => {
+export const get_all_staff = query(z.string(), async (school_id) => {
 	const { fetch } = getRequestEvent();
 
-	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/staff`);
-		const { data, message } = await res.json();
-		if (!res.ok) {
-			return { message };
-		}
-
-		return data.staff;
-	} catch (_e) {
-		console.error(_e);
-		return { message: "failed to fetch staff" };
+	const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${school_id}/staff`);
+	if (!res.ok) {
+		console.log(res.statusText);
 	}
+	const { data } = await res.json();
+	return data.staff as Staff[];
 });
 
 export const get_staff_by_id = query(z.string().trim(), async (staff_id) => {

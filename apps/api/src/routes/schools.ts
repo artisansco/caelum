@@ -12,6 +12,8 @@ import { validate_onboarding } from "../validators/schools";
 
 const app = new Hono().basePath("/schools");
 
+/* ======================= Routes for A specific School =============================== */
+
 app.get("/:id", async (c) => {
 	const school = await db.query.schools_table.findFirst({
 		where: eq(schools_table.id, c.req.param("id")),
@@ -69,6 +71,26 @@ app.post("/", validate_onboarding, async (c) => {
 		return c.json({ status: "error", message: _e.message });
 	}
 });
+
+/* ======================= Staff Routes for A specific School =============================== */
+
+app.get("/:school_id/staff", async (c) => {
+	const limit = Number(c.req.query("limit")) || 10;
+
+	const staff = await db.query.staff_table.findMany({
+		limit: limit,
+		orderBy: desc(staff_table.employed_date),
+		where: eq(staff_table.school_id, c.req.param("school_id")),
+	});
+
+	return c.json({
+		status: "success",
+		message: "All staff fetched successfully",
+		data: { staff },
+	});
+});
+
+/* ======================= Assignments Routes for A specific School =============================== */
 
 // route to submit assignment for the school
 app.get("/:school_id/assignments", async (c) => {
@@ -145,6 +167,8 @@ app.delete("/:school_id/assignments/:assignment_id", async (c) => {
 		return c.json({ status: "error", message: _e.message });
 	}
 });
+
+/* ======================= Classes Routes for A specific School =============================== */
 
 // route to get classes for the school
 app.get("/:school_id/classes", async (c) => {

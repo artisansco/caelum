@@ -12,17 +12,12 @@ export const get_school = query(z.string(), async (id) => {
 
 	const { fetch } = getRequestEvent();
 
-	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${id}`);
-		const { message, data } = await res.json();
+	const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${id}`);
+	const { message, data } = await res.json();
 
-		if (!res.ok) {
-			error(404, { message });
-		}
-
-		return data as School;
-	} catch (_e) {
-		console.log(_e);
-		error(500, { message: _e.message });
+	if (!res.ok) {
+		error(404, { message });
 	}
+
+	return data as School;
 });
