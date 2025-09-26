@@ -20,3 +20,18 @@ export const check_jwt = createMiddleware(async (c, next) => {
 
 	await next();
 });
+
+export const allow_roles = (...roles: ["admin", "staff"]) => {
+	return createMiddleware(async (c, next) => {
+		const user = c.get("jwtPayload");
+
+		if (!roles.includes(user?.role)) {
+			return c.json(
+				{ message: "Invalid role to perform action, access denied!!" },
+				403,
+			);
+		}
+
+		await next();
+	});
+};
