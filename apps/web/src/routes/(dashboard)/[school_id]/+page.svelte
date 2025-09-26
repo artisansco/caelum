@@ -1,6 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Chart from "chart.js/auto";
+  import { get_all_students } from "./students/students.remote.js";
+  import { get_all_staff } from "./staff/staff.remote.js";
+  import { get_assignments } from "./assignments/assignments.remote.js";
+
+  const { params } = $props();
+
+  const total_students = $derived((await get_all_students()).length);
+  const total_staff = $derived((await get_all_staff(params.school_id)).length);
+  const total_assignments = $derived(
+    (await get_assignments(params.school_id)).length,
+  );
 
   let studentGrowthChart: HTMLCanvasElement;
   let subjectPerformanceChart: HTMLCanvasElement;
@@ -10,18 +21,6 @@
 
   // Year filter for student growth chart
   let selectedYear = 2024;
-
-  // Sample data - replace with real API calls
-  const dashboardData = {
-    totalStudents: 1247,
-    activeClasses: 28,
-    avgGrade: 85,
-    attendanceRate: 92,
-    pendingAssignments: 156,
-    upcomingEvents: 8,
-    totalTeachers: 42,
-    resourcesUsed: 78,
-  };
 
   const upcomingEvents = [
     { date: "Today, 2:00 PM", event: "Staff Meeting", type: "meeting" },
@@ -313,9 +312,7 @@
           },
         },
         scales: {
-          x: {
-            stacked: true,
-          },
+          x: { stacked: true },
           y: {
             stacked: true,
             beginAtZero: true,
@@ -360,40 +357,16 @@
   <section class="mb-8 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
     {@render stat_card(
       "icon-[mdi--account-group]",
-      dashboardData.totalStudents,
+      total_students,
       "Total Students",
-      "text-blue-600",
-      "bg-blue-50",
     )}
-
-    <!-- {@render stat_card(
-      "icon-[mdi--chart-line]",
-      `${dashboardData.avgGrade}%`,
-      "Average Grade",
-      "text-purple-600",
-      "bg-purple-50",
-    )} -->
-    {@render stat_card(
-      "icon-[mdi--account-tie]",
-      dashboardData.totalTeachers,
-      "Total Teachers",
-      "text-cyan-600",
-      "bg-cyan-50",
-    )}
+    {@render stat_card("icon-[mdi--account-tie]", total_staff, "Total Staff")}
     {@render stat_card(
       "icon-[mdi--clipboard-list]",
-      dashboardData.pendingAssignments,
+      total_assignments,
       "Uploaded Assignments",
-      "text-orange-600",
-      "bg-orange-50",
     )}
-    {@render stat_card(
-      "icon-[mdi--calendar-check]",
-      dashboardData.upcomingEvents,
-      "Upcoming Events",
-      "text-indigo-600",
-      "bg-indigo-50",
-    )}
+    {@render stat_card("icon-[mdi--calendar-check]", 0, "Events")}
   </section>
 
   <!-- Charts Section -->
@@ -465,24 +438,14 @@
   </section>
 </div>
 
-{#snippet stat_card(
-  icon: string,
-  stat: string | number,
-  text: string,
-  iconColor: string,
-  bgColor: string,
-)}
-  <div
-    class="bg-white rounded-lg shadow-sm border p-6 transition-all duration-200 hover:shadow-md"
-  >
+{#snippet stat_card(icon: string, stat: number, text: string)}
+  <div class="bg-white rounded-lg shadow-sm border p-6">
     <div class="flex items-center justify-between">
       <div>
         <p class="text-2xl font-bold text-gray-900">{stat}</p>
         <p class="text-sm text-gray-600 mt-1">{text}</p>
       </div>
-      <div class="{bgColor} p-3 rounded-lg">
-        <i class="{icon} {iconColor} text-2xl"></i>
-      </div>
+      <i class="{icon} text-2xl"></i>
     </div>
   </div>
 {/snippet}

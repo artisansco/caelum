@@ -1,3 +1,4 @@
+import { error } from "@sveltejs/kit";
 import z from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
@@ -40,23 +41,25 @@ if (!allowedTypes.includes(file.type)) {
 		}
 */
 
-export const get_assignments = query(async () => {
-	const { params, fetch } = getRequestEvent();
+export const get_assignments = query(z.string(), async (school_id) => {
+	const { fetch, cookies } = getRequestEvent();
 
-	try {
-		const res = await fetch(
-			`${API_ENDPOINT}/api/v1/schools/${params.school_id}/assignments`,
-		);
-		const { message, data } = await res.json();
+	const res = await fetch(
+		`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments`,
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies.get("token")}`,
+			},
+		},
+	);
+	const { message, data } = await res.json();
 
-		if (!res.ok) {
-			return { message };
-		}
-
-		return data.assignments as Assignment[];
-	} catch (_e) {
-		return { message: _e.message };
+	if (!res.ok) {
+		error(404, { message });
 	}
+
+	return data.assignments as Assignment[];
 });
 
 export const upload_assignment = form(assignment_schema, async (parsed) => {

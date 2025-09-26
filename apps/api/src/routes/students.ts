@@ -7,17 +7,17 @@ import { check_jwt } from "../middlewares/auth";
 const app = new Hono().basePath("/students");
 
 app.get("/", check_jwt, async (c) => {
+	const payload = c.get("jwtPayload");
+
 	const students = await db.query.students_table.findMany({
 		orderBy: desc(students_table.admission_date),
+		where: eq(students_table.school_id, payload.school_id),
 	});
-
-	const payload = c.get("jwtPayload");
 
 	return c.json({
 		status: "success",
 		message: "students fetched successfully",
 		data: { students },
-		meta: {},
 	});
 });
 

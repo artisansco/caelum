@@ -43,13 +43,19 @@ const student_schema = z.object({
 });
 
 export const get_all_students = query(async () => {
-	const { fetch } = getRequestEvent();
+	const { cookies, fetch } = getRequestEvent();
 
 	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/students`);
+		const res = await fetch(`${API_ENDPOINT}/api/v1/students`, {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies.get("token")}`,
+			},
+		});
 		const { message, data } = await res.json();
 
 		if (!res.ok) {
+			console.log({ message });
 			return { message };
 		}
 
