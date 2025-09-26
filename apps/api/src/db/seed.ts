@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { reset, seed } from "drizzle-seed";
 import { nanoid } from "nanoid";
 import { config } from "../lib/config";
+import { default_permissions } from "../lib/constants";
 import * as schema from "./schema";
 
 const db = drizzle(config.DATABASE_URL);
@@ -10,100 +11,142 @@ const db = drizzle(config.DATABASE_URL);
 async function seed_data() {
 	await reset(db, schema);
 
-	await seed(
-		db,
-		// schema,
-		{
-			staff: schema.staff_table,
-			schools: schema.schools_table,
-			students: schema.students_table,
-		},
-	).refine(async (funcs) => ({
-		schools: {
+	await seed(db, {
+		staff_table: schema.staff_table,
+		schools_table: schema.schools_table,
+		students_table: schema.students_table,
+		classes_table: schema.classes_table,
+		subjects_table: schema.subjects_table,
+	}).refine((f) => ({
+		schools_table: {
 			columns: {
-				name: funcs.companyName(),
-				address: funcs.streetAddress(),
-				license: funcs.string({ isUnique: true }),
-				city: funcs.default({ defaultValue: "Freetown" }),
-				logo_url: funcs.default({ defaultValue: undefined }),
-				created_at: funcs.date(),
-				updated_at: funcs.date(),
+				id: f.uuid(),
+				name: f.companyName({ isUnique: true }),
+				address: f.streetAddress(),
+				license: f.string({ isUnique: true }),
+				city: f.default({ defaultValue: "Freetown" }),
+				logo_url: f.default({ defaultValue: undefined }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
 			},
 			count: 5,
 		},
 
-		staff: {
+		staff_table: {
 			columns: {
-				staff_id: nanoid(),
-				first_name: funcs.firstName(),
-				middle_name: funcs.default({ defaultvalue: undefined }),
-				last_name: funcs.lastName(),
-				email: funcs.email(),
-				password: await bcrypt.hash("password", 12),
-				avatar_url: funcs.default({ defaultValue: undefined }),
-				contact: funcs.phoneNumber(),
-				address: funcs.streetAddress(),
-				status: funcs.default({ defaultValue: "active" }),
-				employment_type: funcs.valuesFromArray({
+				id: f.uuid(),
+				staff_id: f.string({ isUnique: true }),
+				first_name: f.firstName(),
+				middle_name: f.default({ defaultValue: undefined }),
+				last_name: f.lastName(),
+				email: f.email(),
+				password: f.default({ defaultValue: bcrypt.hashSync("password", 12) }),
+				avatar_url: f.default({
+					defaultValue: `https://robohash.org/${nanoid()}`,
+				}),
+				contact: f.phoneNumber({ template: "+232########" }),
+				address: f.streetAddress(),
+				status: f.default({ defaultValue: "active" }),
+				employment_type: f.valuesFromArray({
 					values: [
 						{ values: ["full-time"], weight: 0.8 },
 						{ values: ["part-time"], weight: 0.1 },
 						{ values: ["contract"], weight: 0.05 },
-						{ values: ["intern"], weight: 0.02 },
-						{ values: ["volunteer"], weight: 0.01 },
+						{ values: ["intern", "volunteer"], weight: 0.05 },
 					],
 				}),
-				notes: funcs.loremIpsum(),
-				role: funcs.default({ defaultValue: "staff" }),
-				permissions: funcs.default({
-					defaultValue: "students:view,subjects:view,class:view",
+				notes: f.loremIpsum(),
+				role: f.valuesFromArray({
+					values: [
+						{ values: ["staff"], weight: 0.7 },
+						{ values: ["admin"], weight: 0.3 },
+					],
 				}),
-				employed_date: funcs.timestamp(),
-				created_at: funcs.timestamp(),
-				updated_at: funcs.timestamp(),
+				permissions: f.default({
+					defaultValue: default_permissions.join(","),
+				}),
+				employed_date: f.date({ maxDate: new Date() }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 20,
+		},
+
+		students_table: {
+			columns: {
+				id: f.uuid(),
+				admission_number: f.string({ isUnique: true }),
+				first_name: f.firstName(),
+				middle_name: f.default({ defaultValue: undefined }),
+				last_name: f.lastName(),
+				email: f.email(),
+				password: f.default({ defaultValue: bcrypt.hashSync("password", 12) }),
+				avatar_url: f.default({
+					defaultValue: `https://robohash.org/${nanoid()}`,
+				}),
+				contact: f.phoneNumber({ template: "+232########" }),
+				address: f.streetAddress(),
+				status: f.default({ defaultValue: "enrolled" }),
+				admission_date: f.date({ maxDate: new Date() }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 40,
+		},
+
+		classes_table: {
+			columns: {
+				id: f.uuid(),
+				name: f.valuesFromArray({
+					values: [
+						"Class 1",
+						"Class 2",
+						"Class 3",
+						"Class 4",
+						"Class 5",
+						"Class 6",
+						"JSS 1",
+						"JSS 2",
+						"JSS 3",
+						"SSS 1",
+						"SSS 2",
+						"SSS 3",
+					],
+				}),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
 			},
 		},
 
-		students: {
+		subjects_table: {
 			columns: {
-				admission_number: funcs.default({ defaultValue: nanoid() }),
-				first_name: funcs.firstName(),
-				middle_name: funcs.default({ defaultvalue: undefined }),
-				last_name: funcs.lastName(),
-				email: funcs.email(),
-				password: await bcrypt.hash("password", 12),
-				avatar_url: funcs.default({ defaultValue: "" }),
-				contact: funcs.phoneNumber(),
-				address: funcs.streetAddress(),
-				status: funcs.default({ defaultValue: "active" }),
-				admission_date: funcs.timestamp(),
-				created_at: funcs.timestamp(),
-				updated_at: funcs.timestamp(),
+				id: f.uuid(),
+				name: f.valuesFromArray({
+					values: [
+						"Math",
+						"English",
+						"Science",
+						"Social Studies",
+						"History",
+						"Geography",
+						"Physics",
+						"Chemistry",
+						"Biology",
+						"Economics",
+						"Agriculture",
+						"Business Studies",
+					],
+				}),
+				code: f.string({ isUnique: true }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
 			},
 		},
 
 		// end
 	}));
 
-	await seed_admin();
 	db.$client.close();
-}
-
-async function seed_admin() {
-	await db.insert(schema.staff_table).values({
-		first_name: "Admin",
-		last_name: "User",
-		email: "admin@acme.com",
-		password: await bcrypt.hash("password", 12),
-		role: "admin",
-		permissions: "students:view,staff:view,subjects:view,class:view",
-		employed_date: new Date().toISOString(),
-		address: "",
-		contact: "",
-		staff_id: nanoid(),
-		school_id: (await db.select().from(schema.schools_table).limit(1)).at(0)
-			?.id,
-	});
 }
 
 seed_data();

@@ -1,14 +1,7 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
-import { cities } from "../lib/constants";
-
-const _permissions = [
-	"students:view",
-	"students:create",
-	"students:edit",
-	"students:delete",
-];
+import { cities, default_permissions } from "../lib/constants";
 
 export const students_table = sqliteTable("students", {
 	id: text().primaryKey().$defaultFn(nanoid),
@@ -54,7 +47,7 @@ export const staff_table = sqliteTable("staff", {
 	role: text({ enum: ["admin", "staff"] })
 		.notNull()
 		.default("staff"),
-	permissions: text().default("students:view"),
+	permissions: text().default(default_permissions.join(",")),
 	employed_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
@@ -81,9 +74,7 @@ export const schools_table = sqliteTable("schools", {
 	city: text({ enum: cities }).default("Freetown"),
 	logo_url: text(),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-	updated_at: text()
-		.notNull()
-		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
 export const subjects_table = sqliteTable("subjects", {
@@ -92,9 +83,7 @@ export const subjects_table = sqliteTable("subjects", {
 	code: text(),
 	school_id: text().references(() => schools_table.id, { onDelete: "cascade" }),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-	updated_at: text()
-		.notNull()
-		.$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
 // assignments table schema
