@@ -16,7 +16,10 @@
         href={page.url.pathname}
         class="flex items-center rounded-full size-20 overflow-clip justify-center"
       >
-        <Avatar src="https://placehold.co/150?text={school.name[0]}">
+        <Avatar
+          src={school.logo_url ||
+            `https://placehold.co/400?text=${school.name[0]}`}
+        >
           {#snippet children(avatar)}
             <img {...avatar.image} alt={school.name} class="size-20" />
             <span {...avatar.fallback} class="text-4xl font-extrabold">
