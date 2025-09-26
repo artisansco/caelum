@@ -25,7 +25,9 @@ async function seed_data() {
 				address: f.streetAddress(),
 				license: f.string({ isUnique: true }),
 				city: f.default({ defaultValue: "Freetown" }),
-				logo_url: f.default({ defaultValue: undefined }),
+				logo_url: f.default({
+					defaultValue: `https://robohash.org/${nanoid()}`,
+				}),
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},

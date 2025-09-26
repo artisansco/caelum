@@ -23,6 +23,6 @@ export const get_school = query(z.string(), async (id) => {
 		return data as School;
 	} catch (_e) {
 		console.log(_e);
-		error(500, { message: "error" });
+		error(500, { message: _e.message });
 	}
 });

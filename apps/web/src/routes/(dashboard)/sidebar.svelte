@@ -19,9 +19,9 @@
         <Avatar src="https://placehold.co/150?text={school.name[0]}">
           {#snippet children(avatar)}
             <img {...avatar.image} alt={school.name} class="size-20" />
-            <span {...avatar.fallback} class="text-4xl font-extrabold"
-              >{school.name[0]}</span
-            >
+            <span {...avatar.fallback} class="text-4xl font-extrabold">
+              {school.name[0]}
+            </span>
           {/snippet}
         </Avatar>
       </a>

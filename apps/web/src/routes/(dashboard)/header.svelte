@@ -27,7 +27,10 @@
         <Popover sameWidth={false}>
           {#snippet children(popover)}
             <button {...popover.trigger} class="">
-              <Avatar src="https://placehold.co/400?text={school.name[0]}">
+              <Avatar
+                src={school.logo_url ||
+                  `https://placehold.co/400?text=${school.name[0]}`}
+              >
                 {#snippet children(avatar)}
                   <img
                     {...avatar.image}
@@ -35,7 +38,7 @@
                     class="size-10 rounded-full"
                   />
                   <span {...avatar.fallback} class="text-xs">
-                    {school.name}
+                    {school.name[0]}
                   </span>
                 {/snippet}
               </Avatar>
