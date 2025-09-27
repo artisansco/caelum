@@ -72,6 +72,32 @@ app.post("/", validate_onboarding, async (c) => {
 	}
 });
 
+app.put("/:id", async (c) => {
+	const body = await c.req.json();
+
+	try {
+		await db
+			.update(schools_table)
+			.set({
+				name: body.name,
+				address: body.address,
+				city: body.city,
+				license: body.license,
+			})
+			.where(eq(schools_table.id, c.req.param("id")));
+
+		return c.json({
+			status: "success",
+			message: "school updated successfully",
+			data: null,
+		});
+	} catch (_e) {
+		console.log(_e);
+		// @ts-expect-error
+		return c.json({ status: "error", message: _e.message });
+	}
+});
+
 /* ======================= Staff Routes for A specific School =============================== */
 
 app.get("/:school_id/staff", async (c) => {

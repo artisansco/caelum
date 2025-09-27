@@ -1,11 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
-  import {
-    add_subject,
-    delete_subject,
-    get_all_subjects,
-  } from "./subjects.remote";
+  import { add_subject, delete_subject, get_all_subjects } from "./misc.remote";
 
   $effect(() => {
     if (add_subject.result?.message) {

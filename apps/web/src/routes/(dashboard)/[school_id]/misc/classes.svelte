@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { get_classes } from "../assignments/assignments.remote";
-  import { add_class, delete_class } from "./subjects.remote";
+  import { add_class, delete_class } from "./misc.remote";
 </script>
 
 <div class="gap-8 flex flex-col max-w-sm">

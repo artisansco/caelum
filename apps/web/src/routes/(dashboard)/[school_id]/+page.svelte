@@ -14,9 +14,7 @@
   );
 
   let studentGrowthChart: HTMLCanvasElement;
-  let subjectPerformanceChart: HTMLCanvasElement;
   let engagementChart: HTMLCanvasElement;
-  let attendanceChart: HTMLCanvasElement;
   let studentGrowthChartInstance: Chart;
 
   // Year filter for student growth chart
@@ -194,55 +192,6 @@
       },
     });
 
-    // Subject Performance Chart
-    new Chart(subjectPerformanceChart, {
-      type: "radar",
-      data: {
-        labels: [
-          "Mathematics",
-          "Science",
-          "English",
-          "History",
-          "Art",
-          "Physical Ed",
-        ],
-        datasets: [
-          {
-            label: "Average Scores",
-            data: [85, 78, 88, 82, 75, 90],
-            borderColor: "rgb(168, 85, 247)",
-            backgroundColor: "rgba(168, 85, 247, 0.2)",
-            pointBackgroundColor: "rgb(168, 85, 247)",
-            pointBorderColor: "#fff",
-            pointHoverBackgroundColor: "#fff",
-            pointHoverBorderColor: "rgb(168, 85, 247)",
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: {
-            display: true,
-            text: "Subject Performance Overview",
-          },
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          r: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              stepSize: 20,
-            },
-          },
-        },
-      },
-    });
-
     // Engagement Chart
     new Chart(engagementChart, {
       type: "doughnut",
@@ -274,49 +223,6 @@
           },
           legend: {
             position: "bottom",
-          },
-        },
-      },
-    });
-
-    // Attendance Chart
-    new Chart(attendanceChart, {
-      type: "bar",
-      data: {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-        datasets: [
-          {
-            label: "Present",
-            data: [95, 92, 88, 94, 91],
-            backgroundColor: "rgba(34, 197, 94, 0.8)",
-            borderRadius: 4,
-          },
-          {
-            label: "Absent",
-            data: [5, 8, 12, 6, 9],
-            backgroundColor: "rgba(239, 68, 68, 0.8)",
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: {
-            display: true,
-            text: "Weekly Attendance",
-          },
-          legend: {
-            position: "bottom",
-          },
-        },
-        scales: {
-          x: { stacked: true },
-          y: {
-            stacked: true,
-            beginAtZero: true,
-            max: 100,
           },
         },
       },
@@ -428,9 +334,7 @@
             </div>
           {/each}
         </div>
-        <button
-          class="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"
-        >
+        <button class="btn-link mt-4 text-blue-600 hover:text-blue-800">
           View all events →
         </button>
       </div>

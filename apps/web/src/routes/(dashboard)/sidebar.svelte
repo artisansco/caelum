@@ -39,7 +39,6 @@
             "icon-[mdi--account-student]",
             "Students",
           )}
-          <!-- {@render link(page.url.pathname, "icon-[mdi--people-group]", "Staff")} -->
           <!-- {@render link(page.url.pathname, "icon-[mdi--bed]", "Rooms")} -->
           {@render link(`/${tenant}/staff`, "icon-[mdi--person-tie]", "Staff")}
           {@render link(
@@ -58,6 +57,7 @@
             "Tasks",
           )} -->
           {@render link(`/${tenant}/billing`, "icon-[mdi--cog]", "Billings")}
+          {@render link(`/${tenant}/account`, "icon-[mdi--people]", "Account")}
         </ul>
       </nav>
     </aside>
