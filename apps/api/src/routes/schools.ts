@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, getTableColumns } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import { db } from "../db/drizzle";
@@ -118,22 +118,24 @@ app.get("/:school_id/staff", async (c) => {
 
 /* ======================= Assignments Routes for A specific School =============================== */
 
-// route to submit assignment for the school
+// route to get all assignments for the school
 app.get("/:school_id/assignments", async (c) => {
 	try {
-		const assignments = await db.query.assignments_table.findMany({
-			orderBy: desc(assignments_table.created_at),
-		});
-		console.log({ assignments });
+		const assignments = await db
+			.select({
+				...getTableColumns(assignments_table),
+				class_name: classes_table.name,
+			})
+			.from(assignments_table)
+			.where(eq(assignments_table.school_id, c.req.param("school_id")))
+			.leftJoin(classes_table, eq(assignments_table.class_id, classes_table.id))
+			.orderBy(desc(assignments_table.created_at));
 
-		return c.json(
-			{
-				status: "success",
-				message: "assignment created successfully",
-				data: { assignments },
-			},
-			201,
-		);
+		return c.json({
+			status: "success",
+			message: "assignments fetched successfully",
+			data: { assignments },
+		});
 	} catch (_e) {
 		console.log(_e);
 		// @ts-expect-error
@@ -143,27 +145,25 @@ app.get("/:school_id/assignments", async (c) => {
 
 // route to submit assignment for the school
 app.post("/:school_id/assignments", async (c) => {
-	const body = await c.req.json();
+	const body = await c.req.parseBody();
 
 	try {
 		const [assignment] = await db
 			.insert(assignments_table)
 			.values({
 				title: body.title,
-				description: body.description,
 				due_date: body.due_date,
-				file_name: "", // TODO: upload file later
+				file_name: body?.file.name, // TODO: upload file later
 				class_id: body.class_id,
+				description: body.description,
 				school_id: c.req.param("school_id"),
 			})
 			.returning({ id: assignments_table.id });
 
-		console.log({ assignment });
-
 		return c.json(
 			{
 				status: "success",
-				message: "assignment created successfully",
+				message: "assignment uploaded successfully",
 				data: assignment,
 			},
 			201,

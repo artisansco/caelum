@@ -52,6 +52,7 @@ export const staff_table = sqliteTable("staff", {
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
+
 // TODO: enable emergency contact table for teachers/staff
 // export const emergency_contacts_table = sqliteTable("emergency_contacts", {
 // 	id: text().primaryKey().$defaultFn(nanoid),
@@ -93,10 +94,9 @@ export const assignments_table = sqliteTable("assignments", {
 	description: text(),
 	due_date: text().notNull(),
 	file_name: text().notNull(),
-	class_id: text(),
-	// .references(() => classes_table.id, {
-	// 	onDelete: "cascade",
-	// }),
+	class_id: text().references(() => classes_table.id, {
+		onDelete: "cascade",
+	}),
 	school_id: text().references(() => schools_table.id, {
 		onDelete: "cascade",
 	}),

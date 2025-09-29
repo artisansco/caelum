@@ -2,7 +2,8 @@ import { error } from "@sveltejs/kit";
 import z from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-import type { Assignment, Class } from "$lib/types";
+import { get_current_user } from "$lib/auth";
+import type { Assignment } from "$lib/types";
 
 const assignment_schema = z.object({
 	school_id: z.string(),
@@ -13,33 +14,23 @@ const assignment_schema = z.object({
 		.min(2, { error: "title must be at least 2 characters long" }),
 	description: z.string().trim().optional(),
 	due_date: z.iso.date({ error: "please select a valid due date" }),
-	file: z.file().optional(),
+	file: z
+		.file()
+		.min(1)
+		.max(10 * 1024 * 1024, {
+			error: "File size too large. Maximum size is 10MB",
+		})
+		.mime(
+			[
+				"image/png",
+				"image/jpeg",
+				"image/webp",
+				"application/pdf",
+				"application/msword",
+			],
+			{ error: "Invalid file. Only PDF, Images, DOC, DOCX files are allowed" },
+		),
 });
-
-/*
-if (!allowedTypes.includes(file.type)) {
-			return fail(400, {
-				error:
-					"Invalid file type. Only PDF, DOC, DOCX, PPT, and PPTX files are allowed",
-				title,
-				description,
-				classId,
-				dueDate,
-			});
-		}
-
-		// Validate file size (10MB limit)
-		const maxSize = 10 * 1024 * 1024; // 10MB
-		if (file.size > maxSize) {
-			return fail(400, {
-				error: "File size too large. Maximum size is 10MB",
-				title,
-				description,
-				classId,
-				dueDate,
-			});
-		}
-*/
 
 export const get_assignments = query(z.string(), async (school_id) => {
 	const { fetch, cookies } = getRequestEvent();
@@ -58,23 +49,24 @@ export const get_assignments = query(z.string(), async (school_id) => {
 	if (!res.ok) {
 		error(404, { message });
 	}
-
 	return data.assignments as Assignment[];
 });
 
 export const upload_assignment = form(assignment_schema, async (parsed) => {
 	const { cookies, fetch } = getRequestEvent();
 
+	const form_data = new FormData();
+	for (const [key, value] of Object.entries(parsed)) {
+		form_data.append(key, value);
+	}
+
 	try {
 		const res = await fetch(
 			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/assignments`,
 			{
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${cookies.get("token")}`,
-				},
-				body: JSON.stringify(parsed),
+				headers: { Authorization: `Bearer ${cookies.get("token")}` },
+				body: form_data,
 			},
 		);
 		const { message } = await res.json();
@@ -90,12 +82,11 @@ export const upload_assignment = form(assignment_schema, async (parsed) => {
 });
 
 export const delete_assignment = command(
-	z.object({
-		school_id: z.string().trim(),
-		assignment_id: z.string().trim(),
-	}),
-	async ({ school_id, assignment_id }) => {
+	z.string().trim(),
+	async (assignment_id) => {
 		const { cookies, fetch } = getRequestEvent();
+		// biome-ignore lint/style/noNonNullAssertion: <>
+		const { school_id } = get_current_user()!;
 
 		try {
 			const res = await fetch(
@@ -120,48 +111,3 @@ export const delete_assignment = command(
 		}
 	},
 );
-
-const classes = [
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 10",
-		schoolId: "019962d7-0dbc-7732-a799-0f533a2d49fd",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 9",
-		schoolId: "019962d7-2af0-72f2-9145-ebc06e942d38",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 11",
-		schoolId: "019962d7-4d3c-71a0-b310-83949279c6a3",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 8",
-		schoolId: "019962d7-65e2-7ac3-b694-245b7b6a902b",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 12",
-		schoolId: "0199686e-8fa9-70b3-8e7c-299a2462f469",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-	{
-		id: crypto.randomUUID(),
-		name: "Grade 13",
-		schoolId: "0199686e-a7ad-7241-9615-507db33645aa",
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	},
-];

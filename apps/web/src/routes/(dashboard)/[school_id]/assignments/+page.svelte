@@ -2,7 +2,6 @@
   import { format } from "@formkit/tempo";
   import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
-  import { page } from "$app/state";
   import {
     delete_assignment,
     get_assignments,
@@ -13,7 +12,7 @@
   let { params } = $props();
 
   let class_id = $state("");
-  let assignments = $derived(await get_assignments(params.school_id));
+  const assignments = $derived(await get_assignments(params.school_id));
   const classes = $derived(await get_classes(params.school_id));
 
   $effect(() => {
@@ -38,7 +37,7 @@
           enctype="multipart/form-data"
         >
           <input type="hidden" bind:value={class_id} name="class_id" />
-          <input type="hidden" name="school_id" value={page.params.school_id} />
+          <input type="hidden" name="school_id" value={params.school_id} />
 
           <div>
             <Select bind:value={class_id}>
@@ -53,7 +52,7 @@
                   {...select.trigger}
                   class="btn-outline w-full justify-between capitalize"
                 >
-                  {select.value || "Select Class"}
+                  {select.getOptionLabel(class_id) || "Select Class"}
                   <i class="icon-[lucide--chevron-down] size-5"></i>
                 </button>
                 <p class="text-xs text-red-500">
@@ -66,7 +65,7 @@
                 >
                   {#each classes as { id, name }}
                     <p
-                      {...select.getOption(name, id)}
+                      {...select.getOption(id, name)}
                       class="{id === select.value &&
                         'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
                     >
@@ -145,7 +144,7 @@
                 accept=".pdf,.doc,.docx,.ppt,.pptx"
                 required
               />
-              <p class="text-xs text-red-500 -mt-1">
+              <p class="text-xs text-red-500">
                 {upload_assignment.issues?.file?.at(0)?.message}
               </p>
             </div>
@@ -198,9 +197,9 @@
                   </p>
 
                   <div
-                    class="flex items-center space-x-4 text-sm text-gray-500"
+                    class="flex items-center space-x-4 text-sm text-gray-500 [&>div]:basis-full"
                   >
-                    <div class="flex items-center space-x-1">
+                    <div class="flex items-center space-x-1 truncate">
                       <i class="icon-[mdi--file-document-outline]"></i>
                       <span>{assignment.file_name || "example.docx"}</span>
                     </div>
@@ -217,7 +216,7 @@
                       <i class="icon-[mdi--clock-outline]"></i>
                       <span>
                         Uploaded: {format({
-                          date: assignment.created_at,
+                          date: assignment.created_at as Date,
                           format: "DD MMM, YYYY",
                         })}
                       </span>
@@ -234,10 +233,7 @@
                     type="button"
                     class="btn-sm-destructive bg-red-50"
                     onclick={async () => {
-                      const error = await delete_assignment({
-                        school_id: String(page.params?.school_id),
-                        assignment_id: String(assignment?.id),
-                      });
+                      const error = await delete_assignment(assignment.id);
                       if (error) {
                         toast.error(error.message);
                       } else {
