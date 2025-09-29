@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import { db } from "../db/drizzle";
@@ -219,6 +219,7 @@ app.get("/:school_id/classes", async (c) => {
 // route to create class for the school
 app.post("/:school_id/classes", async (c) => {
 	const body = await c.req.json();
+
 	try {
 		const [new_class] = await db
 			.insert(classes_table)
@@ -242,7 +243,12 @@ app.delete("/:school_id/classes/:class_id", async (c) => {
 	try {
 		await db
 			.delete(classes_table)
-			.where(eq(classes_table.id, c.req.param("class_id")));
+			.where(
+				and(
+					eq(classes_table.id, c.req.param("class_id")),
+					eq(classes_table.school_id, c.req.param("school_id")),
+				),
+			);
 
 		return c.json({
 			status: "success",

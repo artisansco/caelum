@@ -16,6 +16,7 @@ export function set_token(key: string, value: string, days = 1) {
 	});
 }
 
+/** @deprecated - use the one in the $lib/auth.ts */
 export function get_current_user() {
 	const { cookies } = getRequestEvent();
 	const token = cookies.get("token");

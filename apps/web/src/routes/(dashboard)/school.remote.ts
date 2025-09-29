@@ -1,10 +1,10 @@
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import z from "zod";
 import { form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
+import { guard_route } from "$lib/auth";
 import { cities } from "$lib/constants";
-import type { School } from "$lib/types";
-import { get_current_user } from "$lib/user";
+import type { Class, School } from "$lib/types";
 
 const school_schema = z.object({
 	school_id: z.string().trim().min(5, { error: "School ID is required" }),
@@ -27,13 +27,17 @@ const school_schema = z.object({
 });
 
 export const get_school = query(z.string(), async (id) => {
-	if (get_current_user() === null) {
-		redirect(302, "/");
-	}
+	guard_route();
 
-	const { fetch } = getRequestEvent();
+	const { fetch, cookies } = getRequestEvent();
 
-	const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${id}`);
+	const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${id}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${cookies.get("token")}`,
+		},
+	});
 	const { message, data } = await res.json();
 
 	if (!res.ok) {
@@ -44,6 +48,8 @@ export const get_school = query(z.string(), async (id) => {
 });
 
 export const update_school = form(school_schema, async (parsed) => {
+	guard_route();
+
 	const { cookies, fetch } = getRequestEvent();
 
 	const res = await fetch(
@@ -66,4 +72,29 @@ export const update_school = form(school_schema, async (parsed) => {
 	await get_school(parsed.school_id).refresh();
 
 	return { message };
+});
+
+export const get_classes = query(z.string(), async (school_id) => {
+	guard_route();
+
+	const { fetch, cookies } = getRequestEvent();
+
+	const res = await fetch(
+		`${API_ENDPOINT}/api/v1/schools/${school_id}/classes`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${cookies.get("token")}`,
+			},
+		},
+	);
+	const { message, data } = await res.json();
+
+	if (!res.ok) {
+		console.log(message);
+		return [] as Class[];
+	}
+
+	return data.classes as Class[];
 });

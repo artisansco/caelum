@@ -6,13 +6,15 @@
   import {
     delete_assignment,
     get_assignments,
-    get_classes,
     upload_assignment,
   } from "./assignments.remote";
+  import { get_classes } from "../../school.remote";
+
+  let { params } = $props();
 
   let class_id = $state("");
-  let assignments = $derived(await get_assignments());
-  const classes = $derived(await get_classes());
+  let assignments = $derived(await get_assignments(params.school_id));
+  const classes = $derived(await get_classes(params.school_id));
 
   $effect(() => {
     if (upload_assignment.result?.message) {

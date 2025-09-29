@@ -52,6 +52,7 @@ export type Assignment = {
 	title: string;
 	description?: string;
 	class_id: string;
+	class_name?:string
 	school_id: string;
 	file_name: string;
 	due_date: Date | string;

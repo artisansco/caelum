@@ -72,7 +72,7 @@ export const upload_assignment = form(assignment_schema, async (parsed) => {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authentication: `Bearer ${cookies.get("token")}`,
+					Authorization: `Bearer ${cookies.get("token")}`,
 				},
 				body: JSON.stringify(parsed),
 			},
@@ -83,7 +83,7 @@ export const upload_assignment = form(assignment_schema, async (parsed) => {
 			return { message };
 		}
 
-		await get_assignments().refresh();
+		await get_assignments(parsed.school_id).refresh();
 	} catch (_e) {
 		console.log(_e);
 	}
@@ -104,7 +104,7 @@ export const delete_assignment = command(
 					method: "DELETE",
 					headers: {
 						"Content-Type": "application/json",
-						Authentication: `Bearer ${cookies.get("token")}`,
+						Authorization: `Bearer ${cookies.get("token")}`,
 					},
 				},
 			);
@@ -114,7 +114,7 @@ export const delete_assignment = command(
 				return { message };
 			}
 
-			await get_assignments().refresh();
+			await get_assignments(school_id).refresh();
 		} catch (_e) {
 			console.log(_e);
 		}
@@ -165,24 +165,3 @@ const classes = [
 		updatedAt: new Date().toISOString(),
 	},
 ];
-
-export const get_classes = query(async () => {
-	const { fetch, params } = getRequestEvent();
-
-	try {
-		const res = await fetch(
-			`${API_ENDPOINT}/api/v1/schools/${params.school_id}/classes`,
-		);
-		const { message, data } = await res.json();
-
-		if (!res.ok) {
-			return { message };
-		}
-
-		return data.classes as Class[];
-	} catch (_e) {
-		console.log(_e);
-	}
-
-	return classes;
-});
