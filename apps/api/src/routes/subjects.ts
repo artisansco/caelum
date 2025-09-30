@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/drizzle";
-import { students_table, subjects_table } from "../db/schema";
+import { subjects_table } from "../db/schema";
 
 const app = new Hono().basePath("/subjects");
 

@@ -1,3 +1,4 @@
+import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
@@ -16,6 +17,7 @@ app.use(trimTrailingSlash());
 app.use(logger());
 app.use(cors());
 app.use(secureHeaders());
+app.use("/uploads/*", serveStatic({ root: "./" }));
 app.use(
 	bodyLimit({
 		maxSize: 1024 * 1024 * 5, // 5MB,
@@ -34,17 +36,6 @@ app.route("/api/v1", schools);
 export default app;
 
 /*
-  model Class {
-   id          String    @id @unique @default(uuid())
-   name        String    @unique
-   dateCreated DateTime  @default(now())
-   students    Student[]
-   subjects    Subject[]
-
-   @@index([name])
-   @@map("classes")
- }
-
  model Subject {
    id          String   @id @unique @default(uuid())
    name        String   @unique

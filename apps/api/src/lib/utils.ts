@@ -4,28 +4,28 @@ import { nanoid } from "nanoid";
 import sharp from "sharp";
 
 export async function upload_file(file: File) {
-  const upload_dir = "uploads";
+	const upload_dir = "uploads";
 
-  // Create uploads folder if it doesn't exist
-  if (!existsSync(upload_dir)) {
-    await mkdir(upload_dir, { recursive: true });
-  }
+	// Create uploads folder if it doesn't exist
+	if (!existsSync(upload_dir)) {
+		await mkdir(upload_dir, { recursive: true });
+	}
 
-  const filename = nanoid();
-  const ext = file.name.split(".").at(-1);
+	const filename = nanoid();
+	const ext = file.name.split(".").at(-1);
 
-  if (["png", "jpeg", "jpg"].includes(String(ext))) {
-    await sharp(await file.arrayBuffer())
-      .webp({ lossless: true })
-      .toFile(`${upload_dir}/${filename}.webp`);
+	if (["png", "jpeg", "jpg"].includes(String(ext))) {
+		await sharp(await file.arrayBuffer())
+			.webp({ lossless: true })
+			.toFile(`${upload_dir}/${filename}.${ext}`);
 
-    return `${filename}.webp`;
-  }
+		return `${filename}.${ext}`;
+	}
 
-  await writeFile(
-    `${upload_dir}/${filename}`,
-    Buffer.from(await file.arrayBuffer()),
-  );
+	await writeFile(
+		`${upload_dir}/${filename}.${ext}`,
+		Buffer.from(await file.arrayBuffer()),
+	);
 
-  return filename;
+	return `${filename}.${ext}`;
 }

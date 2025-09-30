@@ -1,8 +1,5 @@
-import { redirect } from "@sveltejs/kit";
-import z from "zod";
-import { getRequestEvent, query } from "$app/server";
-import { API_ENDPOINT } from "$env/static/private";
-import type { CurrentUser, School } from "./types";
+import { getRequestEvent } from "$app/server";
+import type { CurrentUser } from "./types";
 
 export function set_token(key: string, value: string, days = 1) {
 	const { cookies } = getRequestEvent();

@@ -225,10 +225,15 @@
                 </div>
 
                 <div class="flex items-center space-x-2 ml-4">
-                  <button type="button" class="btn-sm bg-blue-50">
+                  <a
+                    href={assignment?.download_url}
+                    download
+                    target="_blank"
+                    class="btn-sm bg-blue-50"
+                  >
                     <i class="icon-[mdi--download] text-blue-800"></i>
                     <span class="sr-only">Download</span>
-                  </button>
+                  </a>
                   <button
                     type="button"
                     class="btn-sm-destructive bg-red-50"
