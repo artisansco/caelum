@@ -141,7 +141,7 @@
                 type="file"
                 name="file"
                 class="input"
-                accept=".pdf,.doc,.docx,.ppt,.pptx"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.webp,.png,.jpg"
                 required
               />
               <p class="text-xs text-red-500">
@@ -183,7 +183,7 @@
             <div class="p-6 hover:bg-gray-50 transition-colors">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <div class="flex items-center space-x-3 mb-2">
+                  <div class="flex items-center space-x-3 mb-2 w-fit">
                     <h3 class="text-base font-medium text-gray-900">
                       {assignment?.title}
                     </h3>
@@ -192,7 +192,7 @@
                     </span>
                   </div>
 
-                  <p class="text-sm text-gray-600 mb-3">
+                  <p class="text-sm text-gray-600 mb-3 w-fit">
                     {assignment.description}
                   </p>
 
