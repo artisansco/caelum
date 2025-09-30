@@ -51,10 +51,9 @@ async function seed_data() {
 				status: f.default({ defaultValue: "active" }),
 				employment_type: f.valuesFromArray({
 					values: [
-						{ values: ["full-time"], weight: 0.8 },
-						{ values: ["part-time"], weight: 0.1 },
-						{ values: ["contract"], weight: 0.05 },
-						{ values: ["intern", "volunteer"], weight: 0.05 },
+						{ values: ["full-time"], weight: 0.7 },
+						{ values: ["part-time"], weight: 0.2 },
+						{ values: ["intern", "volunteer", "contract"], weight: 0.1 },
 					],
 				}),
 				notes: f.loremIpsum(),
@@ -71,7 +70,7 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
-			count: 20,
+			count: 30,
 		},
 
 		classes_table: {
