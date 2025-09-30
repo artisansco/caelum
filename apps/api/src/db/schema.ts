@@ -21,7 +21,6 @@ export const students_table = sqliteTable("students", {
 	phone_number: text(),
 	address: text(),
 	date_of_birth: text(),
-	enrolled_on: text(),
 	avatar_url: text(),
 	status: text({ enum: student_statuses }).notNull().default("enrolled"),
 	school_id: text().references(() => schools_table.id, {

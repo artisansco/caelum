@@ -74,28 +74,6 @@ async function seed_data() {
 			count: 20,
 		},
 
-		students_table: {
-			columns: {
-				id: f.uuid(),
-				admission_number: f.string({ isUnique: true }),
-				first_name: f.firstName(),
-				middle_name: f.default({ defaultValue: undefined }),
-				last_name: f.lastName(),
-				email: f.email(),
-				password: f.default({ defaultValue: bcrypt.hashSync("password", 12) }),
-				avatar_url: f.default({
-					defaultValue: `https://robohash.org/${nanoid()}`,
-				}),
-				contact: f.phoneNumber({ template: "+232########" }),
-				address: f.streetAddress(),
-				status: f.default({ defaultValue: "enrolled" }),
-				admission_date: f.date({ maxDate: new Date() }),
-				created_at: f.timestamp(),
-				updated_at: f.default({ defaultValue: undefined }),
-			},
-			count: 40,
-		},
-
 		classes_table: {
 			columns: {
 				id: f.uuid(),
@@ -118,6 +96,35 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
+		},
+
+		students_table: {
+			columns: {
+				id: f.uuid(),
+				admission_number: f.string({ isUnique: true }),
+				first_name: f.firstName(),
+				middle_name: f.default({ defaultValue: undefined }),
+				last_name: f.lastName(),
+				email: f.email(),
+				gender: f.valuesFromArray({ values: ["male", "female"] }),
+				phone_number: f.phoneNumber({ template: "+232########" }),
+				date_of_birth: f.date({
+					maxDate: (() => {
+						const date = new Date();
+						date.setFullYear(date.getFullYear() - 3);
+						return date;
+					})(),
+				}),
+				avatar_url: f.default({
+					defaultValue: `https://robohash.org/${nanoid()}`,
+				}),
+				address: f.streetAddress(),
+				status: f.default({ defaultValue: "enrolled" }),
+				admission_date: f.date({ maxDate: new Date() }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 250,
 		},
 
 		subjects_table: {
