@@ -34,34 +34,3 @@ app.route("/api/v1", students);
 app.route("/api/v1", schools);
 
 export default app;
-
-/*
- model Subject {
-   id          String   @id @unique @default(uuid())
-   name        String   @unique
-   subjectCode String   @unique
-   dateCreated DateTime @default(now())
-   lastUpdated DateTime @updatedAt
-   classes     Class[]
-
-   @@index([name, subjectCode])
-   @@map("subjects")
- }
-
- model Student {
-   id             String   @id @unique @default(uuid())
-   name           String   @unique
-   roll           String   @unique
-   email          String?  @unique
-   gender         String
-   dateOfBirth    DateTime
-   dateRegistered DateTime @default(now())
-   lastUpdated    DateTime @updatedAt
-
-   classId String?
-   class   Class?  @relation(fields: [classId], references: [id])
-
-   @@index([name, roll, email])
-   @@map("students")
- }
- */

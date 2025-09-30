@@ -1,7 +1,14 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
-import { cities, default_permissions } from "../lib/constants";
+import {
+	cities,
+	default_permissions,
+	employment_types,
+	staff_roles,
+	staff_statuses,
+	student_statuses,
+} from "../lib/constants";
 
 export const students_table = sqliteTable("students", {
 	id: text().primaryKey().$defaultFn(nanoid),
@@ -10,8 +17,17 @@ export const students_table = sqliteTable("students", {
 	middle_name: text(),
 	last_name: text().notNull(),
 	email: text(),
+	gender: text({ enum: ["male", "female"] }).notNull(),
+	phone_number: text(),
+	address: text(),
+	date_of_birth: text(),
+	enrolled_on: text(),
 	avatar_url: text(),
+	status: text({ enum: student_statuses }).notNull().default("enrolled"),
 	school_id: text().references(() => schools_table.id, {
+		onDelete: "cascade",
+	}),
+	class_id: text().references(() => classes_table.id, {
 		onDelete: "cascade",
 	}),
 	admission_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -30,12 +46,8 @@ export const staff_table = sqliteTable("staff", {
 	avatar_url: text(),
 	contact: text().notNull(),
 	address: text().notNull(),
-	status: text({
-		enum: ["active", "vacation", "sick", "resigned"],
-	}).default("active"),
-	employment_type: text({
-		enum: ["full-time", "part-time", "contract", "intern", "volunteer"],
-	})
+	status: text({ enum: staff_statuses }).default("active"),
+	employment_type: text({ enum: employment_types })
 		.notNull()
 		.default("full-time"),
 	notes: text(),
@@ -44,9 +56,7 @@ export const staff_table = sqliteTable("staff", {
 		.references(() => schools_table.id, {
 			onDelete: "cascade",
 		}),
-	role: text({ enum: ["admin", "staff"] })
-		.notNull()
-		.default("staff"),
+	role: text({ enum: staff_roles }).notNull().default("staff"),
 	permissions: text().default(default_permissions.join(",")),
 	employed_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),

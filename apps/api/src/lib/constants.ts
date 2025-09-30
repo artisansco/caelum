@@ -27,3 +27,57 @@ export const cities = [
 	"Bonthe",
 	"Koidu",
 ] as const;
+
+export const permissions = [
+	"students:view",
+	"students:create",
+	"students:edit",
+	"students:delete",
+
+	"staff:view",
+	"staff:create",
+	"staff:edit",
+	"staff:delete",
+
+	"class:view",
+	"class:create",
+	"class:edit",
+	"class:delete",
+
+	"subjects:view",
+	"subjects:create",
+	"subjects:edit",
+	"subjects:delete",
+
+	// "reports:view",
+	// "reports:export",
+
+	// "settings:view",
+	// "settings:edit",
+];
+
+export const staff_roles = ["admin", "staff", "volunteer", "intern"] as const;
+
+export const staff_statuses = [
+	"active",
+	"on-leave",
+	"terminated",
+	"retired",
+	"vacation",
+	"sick",
+	"resigned",
+] as const;
+
+export const student_statuses = [
+	"enrolled",
+	"graduated",
+	"alumni",
+	"expelled",
+] as const;
+
+export const employment_types = [
+	"full-time",
+	"part-time",
+	"contract",
+	"intern",
+] as const;
