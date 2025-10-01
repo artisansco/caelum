@@ -17,7 +17,41 @@ async function seed_data() {
 		students_table: schema.students_table,
 		classes_table: schema.classes_table,
 		subjects_table: schema.subjects_table,
+		subscriptions_table: schema.subscriptions_table,
+		plans_table: schema.plans_table,
 	}).refine((f) => ({
+		plans_table: {
+			columns: {
+				id: f.uuid(),
+				name: f.valuesFromArray({ values: ["free", "basic", "pro"] }),
+				description: f.loremIpsum(),
+				duration_days: f.default({ defaultValue: 30 }),
+				price: f.number({ minValue: 0, maxValue: 499 }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 3,
+		},
+
+		subscriptions_table: {
+			columns: {
+				id: f.uuid(),
+				start_date: f.timestamp(),
+				end_date: f.default({
+					defaultValue: (() => {
+						const startDate = new Date();
+						startDate.setMonth(startDate.getMonth() + 1);
+						return startDate.toISOString();
+					})(),
+				}),
+				status: f.valuesFromArray({ values: ["active", "inactive"] }),
+				// price_paid: f.number({ minValue: 0 }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			// count: 3,
+		},
+
 		schools_table: {
 			columns: {
 				id: f.uuid(),

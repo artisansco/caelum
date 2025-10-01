@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
 import {
 	cities,
@@ -52,9 +52,7 @@ export const staff_table = sqliteTable("staff", {
 	notes: text(),
 	school_id: text()
 		.notNull()
-		.references(() => schools_table.id, {
-			onDelete: "cascade",
-		}),
+		.references(() => schools_table.id, { onDelete: "cascade" }),
 	role: text({ enum: staff_roles }).notNull().default("staff"),
 	permissions: text().default(default_permissions.join(",")),
 	employed_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -96,7 +94,6 @@ export const subjects_table = sqliteTable("subjects", {
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
-// assignments table schema
 export const assignments_table = sqliteTable("assignments", {
 	id: text().primaryKey().$defaultFn(nanoid),
 	title: text().notNull(),
@@ -113,7 +110,6 @@ export const assignments_table = sqliteTable("assignments", {
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
-// minimal classes table schema
 export const classes_table = sqliteTable("classes", {
 	id: text().primaryKey().$defaultFn(nanoid),
 	name: text().notNull(),
@@ -124,28 +120,33 @@ export const classes_table = sqliteTable("classes", {
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
-// TODO: subscription table for schools
-// export const subscriptions_table = sqliteTable("subscriptions", {
-// 	id: text().primaryKey().$defaultFn(nanoid),
-// 	school_id: text().notNull().references(() => schools_table.id, {
-// 		onDelete: "cascade",
-// 	}),
-// 	plan_id: text().notNull().references(() => plans_table.id, {
-// 		onDelete: "cascade",
-// 	}),
-// 	start_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-// 	end_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-// 	status: text({ enum: ["active", "inactive"] }).notNull().default("active"),
-// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
-// });
+// subscription table for schools
+export const subscriptions_table = sqliteTable("subscriptions", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	plan_id: text()
+		.notNull()
+		.references(() => plans_table.id, { onDelete: "cascade" }),
+	start_date: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	end_date: text(),
+	status: text({ enum: ["active", "inactive"] })
+		.notNull()
+		.default("active"),
+	// payment_id: text().references(() => payments_table.id),
+	// price_paid: int().notNull(),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
 
-// TODO: plans table for subscriptions
-// export const plans_table = sqliteTable("plans", {
-// 	id: text().primaryKey().$defaultFn(nanoid),
-// 	name: text().notNull(),
-// 	description: text().notNull(),
-// 	price: text().notNull(),
-// 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-// 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
-// });
+// plans table for subscriptions
+export const plans_table = sqliteTable("plans", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	name: text().notNull().unique(),
+	description: text(),
+	duration_days: int().notNull().default(30), // plan length in days
+	price: int().notNull().default(0),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
