@@ -2,7 +2,6 @@
   import { Avatar, Select } from "melt/components";
   import { format } from "@formkit/tempo";
   import { get_status_pill } from "$lib/utils";
-  import { page } from "$app/state";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
   import { melt } from "@melt-ui/svelte";
@@ -13,10 +12,10 @@
   } from "../students.remote";
   import { student_statuses } from "$lib/constants";
 
-  const student = $derived(
-    await get_student_by_id(String(page.params.student_id)),
-  );
-  let status = $state(student.status);
+  const { params } = $props();
+
+  const student = $derived(await get_student_by_id(String(params.student_id)));
+  let status = $derived(student.status);
   let edit_mode = $state(false);
 
   $effect(() => {
@@ -159,16 +158,8 @@
             </header>
 
             <input type="hidden" name="status" bind:value={status} />
-            <input
-              type="hidden"
-              name="student_id"
-              value={page.params?.student_id}
-            />
-            <input
-              type="hidden"
-              name="school_id"
-              value={page.params?.school_id}
-            />
+            <input type="hidden" name="student_id" value={params.student_id} />
+            <input type="hidden" name="school_id" value={params.school_id} />
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div class="flex flex-col space-y-2">

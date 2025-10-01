@@ -10,8 +10,8 @@
   import { melt } from "@melt-ui/svelte";
 
   const staff = $derived(await get_staff_by_id(String(page.params.staff_id)));
-  let role = $state(staff.role);
-  let status = $state(staff.status || "active");
+  let role = $derived(staff.role);
+  let status = $derived(staff.status);
   let edit_mode = $state(false);
   let view_password = $state(false);
 

@@ -18,7 +18,7 @@
   let studentGrowthChartInstance: Chart;
 
   // Year filter for student growth chart
-  let selectedYear = 2024;
+  let selectedYear = $state(2024);
 
   const upcomingEvents = [
     { date: "Today, 2:00 PM", event: "Staff Meeting", type: "meeting" },
@@ -288,7 +288,7 @@
           <select
             id="year-filter"
             bind:value={selectedYear}
-            on:change={updateStudentGrowthChart}
+            onchange={updateStudentGrowthChart}
             class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value={2024}>2024</option>

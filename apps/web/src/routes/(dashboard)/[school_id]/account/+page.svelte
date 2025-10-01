@@ -8,7 +8,7 @@
   const { params } = $props();
 
   const school = $derived(await get_school(params.school_id));
-  let city = $state(school.city);
+  let city = $derived(school.city);
   let edit_mode = $state(false);
 
   $effect(() => {
