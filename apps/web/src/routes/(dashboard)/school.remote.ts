@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import z from "zod";
-import { form, getRequestEvent, query } from "$app/server";
+import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 import { guard_route } from "$lib/auth";
 import { cities } from "$lib/constants";
@@ -74,6 +74,7 @@ export const update_school = form(school_schema, async (parsed) => {
 	return { message };
 });
 
+/* ==================== Classes RF for school ============================ */
 export const get_classes = query(z.string(), async (school_id) => {
 	guard_route();
 
@@ -98,3 +99,69 @@ export const get_classes = query(z.string(), async (school_id) => {
 
 	return data.classes as Class[];
 });
+
+export const add_class = form(
+	z.object({
+		school_id: z.string(),
+		name: z
+			.string()
+			.trim()
+			.min(2, { error: "Name must be at least 2 characters long" }),
+	}),
+	async (parsed) => {
+		const { cookies, fetch } = getRequestEvent();
+
+		const res = await fetch(
+			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/classes`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${cookies.get("token")}`,
+				},
+				body: JSON.stringify({ name: parsed.name }),
+			},
+		);
+		const { message } = await res.json();
+
+		if (!res.ok) {
+			return { message };
+		}
+
+		await get_classes(parsed.school_id).refresh();
+
+		return { message };
+	},
+);
+
+export const delete_class = command(
+	z.object({
+		school_id: z.string(),
+		class_id: z.string(),
+	}),
+	async ({ school_id, class_id }) => {
+		const { cookies, fetch } = getRequestEvent();
+
+		try {
+			const res = await fetch(
+				`${API_ENDPOINT}/api/v1/schools/${school_id}/classes/${class_id}`,
+				{
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${cookies.get("token")}`,
+					},
+				},
+			);
+			const { message } = await res.json();
+			if (!res.ok) {
+				return { message };
+			}
+
+			await get_classes(school_id).refresh();
+		} catch (_e) {
+			//@ts-expect-error
+			return { message: _e.message };
+		}
+	},
+);

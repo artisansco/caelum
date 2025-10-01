@@ -247,11 +247,14 @@ app.post("/:school_id/classes", async (c) => {
 			.values({ name: body.name, school_id: c.req.param("school_id") })
 			.returning();
 
-		return c.json({
-			status: "success",
-			message: "class created successfully",
-			data: new_class,
-		});
+		return c.json(
+			{
+				status: "success",
+				message: "class created successfully",
+				data: new_class,
+			},
+			201,
+		);
 	} catch (_e) {
 		console.log(_e);
 		// @ts-expect-error

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { get_classes } from "../assignments/assignments.remote";
-  import { add_class, delete_class } from "./misc.remote";
+  import { add_class, get_classes, delete_class } from "../../school.remote";
 </script>
 
 <div class="gap-8 flex flex-col max-w-sm">
@@ -43,7 +42,7 @@
     </thead>
 
     <tbody class="divide-y divide-gray-200">
-      {#each await get_classes() as { id, name }}
+      {#each await get_classes(String(page.params.school_id)) as { id, name }}
         <tr class="[&>td]:px-5 [&>td]:py-3">
           <td>{name}</td>
           <td class="">

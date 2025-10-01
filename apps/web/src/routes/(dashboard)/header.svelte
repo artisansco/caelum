@@ -12,7 +12,7 @@
   <nav class="mx-auto flex w-full items-center px-4 sm:px-6">
     <div class="ms-auto flex w-full items-center justify-end gap-x-3">
       <div class="mr-auto -ml-5">
-        <p class="font-bold">{school.name}</p>
+        <p class="font-bold">{school?.name}</p>
         <p class="label font-light">
           Current Plan: <span class="badge">{school.current_plan.name}</span>
         </p>

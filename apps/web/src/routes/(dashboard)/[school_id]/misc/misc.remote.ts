@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-import { get_classes } from "../assignments/assignments.remote";
+import { get_classes } from "../../school.remote";
 
 const subject_schema = z.object({
 	name: z
@@ -77,74 +77,6 @@ export const delete_subject = command("unchecked", async (subject_id) => {
 		return { message: _e.message };
 	}
 });
-
-export const add_class = form(
-	z.object({
-		school_id: z.string(),
-		name: z
-			.string()
-			.trim()
-			.min(2, { error: "Name must be at least 2 characters long" }),
-	}),
-	async (parsed) => {
-		const { cookies, fetch } = getRequestEvent();
-
-		try {
-			const res = await fetch(
-				`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/classes`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${cookies.get("token")}`,
-					},
-					body: JSON.stringify({ name: parsed.name }),
-				},
-			);
-			const { message } = await res.json();
-			if (!res.ok) {
-				return { message };
-			}
-
-			await get_classes().refresh();
-		} catch (_e) {
-			//@ts-expect-error
-			return { message: _e.message };
-		}
-	},
-);
-
-export const delete_class = command(
-	z.object({
-		school_id: z.string(),
-		class_id: z.string(),
-	}),
-	async ({ school_id, class_id }) => {
-		const { cookies, fetch } = getRequestEvent();
-
-		try {
-			const res = await fetch(
-				`${API_ENDPOINT}/api/v1/schools/${school_id}/classes/${class_id}`,
-				{
-					method: "DELETE",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${cookies.get("token")}`,
-					},
-				},
-			);
-			const { message } = await res.json();
-			if (!res.ok) {
-				return { message };
-			}
-
-			await get_classes().refresh();
-		} catch (_e) {
-			//@ts-expect-error
-			return { message: _e.message };
-		}
-	},
-);
 
 // School Years
 export const get_school_years = query(z.string(), async (school_id) => {
