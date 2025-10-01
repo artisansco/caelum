@@ -5,8 +5,10 @@ import { db } from "../db/drizzle";
 import {
 	assignments_table,
 	classes_table,
+	plans_table,
 	schools_table,
 	staff_table,
+	subscriptions_table,
 } from "../db/schema";
 import { upload_file } from "../lib/utils";
 import { validate_assignment } from "../validators/assignments";
@@ -17,13 +19,30 @@ const app = new Hono().basePath("/schools");
 /* ======================= Routes for A specific School =============================== */
 
 app.get("/:id", async (c) => {
-	const school = await db.query.schools_table.findFirst({
-		where: eq(schools_table.id, c.req.param("id")),
-	});
-
-	if (!school) {
-		return c.json({ status: "error", message: "school not found" }, 404);
-	}
+	const [school] = await db
+		.select({
+			id: schools_table.id,
+			name: schools_table.name,
+			address: schools_table.address,
+			license: schools_table.license,
+			city: schools_table.city,
+			logo_url: schools_table.logo_url,
+			created_at: schools_table.created_at,
+			updated_at: schools_table.updated_at,
+			current_plan: {
+				id: plans_table.id,
+				name: plans_table.name,
+			},
+		})
+		.from(schools_table)
+		.leftJoin(
+			subscriptions_table,
+			eq(subscriptions_table.school_id, schools_table.id),
+		)
+		.leftJoin(plans_table, eq(plans_table.id, subscriptions_table.plan_id))
+		.orderBy(desc(subscriptions_table.created_at))
+		.where(eq(schools_table.id, c.req.param("id")))
+		.limit(1);
 
 	return c.json({
 		status: "success",

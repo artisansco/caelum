@@ -80,6 +80,10 @@ export type School = {
 	phone?: string;
 	email?: string;
 	website?: string;
+	current_plan: {
+		id: string;
+		name: "free" | "basic" | "pro";
+	};
 	created_at?: string | Date;
 	updated_at?: string | Date;
 };

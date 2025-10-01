@@ -11,7 +11,12 @@
 >
   <nav class="mx-auto flex w-full items-center px-4 sm:px-6">
     <div class="ms-auto flex w-full items-center justify-end gap-x-3">
-      <p class="mr-auto -ml-5 font-bold">{school.name}</p>
+      <div class="mr-auto -ml-5">
+        <p class="font-bold">{school.name}</p>
+        <p class="label font-light">
+          Current Plan: <span class="badge">{school.current_plan.name}</span>
+        </p>
+      </div>
 
       <div class="flex flex-row items-center justify-end gap-1">
         <button type="button" class="btn-sm-ghost">
