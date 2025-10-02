@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { z } from "zod";
-import { form, getRequestEvent } from "$app/server";
+import { command, form, getRequestEvent } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 import { cities } from "$lib/constants";
 import { set_token } from "$lib/user";
@@ -80,4 +80,9 @@ export const register = form(register_schema, async (parsed) => {
 	}
 
 	redirect(302, "/");
+});
+
+export const logout = command(async () => {
+	const { cookies } = getRequestEvent();
+	cookies.delete("token", { path: "/" });
 });

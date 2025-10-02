@@ -12,7 +12,7 @@
   <nav class="mx-auto flex w-full items-center px-4 sm:px-6">
     <div class="ms-auto flex w-full items-center justify-end gap-x-3">
       <div class="mr-auto -ml-5">
-        <p class="font-bold">{school?.name}</p>
+        <p class="font-bold">{school.name}</p>
         <p class="label font-light">
           Current Plan: <span class="badge">{school.current_plan.name}</span>
         </p>
@@ -73,13 +73,6 @@
                 <span class="icon-[lucide--cog] size-4"></span>
                 Profile
               </a>
-
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 rounded p-2 text-sm text-red-700 hover:bg-red-100 hover:text-red-900"
-              >
-                <span class="icon-[lucide--log-out] size-4"></span> Logout
-              </button>
             </div>
           {/snippet}
         </Popover>

@@ -247,10 +247,6 @@
   }
 </script>
 
-<svelte:head>
-  <title>Student Dashboard Overview</title>
-</svelte:head>
-
 <div class="min-h-screen bg-gray-50 p-6">
   <header class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
