@@ -81,6 +81,10 @@ export const schools_table = sqliteTable("schools", {
 	license: text().unique(),
 	city: text({ enum: cities }).default("Freetown"),
 	logo_url: text(),
+	contact: text().unique(),
+	email: text().unique(),
+	website: text().unique(),
+	founded_on: text(),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });

@@ -60,8 +60,12 @@ async function seed_data() {
 				license: f.string({ isUnique: true }),
 				city: f.default({ defaultValue: "Freetown" }),
 				logo_url: f.default({
-					defaultValue: `https://robohash.org/${nanoid()}`,
+					defaultValue: `https://placehold.co/150?text=${nanoid().at(0)}`,
 				}),
+				contact: f.phoneNumber({ template: "+232########" }),
+				email: f.email(),
+				website: f.default({ defaultValue: undefined }),
+				founded_on: f.date({ maxDate: new Date() }),
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
@@ -104,7 +108,7 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
-			count: 30,
+			count: 50,
 		},
 
 		classes_table: {
@@ -157,7 +161,7 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
-			count: 250,
+			count: 300,
 		},
 
 		subjects_table: {
