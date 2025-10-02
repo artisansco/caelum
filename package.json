@@ -13,7 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "workspaces": [
-    "apps/*"
+    "web",
+    "api"
   ],
   "repository": {
     "type": "git",
