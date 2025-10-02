@@ -21,14 +21,15 @@ const app = new Hono().basePath("/schools");
 app.get("/:id", async (c) => {
 	const [school] = await db
 		.select({
-			id: schools_table.id,
-			name: schools_table.name,
-			address: schools_table.address,
-			license: schools_table.license,
-			city: schools_table.city,
-			logo_url: schools_table.logo_url,
-			created_at: schools_table.created_at,
-			updated_at: schools_table.updated_at,
+			...getTableColumns(schools_table),
+			// id: schools_table.id,
+			// name: schools_table.name,
+			// address: schools_table.address,
+			// license: schools_table.license,
+			// city: schools_table.city,
+			// logo_url: schools_table.logo_url,
+			// created_at: schools_table.created_at,
+			// updated_at: schools_table.updated_at,
 			current_plan: {
 				id: plans_table.id,
 				name: plans_table.name,

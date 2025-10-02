@@ -45,7 +45,7 @@
           </h1>
           <p class="text-gray-600 text-sm">
             Founded on {format({
-              date: school.created_at as Date,
+              date: school.founded_on as Date,
               format: "MMMM DD, YYYY",
             })}
           </p>
@@ -59,7 +59,7 @@
             <button
               type="button"
               onclick={() => (edit_mode = !edit_mode)}
-              class="btn-sm-ghost"
+              class="btn-sm-destructive"
             >
               <i class="icon-[mdi--close]"></i>
               Cancel
@@ -257,9 +257,9 @@
                 type="tel"
                 id="phone"
                 name="phone"
-                defaultValue={school.phone || ""}
+                defaultValue={school.contact}
                 disabled={!edit_mode}
-                placeholder="+232-XX-XXX-XXX"
+                placeholder="+232XXXXXXXX"
                 class="input {edit_mode
                   ? ''
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
@@ -277,7 +277,7 @@
                 type="email"
                 id="email"
                 name="email"
-                defaultValue={school.email || ""}
+                defaultValue={school.email}
                 disabled={!edit_mode}
                 placeholder="info@school.edu"
                 class="input {edit_mode
@@ -317,7 +317,7 @@
                 type="date"
                 id="founded_on"
                 name="founded_on"
-                defaultValue={school.created_at}
+                defaultValue={school.founded_on}
                 disabled={!edit_mode}
                 class="input {edit_mode
                   ? ''

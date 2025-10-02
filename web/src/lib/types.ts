@@ -77,9 +77,10 @@ export type School = {
 	license: string;
 	city: (typeof cities)[number];
 	logo_url?: string;
-	phone?: string;
-	email?: string;
+	contact: string;
+	email: string;
 	website?: string;
+	founded_on: string | Date;
 	current_plan: {
 		id: string;
 		name: "free" | "basic" | "pro";
