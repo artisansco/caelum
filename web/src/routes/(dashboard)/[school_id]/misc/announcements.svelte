@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
   import { Select } from "melt/components";
@@ -8,6 +8,7 @@
     get_announcements,
     toggle_announcement_status,
   } from "./misc.remote";
+  import { format } from "@formkit/tempo";
 
   let priority = $state("medium");
   let announcement_type = $state("general");
@@ -18,17 +19,7 @@
     }
   });
 
-  function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  function getPriorityColor(priority) {
+  function getPriorityColor(priority: string) {
     switch (priority) {
       case "high":
         return "bg-red-100 text-red-800";
@@ -41,7 +32,7 @@
     }
   }
 
-  function getTypeColor(type) {
+  function getTypeColor(type: string) {
     switch (type) {
       case "urgent":
         return "bg-red-100 text-red-800";
@@ -56,7 +47,7 @@
     }
   }
 
-  function getTypeIcon(type) {
+  function getTypeIcon(type: string) {
     switch (type) {
       case "urgent":
         return "icon-[mdi--alert-circle]";
@@ -78,7 +69,7 @@
     <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
-          School Announcements
+          School Announcements &amp; Events
         </h3>
         <p class="text-sm text-gray-600 mt-1">
           Manage important announcements and notices for your school
@@ -86,7 +77,7 @@
       </div>
 
       <div class="divide-y divide-gray-200">
-        {#each await get_announcements(page.params.school_id) as announcement}
+        {#each await get_announcements(String(page.params.school_id)) as announcement}
           <div class="p-6 hover:bg-gray-50 transition-colors">
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -133,13 +124,12 @@
                 <div class="flex items-center text-xs text-gray-500 space-x-4">
                   <div class="flex items-center gap-1">
                     <i class="icon-[mdi--calendar] size-3"></i>
-                    <span>Created: {formatDate(announcement.created_at)}</span>
+                    <span>Created: {format(announcement.created_at)}</span>
                   </div>
                   {#if announcement.expires_at}
                     <div class="flex items-center gap-1">
                       <i class="icon-[mdi--calendar-end] size-3"></i>
-                      <span>Expires: {formatDate(announcement.expires_at)}</span
-                      >
+                      <span>Expires: {format(announcement.expires_at)}</span>
                     </div>
                   {/if}
                   {#if announcement.target_audience}
@@ -346,7 +336,11 @@
             >
               Target Audience
             </label>
-            <select id="target_audience" name="target_audience" class="input">
+            <select
+              id="target_audience"
+              name="target_audience"
+              class="select w-full"
+            >
               <option value="">All</option>
               <option value="students">Students</option>
               <option value="teachers">Teachers</option>
@@ -373,24 +367,8 @@
             </p>
           </div>
 
-          <div class="flex items-center">
-            <input
-              type="checkbox"
-              id="is_active"
-              name="is_active"
-              checked
-              class="checkbox mr-3"
-            />
-            <label for="is_active" class="text-sm text-gray-700">
-              Publish immediately
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            class="btn w-full"
-            disabled={add_announcement.pending > 0}
-          >
+          <button type="button" class="btn w-full" disabled={true}>
+            <!-- disabled={add_announcement.pending > 0} -->
             {#if add_announcement.pending > 0}
               <i class="icon-[mdi--loading] animate-spin mr-2"></i>
               Creating...
