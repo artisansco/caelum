@@ -11,9 +11,9 @@
     "strict": true,
     "moduleResolution": "bundler"
   },
-  "include": [
-    "drizzle/",
-    "drizzle.config.ts",
-    "prod.sql"
-  ]
+  // "include": [
+  //   "drizzle/",
+  //   "drizzle.config.ts",
+  //   "prod.sql"
+  // ]
 }

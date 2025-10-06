@@ -3,9 +3,11 @@
   import { toast } from "svelte-sonner";
   import { cities } from "$lib/constants";
   import { register } from "../auth.remote";
+  import { get_field_error } from "$lib/utils";
 
-  let city = $state("");
-  const field_errors = $derived(register.issues);
+  const { address, city, email, license, name, password } = register.fields;
+
+  let selected_city = $state("");
 
   $effect(() => {
     if (register.result?.message) {
@@ -36,23 +38,19 @@
               School Information
             </legend>
 
-            <input type="hidden" name="city" bind:value={city} />
+            <input type="hidden" name="city" bind:value={selected_city} />
             <div class="grid gap-6">
               <div class="">
                 <label for="name" class="label mb-2 text-sm text-gray-700">
                   School Name *
                 </label>
                 <input
-                  id="name"
+                  {...name.as("text")}
                   type="text"
-                  name="name"
-                  class="input w-full border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200"
-                  placeholder="Enter your business name"
+                  class="input w-full"
                   required
                 />
-                <span class="text-xs text-red-500">
-                  {field_errors?.name?.at(0)?.message}
-                </span>
+                <span class="text-xs">{get_field_error(name)}</span>
               </div>
 
               <div>
@@ -60,53 +58,51 @@
                   Address *
                 </label>
                 <input
-                  id="address"
+                  {...address.as("text")}
                   type="text"
-                  name="address"
-                  class="input w-full border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder="Enter your business address"
+                  class="input w-full"
                   required
                 />
-                <span class="text-xs text-red-500">
-                  {field_errors?.address?.at(0)?.message}
-                </span>
+                <span class="text-xs">{get_field_error(address)}</span>
               </div>
 
-              <Select bind:value={city}>
-                {#snippet children(select)}
-                  <label
-                    for={select.ids.trigger}
-                    class="label -mb-4 text-sm text-gray-700"
-                  >
-                    City *
-                  </label>
-                  <button
-                    {...select.trigger}
-                    class="mb-0 flex w-full items-center justify-between rounded-md border border-gray-300 px-4 py-2 text-sm"
-                  >
-                    {select.value || "Select city"}
-                    <i class="icon-[lucide--chevron-down] size-5"></i>
-                  </button>
-                  <span class="-mt-5 text-xs italic text-red-500">
-                    {field_errors?.city?.at(0)?.message}
-                  </span>
+              <div>
+                <Select bind:value={selected_city}>
+                  {#snippet children(select)}
+                    <label
+                      for={select.ids.trigger}
+                      class="label mb-2 text-sm text-gray-700"
+                    >
+                      City *
+                    </label>
+                    <button
+                      {...select.trigger}
+                      class="btn-outline w-full justify-between mb-2"
+                    >
+                      {select.value || "Select city"}
+                      <i class="icon-[lucide--chevron-down]"></i>
+                    </button>
+                    <span class="text-xs text-red-500"
+                      >{get_field_error(city)}</span
+                    >
 
-                  <div
-                    {...select.content}
-                    class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  >
-                    {#each cities as city}
-                      <div
-                        {...select.getOption(city, city)}
-                        class="{city === select.value &&
-                          'bg-gray-100'} px-3 py-1 hover:bg-gray-100"
-                      >
-                        {city}
-                      </div>
-                    {/each}
-                  </div>
-                {/snippet}
-              </Select>
+                    <div
+                      {...select.content}
+                      class="max-h-48 w-full rounded-lg border border-gray-300 text-sm"
+                    >
+                      {#each cities as city}
+                        <div
+                          {...select.getOption(city, city)}
+                          class="{city === select.value &&
+                            'bg-gray-100'} btn-sm-ghost w-full justify-start"
+                        >
+                          {city}
+                        </div>
+                      {/each}
+                    </div>
+                  {/snippet}
+                </Select>
+              </div>
 
               <div class="-mt-3">
                 <label for="license" class="label mb-2 text-sm text-gray-700">
@@ -114,16 +110,12 @@
                   <span class="font-normal text-gray-500">(if applicable)</span>
                 </label>
                 <input
-                  id="license"
+                  {...license.as("text")}
                   type="text"
-                  name="license"
-                  class="input w-full border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder="Enter license number"
+                  class="input w-full"
                   required
                 />
-                <span class="text-xs text-red-500">
-                  {field_errors?.license?.at(0)?.message}
-                </span>
+                <span class="text-xs">{get_field_error(license)}</span>
               </div>
             </div>
           </fieldset>
@@ -138,17 +130,8 @@
               <label for="email" class="label mb-2 text-sm text-gray-700">
                 Email
               </label>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                class="input w-full border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="Enter email"
-                required
-              />
-              <span class="text-xs text-red-500">
-                {field_errors?.email?.at(0)?.message}
-              </span>
+              <input {...email.as("email")} class="input w-full" required />
+              <span class="text-xs">{get_field_error(email)}</span>
             </div>
 
             <div>
@@ -156,16 +139,11 @@
                 Password
               </label>
               <input
-                id="password"
-                type="password"
-                name="password"
-                class="input w-full border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="Enter password"
+                {...password.as("password")}
+                class="input w-full"
                 required
               />
-              <span class="text-xs text-red-500">
-                {field_errors?.password?.at(0)?.message}
-              </span>
+              <span class="text-xs">{get_field_error(password)}</span>
             </div>
           </fieldset>
         </div>
@@ -177,13 +155,9 @@
             I confirm that my school is properly verified
           </p>
 
-          <button
-            type="submit"
-            class="btn flex items-center gap-2"
-            disabled={register.pending > 0}
-          >
+          <button type="submit" class="btn" disabled={register.pending > 0}>
             {#if register.pending > 0}
-              <i class="icon-[mdi--loading] size-5 animate-spin"></i>
+              <i class="icon-[mdi--loading] animate-spin"></i>
               Completing Registration...
             {:else}
               <i class="icon-[mdi--check-circle]"></i>

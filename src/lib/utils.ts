@@ -1,3 +1,4 @@
+import type { RemoteFormField } from "@sveltejs/kit";
 import type { staff_statuses, student_statuses } from "./constants";
 
 export function format_permissions(permission: string) {
@@ -18,4 +19,11 @@ export function get_status_pill(
 		default:
 			return "badge-outline";
 	}
+}
+
+export function get_field_error(key: RemoteFormField<string>) {
+	const issues = key.issues();
+	if (!issues) return;
+
+	return issues.at(0)?.message;
 }
