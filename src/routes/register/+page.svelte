@@ -5,7 +5,8 @@
   import { register } from "../auth.remote";
   import { get_field_error } from "$lib/utils";
 
-  const { address, city, email, license, name, password } = register.fields;
+  const { address, city, email, license, name, password, contact } =
+    register.fields;
 
   let selected_city = $state("");
 
@@ -30,8 +31,8 @@
   <!-- Form -->
   <div class="mx-auto max-w-4xl px-6 py-8">
     <div class="rounded-2xl bg-white p-8 shadow-lg">
-      <form {...register}>
-        <div class="space-y-8">
+      <form {...register} oninput={() => register.validate()}>
+        <div class="space-y-8 [&_input]:w-full">
           <!-- School Information -->
           <fieldset class="space-y-6 [&_input]:placeholder:text-xs">
             <legend class="mb-6 text-xl font-semibold text-gray-900">
@@ -44,26 +45,30 @@
                 <label for="name" class="label mb-2 text-sm text-gray-700">
                   School Name *
                 </label>
-                <input
-                  {...name.as("text")}
-                  type="text"
-                  class="input w-full"
-                  required
-                />
-                <span class="text-xs">{get_field_error(name)}</span>
+                <input {...name.as("text")} type="text" class="input" />
+                <span class="text-xs text-red-500">
+                  {get_field_error(name)}
+                </span>
               </div>
 
               <div>
                 <label for="address" class="label mb-2 text-sm text-gray-700">
                   Address *
                 </label>
-                <input
-                  {...address.as("text")}
-                  type="text"
-                  class="input w-full"
-                  required
-                />
-                <span class="text-xs">{get_field_error(address)}</span>
+                <input {...address.as("text")} type="text" class="input" />
+                <span class="text-xs text-red-500">
+                  {get_field_error(address)}
+                </span>
+              </div>
+
+              <div>
+                <label for="address" class="label mb-2 text-sm text-gray-700">
+                  Contact/Phone Number *
+                </label>
+                <input {...contact.as("tel")} class="input" />
+                <span class="text-xs text-red-500">
+                  {get_field_error(contact)}
+                </span>
               </div>
 
               <div>
@@ -82,9 +87,9 @@
                       {select.value || "Select city"}
                       <i class="icon-[lucide--chevron-down]"></i>
                     </button>
-                    <span class="text-xs text-red-500"
-                      >{get_field_error(city)}</span
-                    >
+                    <span class="text-xs text-red-500">
+                      {get_field_error(city)}
+                    </span>
 
                     <div
                       {...select.content}
@@ -109,13 +114,10 @@
                   License Number *
                   <span class="font-normal text-gray-500">(if applicable)</span>
                 </label>
-                <input
-                  {...license.as("text")}
-                  type="text"
-                  class="input w-full"
-                  required
-                />
-                <span class="text-xs">{get_field_error(license)}</span>
+                <input {...license.as("text")} type="text" class="input" />
+                <span class="text-xs text-red-500">
+                  {get_field_error(license)}
+                </span>
               </div>
             </div>
           </fieldset>
@@ -130,20 +132,18 @@
               <label for="email" class="label mb-2 text-sm text-gray-700">
                 Email
               </label>
-              <input {...email.as("email")} class="input w-full" required />
-              <span class="text-xs">{get_field_error(email)}</span>
+              <input {...email.as("email")} class="input" />
+              <span class="text-xs text-red-500">{get_field_error(email)}</span>
             </div>
 
             <div>
               <label for="password" class="label mb-2 text-sm text-gray-700">
                 Password
               </label>
-              <input
-                {...password.as("password")}
-                class="input w-full"
-                required
-              />
-              <span class="text-xs">{get_field_error(password)}</span>
+              <input {...password.as("password")} class="input" />
+              <span class="text-xs text-red-500">
+                {get_field_error(password)}
+              </span>
             </div>
           </fieldset>
         </div>

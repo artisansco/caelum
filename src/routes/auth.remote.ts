@@ -1,82 +1,67 @@
 import { redirect } from "@sveltejs/kit";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { command, form, getRequestEvent } from "$app/server";
-import { API_ENDPOINT } from "$env/static/private";
 import { set_token } from "$lib/auth";
-import { cities } from "$lib/constants";
+import { config } from "$lib/config";
+import { db } from "$lib/db/drizzle";
+import { schools_table, staff_table } from "$lib/db/schema";
+import { school_schema } from "$lib/schema/schools";
 
 export const login = form(
 	z.object({ email: z.email(), password: z.string() }),
 	async (parsed) => {
-		const { fetch } = getRequestEvent();
-		let redirect_to = "/";
+		const user = await db.query.staff_table.findFirst({
+			where: eq(staff_table.email, parsed.email),
+			columns: { id: true, password: true, school_id: true },
+		});
 
-		try {
-			const res = await fetch(`${API_ENDPOINT}/api/v1/auth/token`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(parsed),
-			});
-			const { message, data } = await res.json();
-			if (!res.ok) {
-				console.log(message);
-				return { message: String(message) };
-			}
-
-			set_token("token", data.token);
-
-			redirect_to = `/${data.school_id}`;
-		} catch (_e) {
-			if (_e instanceof Error) {
-				console.error(_e.message);
-				return { message: _e.message };
-			}
+		if (!user || !bcrypt.compare(parsed.password, user.password)) {
+			return { message: "invalid email or password" };
 		}
 
-		redirect(302, redirect_to);
+		const token = jwt.sign(
+			{ id: user.id, school_id: user.school_id },
+			config.JWT_SECRET,
+			{ expiresIn: "1d" },
+		);
+
+		set_token("token", token);
+
+		redirect(302, user.school_id);
 	},
 );
 
-const register_schema = z.object({
-	name: z
-		.string({ error: "school name must be a string" })
-		.trim()
-		.min(2, { error: "school name must be at least 2 characters long" }),
-	license: z
-		.string({ error: "license number must be a string" })
-		.trim()
-		.min(2, { error: "license number must be at least 2 characters long" }),
-	address: z
-		.string({ error: "address must be a string" })
-		.trim()
-		.min(2, { error: "address must be at least 2 characters long" }),
-	city: z.enum(cities, { error: "City is invalid or not in the list" }),
-	email: z.email(),
-	password: z
-		.string()
-		.min(6, { error: "Password must be at least 6 characters long" }),
-});
-
-export const register = form(register_schema, async (parsed) => {
-	const { fetch } = getRequestEvent();
-
+export const register = form(school_schema, async (parsed) => {
 	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/schools`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(parsed),
-		});
-		const { message, data } = await res.json();
-		if (!res.ok) {
-			return { message };
-		}
+		const [school] = await db
+			.insert(schools_table)
+			.values({
+				name: parsed.name,
+				address: parsed.address,
+				city: parsed.city,
+				logo_url: `https://placehold.co/100?text=${parsed.name[0]}`,
+			})
+			.returning({ id: schools_table.id });
 
-		console.log(data);
+		await db.insert(staff_table).values({
+			staff_id: nanoid(),
+			first_name: "School",
+			last_name: "Admin",
+			role: "admin",
+			address: parsed.address,
+			contact: "",
+			email: parsed.email,
+			password: parsed.password,
+			school_id: school.id,
+			employed_date: new Date().toISOString(),
+		});
 	} catch (_e) {
-		if (_e instanceof Error) {
-			console.error(_e.message);
-			return { message: _e.message };
-		}
+		console.log(_e);
+		return { message: "failed to register new school" };
 	}
 
 	redirect(302, "/");

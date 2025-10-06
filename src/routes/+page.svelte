@@ -1,6 +1,7 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
   import { login } from "./auth.remote";
+  import { get_field_error } from "$lib/utils";
 
   const { email, password } = login.fields;
 
@@ -33,16 +34,14 @@
           <div class="flex flex-col gap-1">
             <label for="" class="label text-gray-600">Email</label>
             <input {...email.as("email")} placeholder="me@acme.com" required />
-            <span class="text-xs text-red-500">
-              {email.issues()?.at(0)?.message}
-            </span>
+            <span class="text-xs text-red-500">{get_field_error(email)} </span>
           </div>
 
           <div class="flex flex-col gap-1">
             <label for="" class="label text-gray-600">Password</label>
             <input {...password.as("password")} placeholder="******" required />
             <span class="text-xs text-red-500">
-              {password.issues()?.at(0)?.message}
+              {get_field_error(password)}
             </span>
           </div>
 
