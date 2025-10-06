@@ -1,6 +1,6 @@
 <script>
   import { page } from "$app/state";
-  import { get_error_icon, get_error_message } from "$lib/errors";
+  import { get_error_icon, get_error_message } from "$lib/constants";
 </script>
 
 <div class="flex items-center justify-center min-h-[60vh] p-8">

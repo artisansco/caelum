@@ -1,3 +1,4 @@
+import { redirect } from "@sveltejs/kit";
 import { getRequestEvent } from "$app/server";
 import type { CurrentUser } from "./types";
 
@@ -13,7 +14,6 @@ export function set_token(key: string, value: string, days = 1) {
 	});
 }
 
-/** @deprecated - use the one in the $lib/auth.ts */
 export function get_current_user() {
 	const { cookies } = getRequestEvent();
 	const token = cookies.get("token");
@@ -27,5 +27,12 @@ export function get_current_user() {
 		return decoded as CurrentUser;
 	} catch (_e) {
 		return null;
+	}
+}
+
+export function guard_route(to = "/") {
+	const user = get_current_user();
+	if (!user) {
+		redirect(308, to);
 	}
 }

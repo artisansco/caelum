@@ -2,8 +2,8 @@ import { redirect } from "@sveltejs/kit";
 import { z } from "zod";
 import { command, form, getRequestEvent } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
+import { set_token } from "$lib/auth";
 import { cities } from "$lib/constants";
-import { set_token } from "$lib/user";
 
 export const login = form(
 	z.object({ email: z.email(), password: z.string() }),

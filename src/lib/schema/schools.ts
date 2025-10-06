@@ -1,8 +1,7 @@
-import { validator } from "hono/validator";
 import { z } from "zod";
-import { cities } from "../lib/constants";
+import { cities } from "$lib/constants";
 
-const school_schema = z.object({
+export const school_schema = z.object({
 	name: z
 		.string({ error: "school name must be a string" })
 		.trim()
@@ -24,15 +23,4 @@ const school_schema = z.object({
 	password: z
 		.string()
 		.min(8, { error: "Password must be at least 8 characters long" }),
-});
-
-export const validate_onboarding = validator("json", (value, c) => {
-	const { success, data, error } = school_schema.safeParse(value);
-	if (!success) {
-		const message = error.issues.at(0)?.message as string;
-		console.log(message);
-		return c.json({ status: "fail", message: message }, 400);
-	}
-
-	return data;
 });

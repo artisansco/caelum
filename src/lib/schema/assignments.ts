@@ -1,7 +1,6 @@
-import { validator } from "hono/validator";
 import z from "zod";
 
-const assignment_schema = z.object({
+export const assignment_schema = z.object({
 	school_id: z.string(),
 	class_id: z.string(),
 	title: z
@@ -26,14 +25,4 @@ const assignment_schema = z.object({
 			],
 			{ error: "Invalid file. Only PDF, Images, DOC, DOCX files are allowed" },
 		),
-});
-
-export const validate_assignment = validator("form", (value, c) => {
-	const { success, data, error } = assignment_schema.safeParse(value);
-	if (!success) {
-		const message = error.issues.at(0)?.message as string;
-		return c.json({ status: "fail", message }, 401);
-	}
-
-	return data;
 });

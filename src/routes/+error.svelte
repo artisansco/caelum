@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { get_error_icon, get_error_message } from "$lib/errors";
+  import { get_error_icon, get_error_message } from "$lib/constants";
 </script>
 
 <div class="min-h-screen bg-gray-50 flex items-center justify-center p-8">

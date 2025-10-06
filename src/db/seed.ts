@@ -2,11 +2,10 @@ import bcrypt from "bcryptjs";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { reset, seed } from "drizzle-seed";
 import { nanoid } from "nanoid";
-import { config } from "../lib/config";
 import { default_permissions } from "../lib/constants";
 import * as schema from "./schema";
 
-const db = drizzle(config.DATABASE_URL);
+const db = drizzle(String(process.env.DATABASE_URL));
 
 async function seed_data() {
 	await reset(db, schema);
