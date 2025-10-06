@@ -8,7 +8,6 @@ export const staff_schema = z.object({
 	middle_name: z
 		.string({ error: "middle name must be a string" })
 		.trim()
-		.min(2, { error: "middle name must be at least 2 characters long" })
 		.optional(),
 	last_name: z
 		.string({ error: "last name must be a string" })

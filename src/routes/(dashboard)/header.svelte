@@ -14,7 +14,7 @@
       <div class="mr-auto -ml-5">
         <p class="font-bold">{school.name}</p>
         <p class="label font-light">
-          Current Plan: <span class="badge">{school.current_plan.name}</span>
+          Current Plan: <span class="badge">{school.current_plan?.name}</span>
         </p>
       </div>
 

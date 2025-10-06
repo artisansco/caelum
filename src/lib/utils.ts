@@ -1,14 +1,11 @@
 import type { RemoteFormField } from "@sveltejs/kit";
-import type { staff_statuses, student_statuses } from "./constants";
 
 export function format_permissions(permission: string) {
 	const [category, verb] = permission.split(":");
 	return `${verb} ${category}`;
 }
 
-export function get_status_pill(
-	status: (typeof staff_statuses)[number] | (typeof student_statuses)[number],
-) {
+export function get_status_pill(status: string) {
 	switch (status) {
 		case "active":
 			return "badge";

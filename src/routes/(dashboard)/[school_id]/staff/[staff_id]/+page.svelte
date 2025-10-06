@@ -1,15 +1,31 @@
 <script lang="ts">
   import { Avatar, Select } from "melt/components";
   import { format } from "@formkit/tempo";
-  import { permissions, staff_roles, staff_statuses } from "$lib/constants";
+  import {
+    permissions as staff_permissions,
+    staff_roles,
+    staff_statuses,
+  } from "$lib/constants";
   import { format_permissions, get_status_pill } from "$lib/utils";
   import { delete_staff, get_staff_by_id, update_staff } from "../staff.remote";
-  import { page } from "$app/state";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
   import { melt } from "@melt-ui/svelte";
 
-  const staff = $derived(await get_staff_by_id(String(page.params.staff_id)));
+  const { params } = $props();
+
+  const {
+    address,
+    email,
+    first_name,
+    last_name,
+    middle_name,
+    password,
+    permissions,
+    phone_number,
+  } = update_staff.fields;
+
+  const staff = $derived(await get_staff_by_id(params.staff_id));
   let role = $derived(staff.role);
   let status = $derived(staff.status);
   let edit_mode = $state(false);
@@ -20,8 +36,6 @@
       toast.info(update_staff.result.message);
     }
   });
-
-  $inspect(update_staff.issues);
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -36,7 +50,7 @@
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={staff.avatar_url || `https://robohash.org/${staff.email}`}>
+        <Avatar src={String(staff.avatar_url)}>
           {#snippet children(avatar)}
             <img
               {...avatar.image}
@@ -64,8 +78,8 @@
               <i class="icon-[mdi--tag] size-4"></i>
               {staff.staff_id}
             </p>
-            <span class={get_status_pill(staff.status || "active")}>
-              {staff.status || "active"}
+            <span class={get_status_pill(String(staff.status))}>
+              {staff.status}
             </span>
           </div>
         </div>
@@ -154,16 +168,8 @@
 
             <input type="hidden" name="role" bind:value={role} />
             <input type="hidden" name="status" bind:value={status} />
-            <input
-              type="hidden"
-              name="staff_id"
-              value={page.params?.staff_id}
-            />
-            <input
-              type="hidden"
-              name="school_id"
-              value={page.params?.school_id}
-            />
+            <input type="hidden" name="staff_id" value={params.staff_id} />
+            <input type="hidden" name="school_id" value={params.school_id} />
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div class="flex flex-col space-y-2">
@@ -171,12 +177,10 @@
                   First Name
                 </label>
                 <input
+                  {...first_name.as("text")}
                   type="text"
-                  id="first_name"
-                  name="first_name"
-                  defaultValue={staff.first_name}
+                  value={staff.first_name}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -186,10 +190,9 @@
                   Middle Name
                 </label>
                 <input
+                  {...middle_name.as("text")}
                   type="text"
-                  id="middle_name"
-                  name="middle_name"
-                  defaultValue={staff.middle_name || "N/A"}
+                  value={staff.middle_name || ""}
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
@@ -200,12 +203,10 @@
                   Last Name
                 </label>
                 <input
+                  {...last_name.as("text")}
                   type="text"
-                  id="last_name"
-                  name="last_name"
-                  defaultValue={staff.last_name}
+                  value={staff.last_name}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -215,12 +216,10 @@
                   Email
                 </label>
                 <input
+                  {...email.as("email")}
                   type="email"
-                  id="email"
-                  name="email"
-                  defaultValue={staff.email}
+                  value={staff.email}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -230,12 +229,10 @@
                   Phone Number
                 </label>
                 <input
+                  {...phone_number.as("tel")}
                   type="tel"
-                  id="phone_number"
-                  name="phone_number"
-                  defaultValue={staff.contact || ""}
+                  value={staff.contact}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -245,12 +242,10 @@
                   Address
                 </label>
                 <input
+                  {...address.as("text")}
                   type="text"
-                  id="address"
-                  name="address"
-                  defaultValue={staff.address || ""}
+                  value={staff.address}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -282,24 +277,24 @@
                       {...select.trigger}
                       disabled={!edit_mode}
                       class="btn-outline capitalize {edit_mode
-                        ? 'flex items-center w-full justify-between'
+                        ? 'w-full justify-between'
                         : 'border-0 px-0 font-bold'}"
                     >
                       {select.value || "Select role"}
                       {#if edit_mode}
-                        <i class="icon-[lucide--chevron-down] size-5"></i>
+                        <i class="icon-[lucide--chevron-down]"></i>
                       {/if}
                     </button>
 
                     <div
                       {...select.content}
-                      class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+                      class="max-h-48 w-full rounded-lg border border-gray-300 text-sm"
                     >
                       {#each staff_roles as role}
                         <p
                           {...select.getOption(role, role)}
                           class="{role === select.value &&
-                            'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
+                            'bg-gray-100'} btn-sm-ghost justify-start w-full capitalize"
                         >
                           {role}
                         </p>
@@ -322,24 +317,24 @@
                       {...select.trigger}
                       disabled={!edit_mode}
                       class="btn-outline capitalize {edit_mode
-                        ? 'flex items-center w-full justify-between'
+                        ? 'w-full justify-between'
                         : 'border-0 px-0 font-bold'}"
                     >
                       {select.value || "Select status"}
                       {#if edit_mode}
-                        <i class="icon-[lucide--chevron-down] size-5"></i>
+                        <i class="icon-[lucide--chevron-down]"></i>
                       {/if}
                     </button>
 
                     <div
                       {...select.content}
-                      class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+                      class="max-h-48 w-full rounded-lg border border-gray-300 text-sm"
                     >
                       {#each staff_statuses as status}
                         <p
                           {...select.getOption(status, status)}
                           class="{status === select.value &&
-                            'bg-gray-100'} p-2 hover:bg-gray-100 capitalize"
+                            'bg-gray-100'} btn-sm-ghost justify-start w-full capitalize"
                         >
                           {status}
                         </p>
@@ -352,23 +347,21 @@
               <div class="flex flex-col space-y-2">
                 <span class="label text-sm text-gray-500"> Employed Date </span>
                 <p class="font-bold text-gray-600">
-                  <!-- date: staff.employed_date, -->
                   {format({
-                    date: new Date(),
+                    date: staff.employed_date,
                     format: "MMM DD, YYYY",
                   })}
                 </p>
               </div>
 
-              <!-- <div class="flex flex-col space-y-2">
+              <div class="flex flex-col space-y-2">
                 <label for="password" class="label text-sm text-gray-500">
                   Password
                 </label>
                 <div class="flex items-center gap-1">
                   <input
+                    {...password.as("password")}
                     type={view_password ? "text" : "password"}
-                    id="password"
-                    name="password"
                     placeholder="********"
                     disabled={!edit_mode}
                     class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
@@ -379,16 +372,16 @@
                       onclick={() => (view_password = !view_password)}
                       class="btn-sm"
                     >
-                      {#if view_password}
-                        <i class="icon-[mdi--eye-off] size-4"></i>
-                      {:else}
-                        <i class="icon-[mdi--eye] size-4"></i>
-                      {/if}
+                      <i
+                        class={view_password
+                          ? "icon-[mdi--eye-off]"
+                          : "icon-[mdi--eye]"}
+                      ></i>
                       <span class="sr-only">view</span>
                     </button>
                   {/if}
                 </div>
-              </div> -->
+              </div>
             </div>
           </article>
 
@@ -404,13 +397,12 @@
             </header>
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {#each permissions as permission}
+              {#each staff_permissions as permission}
                 <label class="label ml-3 text-sm text-gray-700 capitalize">
                   <input
+                    {...permissions.as("checkbox", permission)}
                     type="checkbox"
-                    name="permissions[]"
-                    value={permission}
-                    checked={staff.permissions.includes(permission)}
+                    checked={staff.permissions?.includes(permission)}
                     disabled={!edit_mode}
                     class="checkbox rounded {edit_mode
                       ? 'border-gray-300'

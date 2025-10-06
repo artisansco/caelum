@@ -3,7 +3,8 @@
   import { Avatar } from "melt/components";
   import { page } from "$app/state";
   import { get_all_students } from "./students.remote";
-  import type { Student } from "$lib/types";
+
+  const { params } = $props();
 </script>
 
 <!-- Table Section -->
@@ -58,7 +59,7 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#each await get_all_students() as student}
+              {#each await get_all_students(params.school_id) as student}
                 {@render student_card(student)}
               {:else}
                 <tr>
@@ -76,7 +77,7 @@
             <div>
               <p class="text-sm text-gray-600">
                 <span class="font-semibold text-gray-800">
-                  {(await get_all_students()).length || 0} results
+                  {(await get_all_students(params.school_id)).length || 0} results
                 </span>
               </p>
             </div>
@@ -110,7 +111,7 @@
   </th>
 {/snippet}
 
-{#snippet student_card(student: Student)}
+{#snippet student_card(student: any)}
   <tr>
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
@@ -174,15 +175,14 @@
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-3">
         <span class="text-sm text-gray-500">
-          {format({ date: new Date(), format: "DD MMM, YYYY" })}
-          <!-- {format({ date: staff?.admission_date, format: "DD MMM, HH:mm" })} -->
+          {format({ date: student.admission_date, format: "DD MMM, YYYY" })}
         </span>
       </div>
     </td>
     <td class="size-px whitespace-nowrap">
       <div class="px-6 py-1.5">
         <a
-          class="btn-link text-sm text-blue-600"
+          class="btn-sm-link text-blue-600"
           href="{page.url.pathname}/{student.id}"
         >
           <span class="icon-[mdi--eye] size-4"></span>

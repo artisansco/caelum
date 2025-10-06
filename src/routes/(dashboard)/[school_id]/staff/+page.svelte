@@ -3,7 +3,6 @@
   import { Avatar } from "melt/components";
   import { page } from "$app/state";
   import { get_all_staff } from "./staff.remote";
-  import type { Staff } from "$lib/types";
 
   const { params } = $props();
 </script>
@@ -108,7 +107,7 @@
   </th>
 {/snippet}
 
-{#snippet staff_card(staff: Staff)}
+{#snippet staff_card(staff: any)}
   <tr>
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">

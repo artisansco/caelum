@@ -1,83 +1,76 @@
 import { error } from "@sveltejs/kit";
+import { desc, eq, getTableColumns } from "drizzle-orm";
 import z from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
 import { guard_route } from "$lib/auth";
-import { cities } from "$lib/constants";
-import type { Class, School } from "$lib/types";
+import { db } from "$lib/db/drizzle";
+import {
+	plans_table,
+	schools_table,
+	subscriptions_table,
+} from "$lib/db/schema";
+import { school_schema } from "$lib/schema/schools";
+import type { Class } from "$lib/types";
 
-const school_schema = z.object({
-	school_id: z.string().trim().min(5, { error: "School ID is required" }),
-	name: z
-		.string({ error: "School name is required" })
-		.trim()
-		.min(2, { error: "School name must be at least 2 characters long" }),
-	address: z
-		.string({ error: "Address is required" })
-		.trim()
-		.min(5, { error: "Address must be at least 5 characters long" }),
-	city: z.enum(cities, { error: "Please select a valid city" }),
-	license: z
-		.string({ error: "License is required" })
-		.trim()
-		.min(3, { error: "License must be at least 3 characters long" }),
-	phone: z.string().trim().optional(),
-	email: z.email().optional(),
-	website: z.url().optional(),
-});
-
-export const get_school = query(z.string(), async (id) => {
+export const get_school = query(z.string(), async (school_id) => {
 	guard_route();
 
-	const { fetch, cookies } = getRequestEvent();
+	const [school] = await db
+		.select({
+			...getTableColumns(schools_table),
+			// id: schools_table.id,
+			// name: schools_table.name,
+			// address: schools_table.address,
+			// license: schools_table.license,
+			// city: schools_table.city,
+			// logo_url: schools_table.logo_url,
+			// created_at: schools_table.created_at,
+			// updated_at: schools_table.updated_at,
+			current_plan: {
+				id: plans_table.id,
+				name: plans_table.name,
+			},
+		})
+		.from(schools_table)
+		.leftJoin(
+			subscriptions_table,
+			eq(subscriptions_table.school_id, schools_table.id),
+		)
+		.leftJoin(plans_table, eq(plans_table.id, subscriptions_table.plan_id))
+		.orderBy(desc(subscriptions_table.created_at))
+		.where(eq(schools_table.id, school_id))
+		.limit(1);
 
-	const res = await fetch(`${API_ENDPOINT}/api/v1/schools/${id}`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${cookies.get("token")}`,
-		},
-	});
-	const { message, data } = await res.json();
+	// return {
+	// 	message: "school fetched successfully"
+	// };
 
-	if (!res.ok) {
-		error(404, { message });
-	}
-
-	return data as School;
+	return school;
 });
 
 export const update_school = form(school_schema, async (parsed) => {
-	guard_route();
+	try {
+		await db
+			.update(schools_table)
+			.set({
+				name: parsed.name,
+				address: parsed.address,
+				city: parsed.city,
+				license: parsed.license,
+			})
+			.where(eq(schools_table.id, parsed.school_id))
+			.returning();
 
-	const { cookies, fetch } = getRequestEvent();
-
-	const res = await fetch(
-		`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}`,
-		{
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-			body: JSON.stringify(parsed),
-		},
-	);
-	const { message } = await res.json();
-
-	if (!res.ok) {
-		return { message };
+		await get_school(parsed.school_id).refresh();
+	} catch (_e) {
+		console.log(_e);
+		return { message: "failed to update school" };
 	}
-
-	await get_school(parsed.school_id).refresh();
-
-	return { message };
 });
 
 /* ==================== Classes RF for school ============================ */
 export const get_classes = query(z.string(), async (school_id) => {
-	guard_route();
-
 	const { fetch, cookies } = getRequestEvent();
 
 	const res = await fetch(

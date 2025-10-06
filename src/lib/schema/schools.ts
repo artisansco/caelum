@@ -2,6 +2,7 @@ import { z } from "zod";
 import { cities } from "$lib/constants";
 
 export const school_schema = z.object({
+	school_id: z.string({ error: "school id is required" }),
 	name: z
 		.string({ error: "school name must be a string" })
 		.trim()
@@ -23,4 +24,6 @@ export const school_schema = z.object({
 	password: z
 		.string()
 		.min(8, { error: "Password must be at least 8 characters long" }),
+	phone: z.string().trim().optional(),
+	website: z.url().optional(),
 });

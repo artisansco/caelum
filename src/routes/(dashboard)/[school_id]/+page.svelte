@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  import { get_assignments } from "./assignments/assignments.remote.js";
+  // import { get_assignments } from "./assignments/assignments.remote.js";
   import { get_all_staff } from "./staff/staff.remote.js";
   import { get_all_students } from "./students/students.remote.js";
   import {
@@ -31,11 +31,14 @@
 
   const { params } = $props();
 
-  const total_students = $derived((await get_all_students()).length);
-  const total_staff = $derived((await get_all_staff(params.school_id)).length);
-  const total_assignments = $derived(
-    (await get_assignments(params.school_id)).length,
+  const total_students = $derived(
+    (await get_all_students(params.school_id)).length,
   );
+  const total_staff = $derived((await get_all_staff(params.school_id)).length);
+  const total_assignments = 0;
+  //   $derived(
+  //   (await get_assignments(params.school_id)).length,
+  // );
   let current_year = $derived(new Date().getFullYear());
 
   const months = [

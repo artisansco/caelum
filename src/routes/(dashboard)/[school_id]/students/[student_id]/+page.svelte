@@ -7,14 +7,16 @@
   import { melt } from "@melt-ui/svelte";
   import {
     delete_student,
-    get_student_by_id,
+    get_student,
     update_student,
   } from "../students.remote";
   import { student_statuses } from "$lib/constants";
 
   const { params } = $props();
+  const { address, email, first_name, last_name, middle_name, phone_number } =
+    update_student.fields;
 
-  const student = $derived(await get_student_by_id(String(params.student_id)));
+  const student = $derived(await get_student(params.student_id));
   let status = $derived(student.status);
   let edit_mode = $state(false);
 
@@ -23,8 +25,6 @@
       toast.info(update_student.result.message);
     }
   });
-
-  $inspect(update_student.issues);
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -39,7 +39,7 @@
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={`https://robohash.org/${student.first_name}`}>
+        <Avatar src={String(student.avatar_url)}>
           {#snippet children(avatar)}
             <img
               {...avatar.image}
@@ -63,7 +63,10 @@
           </h1>
           <div class="mt-1 flex items-center gap-4">
             <p class="text-gray-600 capitalize">
-              {format({ date: new Date(), format: "MMM DD, YYYY" })}:
+              {format({
+                date: student.admission_date,
+                format: "MMM DD, YYYY",
+              })}:
             </p>
             <p class="btn-sm-ghost">
               <i class="icon-[mdi--tag] size-4"></i>
@@ -127,7 +130,7 @@
               type="button"
               class="btn-destructive w-full"
               onclick={async () => {
-                await delete_student(String(student.id));
+                await delete_student(student.id);
                 toast.success("Student deleted successfully");
                 window.location.href = "./";
               }}
@@ -167,12 +170,10 @@
                   First Name
                 </label>
                 <input
+                  {...first_name.as("text")}
                   type="text"
-                  id="first_name"
-                  name="first_name"
-                  defaultValue={student.first_name}
+                  value={student.first_name}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -182,10 +183,9 @@
                   Middle Name
                 </label>
                 <input
+                  {...middle_name.as("text")}
                   type="text"
-                  id="middle_name"
-                  name="middle_name"
-                  defaultValue={student.middle_name || "N/A"}
+                  value={student.middle_name || ""}
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
@@ -196,12 +196,10 @@
                   Last Name
                 </label>
                 <input
+                  {...last_name.as("text")}
                   type="text"
-                  id="last_name"
-                  name="last_name"
-                  defaultValue={student.last_name}
+                  value={student.last_name}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -211,10 +209,9 @@
                   Email
                 </label>
                 <input
+                  {...email.as("email")}
                   type="email"
-                  id="email"
-                  name="email"
-                  defaultValue={student.email || "N/A"}
+                  value={student.email || ""}
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
@@ -225,12 +222,10 @@
                   Phone Number
                 </label>
                 <input
+                  {...phone_number.as("tel")}
                   type="tel"
-                  id="phone_number"
-                  name="phone_number"
-                  defaultValue={student.phone_number || ""}
+                  value={student.phone_number || ""}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -240,12 +235,10 @@
                   Address
                 </label>
                 <input
+                  {...address.as("text")}
                   type="text"
-                  id="address"
-                  name="address"
-                  defaultValue={student.address || ""}
+                  value={student.address || ""}
                   disabled={!edit_mode}
-                  required
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
               </div>
@@ -263,18 +256,18 @@
                       {...select.trigger}
                       disabled={!edit_mode}
                       class="btn-outline capitalize {edit_mode
-                        ? 'flex items-center w-full justify-between'
+                        ? 'w-full justify-between'
                         : 'border-0 px-0 font-bold'}"
                     >
                       {select.value || "Select status"}
                       {#if edit_mode}
-                        <i class="icon-[lucide--chevron-down] size-5"></i>
+                        <i class="icon-[lucide--chevron-down]"></i>
                       {/if}
                     </button>
 
                     <div
                       {...select.content}
-                      class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+                      class="max-h-48 w-full rounded-lg border border-gray-300 text-sm"
                     >
                       {#each student_statuses as status}
                         <p
