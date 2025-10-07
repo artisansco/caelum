@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { cities } from "$lib/constants";
 
 export const school_schema = z.object({

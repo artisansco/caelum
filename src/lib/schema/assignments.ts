@@ -1,4 +1,4 @@
-import z from "zod";
+import * as z from "zod";
 
 export const assignment_schema = z.object({
 	school_id: z.string(),
@@ -12,9 +12,7 @@ export const assignment_schema = z.object({
 	file: z
 		.file()
 		.min(1)
-		.max(10 * 1024 * 1024, {
-			error: "File size too large. Maximum size is 10MB",
-		})
+		.max(5 * 1024 * 1024, { error: "File size too large. Maximum size is 5MB" })
 		.mime(
 			[
 				"image/png",

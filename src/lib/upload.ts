@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import sharp from "sharp";
 
 export async function upload_file(file: File) {
-	const upload_dir = "uploads";
+	const upload_dir = "static/uploads";
 
 	// Create uploads folder if it doesn't exist
 	if (!existsSync(upload_dir)) {

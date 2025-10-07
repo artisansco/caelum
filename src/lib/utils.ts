@@ -18,7 +18,7 @@ export function get_status_pill(status: string) {
 	}
 }
 
-export function get_field_error(key: RemoteFormField<string>) {
+export function get_field_error(key: RemoteFormField<string | File>) {
 	const issues = key.issues();
 	if (!issues) return;
 

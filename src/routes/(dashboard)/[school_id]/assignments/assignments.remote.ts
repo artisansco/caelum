@@ -1,118 +1,69 @@
 import { error } from "@sveltejs/kit";
+import { desc, eq, getTableColumns } from "drizzle-orm";
 import z from "zod";
-import { command, form, getRequestEvent, query } from "$app/server";
+import { command, form, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-import { get_current_user } from "$lib/auth";
-import type { Assignment } from "$lib/types";
-
-const assignment_schema = z.object({
-	school_id: z.string(),
-	class_id: z.string(),
-	title: z
-		.string({ error: "title is required" })
-		.trim()
-		.min(2, { error: "title must be at least 2 characters long" }),
-	description: z.string().trim().optional(),
-	due_date: z.iso.date({ error: "please select a valid due date" }),
-	file: z
-		.file()
-		.min(1)
-		.max(10 * 1024 * 1024, {
-			error: "File size too large. Maximum size is 10MB",
-		})
-		.mime(
-			[
-				"image/png",
-				"image/jpeg",
-				"image/webp",
-				"application/pdf",
-				"application/msword",
-			],
-			{ error: "Invalid file. Only PDF, Images, DOC, DOCX files are allowed" },
-		),
-});
+import { db } from "$lib/db/drizzle";
+import { assignments_table, classes_table } from "$lib/db/schema";
+import { assignment_schema } from "$lib/schema/assignments";
+import { upload_file } from "$lib/upload";
 
 export const get_assignments = query(z.string(), async (school_id) => {
-	const { fetch, cookies } = getRequestEvent();
+	try {
+		const assignments = await db
+			.select({
+				...getTableColumns(assignments_table),
+				class_name: classes_table.name,
+			})
+			.from(assignments_table)
+			.where(eq(assignments_table.school_id, school_id))
+			.leftJoin(classes_table, eq(assignments_table.class_id, classes_table.id))
+			.orderBy(desc(assignments_table.created_at));
 
-	const res = await fetch(
-		`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments`,
-		{
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-		},
-	);
-	const { message, data } = await res.json();
-
-	if (!res.ok) {
-		error(404, { message });
+		return assignments.map((assignment) => ({
+			...assignment,
+			download_url: `/uploads/${assignment.file_name}`,
+		}));
+	} catch (_e) {
+		console.log(_e);
+		error(500, { message: "could not load assignments" });
 	}
-	const assignments = (data.assignments as Assignment[]).map((assignment) => ({
-		...assignment,
-		download_url: `${API_ENDPOINT}/uploads/${assignment.file_name}`,
-	}));
-
-	return assignments;
 });
 
 export const upload_assignment = form(assignment_schema, async (parsed) => {
-	const { cookies, fetch } = getRequestEvent();
-
-	const form_data = new FormData();
-	for (const [key, value] of Object.entries(parsed)) {
-		form_data.append(key, value);
-	}
-
 	try {
-		const res = await fetch(
-			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/assignments`,
-			{
-				method: "POST",
-				headers: { Authorization: `Bearer ${cookies.get("token")}` },
-				body: form_data,
-			},
-		);
-		const { message } = await res.json();
-
-		if (!res.ok) {
-			return { message };
-		}
+		await db.insert(assignments_table).values({
+			title: parsed.title,
+			due_date: parsed.due_date,
+			file_name: await upload_file(parsed.file),
+			class_id: parsed.class_id,
+			description: parsed.description,
+			school_id: parsed.school_id,
+		});
 
 		await get_assignments(parsed.school_id).refresh();
+		return { message: "assignment uploaded successfully" };
 	} catch (_e) {
 		console.log(_e);
+		return { message: "failed to upload assignments" };
 	}
 });
 
 export const delete_assignment = command(
-	z.string().trim(),
-	async (assignment_id) => {
-		const { cookies, fetch } = getRequestEvent();
-		// biome-ignore lint/style/noNonNullAssertion: <>
-		const { school_id } = get_current_user()!;
-
+	z.object({
+		assignment_id: z.string(),
+		school_id: z.string(),
+	}),
+	async (parsed) => {
 		try {
-			const res = await fetch(
-				`${API_ENDPOINT}/api/v1/schools/${school_id}/assignments/${assignment_id}`,
-				{
-					method: "DELETE",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${cookies.get("token")}`,
-					},
-				},
-			);
-			const { message } = await res.json();
+			await db
+				.delete(assignments_table)
+				.where(eq(assignments_table.id, parsed.assignment_id));
 
-			if (!res.ok) {
-				return { message };
-			}
-
-			await get_assignments(school_id).refresh();
+			await get_assignments(parsed.school_id).refresh();
 		} catch (_e) {
 			console.log(_e);
+			return { message: _e.message };
 		}
 	},
 );

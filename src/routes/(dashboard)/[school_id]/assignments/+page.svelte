@@ -8,12 +8,14 @@
     upload_assignment,
   } from "./assignments.remote";
   import { get_classes } from "../../school.remote";
+  import { get_field_error } from "$lib/utils";
 
   let { params } = $props();
+  const { description, due_date, file, title } = upload_assignment.fields;
 
   let class_id = $state("");
-  const assignments = $derived(await get_assignments(params.school_id));
-  const classes = $derived(await get_classes(params.school_id));
+  let assignments = $derived(await get_assignments(params.school_id));
+  let classes = $derived(await get_classes(params.school_id));
 
   $effect(() => {
     if (upload_assignment.result?.message) {
@@ -33,6 +35,7 @@
 
         <form
           {...upload_assignment}
+          oninput={() => upload_assignment.validate()}
           class="space-y-6"
           enctype="multipart/form-data"
         >
@@ -53,15 +56,13 @@
                   class="btn-outline w-full justify-between capitalize"
                 >
                   {select.getOptionLabel(class_id) || "Select Class"}
-                  <i class="icon-[lucide--chevron-down] size-5"></i>
+                  <i class="icon-[lucide--chevron-down]"></i>
                 </button>
-                <p class="text-xs text-red-500">
-                  {upload_assignment.issues?.class_id?.at(0)?.message}
-                </p>
+                <!-- <p class="text-xs text-red-500">{get_field_error(class_id)}</p> -->
 
                 <div
                   {...select.content}
-                  class="max-h-37 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none"
+                  class="max-h-37 w-full rounded-lg border border-gray-300 text-sm"
                 >
                   {#each classes as { id, name }}
                     <p
@@ -83,16 +84,12 @@
               Assignment Title <span class="text-red-500">*</span>
             </label>
             <input
-              id="title"
-              name="title"
+              {...title.as("text")}
               type="text"
               placeholder="Enter assignment title"
               class="input"
-              required
             />
-            <p class="text-xs text-red-500 -mt-1">
-              {upload_assignment.issues?.title?.at(0)?.message}
-            </p>
+            <p class="text-xs text-red-500 -mt-1">{get_field_error(title)}</p>
           </div>
 
           <div class="flex flex-col space-y-2">
@@ -100,10 +97,9 @@
               Description
             </label>
             <textarea
-              id="description"
-              name="description"
+              {...description.as("text")}
               rows="3"
-              placeholder="Enter assignment description"
+              placeholder="to be submitted on time"
               class="textarea resize-none"
             ></textarea>
           </div>
@@ -111,14 +107,14 @@
           <div class="flex flex-col space-y-2">
             <label for="dueDate" class="label text-gray-500"> Due Date </label>
             <input
+              {...due_date.as("date")}
               type="date"
-              id="dueDate"
-              name="due_date"
               class="input"
               min={new Date().toISOString().split("T")[0]}
             />
+
             <p class="text-xs text-red-500 -mt-1">
-              {upload_assignment.issues?.due_date?.at(0)?.message}
+              {get_field_error(due_date)}
             </p>
           </div>
 
@@ -138,15 +134,12 @@
                 PDF, DOC, DOCX, PPT, PPTX up to 10MB
               </p>
               <input
+                {...file.as("file")}
                 type="file"
-                name="file"
                 class="input"
                 accept=".pdf,.doc,.docx,.ppt,.pptx,.webp,.png,.jpg"
-                required
               />
-              <p class="text-xs text-red-500">
-                {upload_assignment.issues?.file?.at(0)?.message}
-              </p>
+              <p class="text-xs text-red-500">{get_field_error(file)}</p>
             </div>
           </div>
 
@@ -173,8 +166,7 @@
       <div class="bg-white shadow rounded-lg border">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-lg font-semibold text-gray-900">
-            {assignments.length || 0}
-            Uploaded Assignments
+            {assignments.length || 0} Uploaded Assignments
           </h2>
         </div>
 
@@ -185,10 +177,10 @@
                 <div class="flex-1">
                   <div class="flex items-center space-x-3 mb-2 w-fit">
                     <h3 class="text-base font-medium text-gray-900">
-                      {assignment?.title}
+                      {assignment.title}
                     </h3>
                     <span class="badge font-light bg-blue-100 text-blue-800">
-                      {assignment?.class_name || "N/A"}
+                      {assignment.class_name}
                     </span>
                   </div>
 
@@ -216,7 +208,7 @@
                       <i class="icon-[mdi--clock-outline]"></i>
                       <span>
                         Uploaded: {format({
-                          date: assignment.created_at as Date,
+                          date: assignment.created_at,
                           format: "DD MMM, YYYY",
                         })}
                       </span>
@@ -226,7 +218,7 @@
 
                 <div class="flex items-center space-x-2 ml-4">
                   <a
-                    href={assignment?.download_url}
+                    href={assignment.download_url}
                     download
                     target="_blank"
                     class="btn-sm bg-blue-50"
@@ -238,9 +230,12 @@
                     type="button"
                     class="btn-sm-destructive bg-red-50"
                     onclick={async () => {
-                      const error = await delete_assignment(assignment.id);
-                      if (error) {
-                        toast.error(error.message);
+                      const has_error = await delete_assignment({
+                        school_id: params.school_id,
+                        assignment_id: assignment.id,
+                      });
+                      if (has_error) {
+                        toast.error(has_error.message);
                       } else {
                         toast.success("assignment deleted successfully");
                       }

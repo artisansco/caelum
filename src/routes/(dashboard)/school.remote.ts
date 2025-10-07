@@ -1,20 +1,17 @@
-import { error } from "@sveltejs/kit";
-import { desc, eq, getTableColumns } from "drizzle-orm";
+import { and, desc, eq, getTableColumns } from "drizzle-orm";
 import z from "zod";
-import { command, form, getRequestEvent, query } from "$app/server";
-import { API_ENDPOINT } from "$env/static/private";
-import { guard_route } from "$lib/auth";
+import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import {
+	classes_table,
 	plans_table,
 	schools_table,
 	subscriptions_table,
 } from "$lib/db/schema";
 import { school_schema } from "$lib/schema/schools";
-import type { Class } from "$lib/types";
 
 export const get_school = query(z.string(), async (school_id) => {
-	guard_route();
+	// guard_route();
 
 	const [school] = await db
 		.select({
@@ -42,10 +39,6 @@ export const get_school = query(z.string(), async (school_id) => {
 		.where(eq(schools_table.id, school_id))
 		.limit(1);
 
-	// return {
-	// 	message: "school fetched successfully"
-	// };
-
 	return school;
 });
 
@@ -71,26 +64,17 @@ export const update_school = form(school_schema, async (parsed) => {
 
 /* ==================== Classes RF for school ============================ */
 export const get_classes = query(z.string(), async (school_id) => {
-	const { fetch, cookies } = getRequestEvent();
+	try {
+		const classes = await db.query.classes_table.findMany({
+			where: eq(classes_table.school_id, school_id),
+			orderBy: desc(classes_table.created_at),
+		});
 
-	const res = await fetch(
-		`${API_ENDPOINT}/api/v1/schools/${school_id}/classes`,
-		{
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-		},
-	);
-	const { message, data } = await res.json();
-
-	if (!res.ok) {
-		console.log(message);
-		return [] as Class[];
+		return classes;
+	} catch (_e) {
+		console.log(_e);
+		return [];
 	}
-
-	return data.classes as Class[];
 });
 
 export const add_class = form(
@@ -102,28 +86,16 @@ export const add_class = form(
 			.min(2, { error: "Name must be at least 2 characters long" }),
 	}),
 	async (parsed) => {
-		const { cookies, fetch } = getRequestEvent();
+		try {
+			await db.insert(classes_table).values(parsed).returning();
 
-		const res = await fetch(
-			`${API_ENDPOINT}/api/v1/schools/${parsed.school_id}/classes`,
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${cookies.get("token")}`,
-				},
-				body: JSON.stringify({ name: parsed.name }),
-			},
-		);
-		const { message } = await res.json();
-
-		if (!res.ok) {
-			return { message };
+			await get_classes(parsed.school_id).refresh();
+			return { message: "class created successfully" };
+		} catch (_e) {
+			console.log(_e);
+			// @ts-expect-error
+			return { message: _e.message };
 		}
-
-		await get_classes(parsed.school_id).refresh();
-
-		return { message };
 	},
 );
 
@@ -132,28 +104,22 @@ export const delete_class = command(
 		school_id: z.string(),
 		class_id: z.string(),
 	}),
-	async ({ school_id, class_id }) => {
-		const { cookies, fetch } = getRequestEvent();
-
+	async (parsed) => {
 		try {
-			const res = await fetch(
-				`${API_ENDPOINT}/api/v1/schools/${school_id}/classes/${class_id}`,
-				{
-					method: "DELETE",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${cookies.get("token")}`,
-					},
-				},
-			);
-			const { message } = await res.json();
-			if (!res.ok) {
-				return { message };
-			}
+			await db
+				.delete(classes_table)
+				.where(
+					and(
+						eq(classes_table.id, parsed.class_id),
+						eq(classes_table.school_id, parsed.school_id),
+					),
+				);
 
-			await get_classes(school_id).refresh();
+			await get_classes(parsed.school_id).refresh();
+			return { message: "class deleted successfully" };
 		} catch (_e) {
-			//@ts-expect-error
+			console.log(_e);
+			// @ts-expect-error
 			return { message: _e.message };
 		}
 	},
