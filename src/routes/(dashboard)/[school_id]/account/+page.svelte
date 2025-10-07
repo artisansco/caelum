@@ -4,11 +4,14 @@
   import { cities } from "$lib/constants";
   import { format } from "@formkit/tempo";
   import { get_school, update_school } from "../../school.remote";
+  import { get_field_error } from "$lib/utils";
 
   const { params } = $props();
+  const { address, city, contact, email, license, name, founded_on } =
+    update_school.fields;
 
-  const school = $derived(await get_school(params.school_id));
-  let city = $derived(school.city);
+  let school = $derived(await get_school(params.school_id));
+  let selected_city = $derived(school.city);
   let edit_mode = $state(false);
 
   $effect(() => {
@@ -23,7 +26,7 @@
   <header class="mb-8">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={school.logo_url}>
+        <Avatar src={String(school.logo_url)}>
           {#snippet children(avatar)}
             <img
               {...avatar.image}
@@ -45,7 +48,7 @@
           </h1>
           <p class="text-gray-600 text-sm">
             Founded on {format({
-              date: school.founded_on as Date,
+              date: school.founded_on as string,
               format: "MMMM DD, YYYY",
             })}
           </p>
@@ -93,14 +96,8 @@
     </div>
   </header>
 
-  <form
-    id="school_details"
-    {...update_school.enhance(async ({ form, submit }) => {
-      await submit();
-      form.reset();
-    })}
-  >
-    <input type="hidden" name="city" bind:value={city} />
+  <form id="school_details" {...update_school}>
+    <input type="hidden" name="city" bind:value={selected_city} />
     <input type="hidden" name="school_id" value={params.school_id} />
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -125,18 +122,16 @@
                 School Name <span class="text-red-500">*</span>
               </label>
               <input
+                {...name.as("text")}
                 type="text"
-                id="name"
-                name="name"
-                defaultValue={school.name}
+                value={school.name}
                 disabled={!edit_mode}
-                required
                 class="input {edit_mode
                   ? ''
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
               <p class="text-xs text-red-500 mt-1">
-                {update_school.issues?.name?.at(0)?.message}
+                {get_field_error(name)}
               </p>
             </div>
 
@@ -148,10 +143,9 @@
                 Address <span class="text-red-500">*</span>
               </label>
               <input
+                {...address.as("text")}
                 type="text"
-                id="address"
-                name="address"
-                defaultValue={school.address}
+                value={school.address}
                 disabled={!edit_mode}
                 required
                 class="input {edit_mode
@@ -159,12 +153,12 @@
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
               <p class="text-xs text-red-500 mt-1">
-                {update_school.issues?.address?.at(0)?.message}
+                {get_field_error(address)}
               </p>
             </div>
 
             <div>
-              <Select bind:value={city}>
+              <Select bind:value={selected_city}>
                 {#snippet children(select)}
                   <label
                     for={select.ids.trigger}
@@ -181,13 +175,13 @@
                   >
                     {select.value || "Select City"}
                     {#if edit_mode}
-                      <i class="icon-[lucide--chevron-down] size-5"></i>
+                      <i class="icon-[lucide--chevron-down]"></i>
                     {/if}
                   </button>
 
                   <div
                     {...select.content}
-                    class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm focus:outline-none bg-white shadow-lg z-50"
+                    class="max-h-48 w-full rounded-lg border border-gray-300 text-sm bg-white shadow-lg z-50"
                   >
                     {#each cities as city}
                       <p
@@ -202,7 +196,7 @@
                 {/snippet}
               </Select>
               <p class="text-xs text-red-500 mt-1">
-                {update_school.issues?.city?.at(0)?.message}
+                {get_field_error(city)}
               </p>
             </div>
 
@@ -214,10 +208,9 @@
                 License Number <span class="text-red-500">*</span>
               </label>
               <input
+                {...license.as("text")}
                 type="text"
-                id="license"
-                name="license"
-                defaultValue={school.license}
+                value={school.license}
                 disabled={!edit_mode}
                 required
                 class="input {edit_mode
@@ -225,7 +218,7 @@
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
               <p class="text-xs text-red-500 mt-1">
-                {update_school.issues?.license?.at(0)?.message}
+                {get_field_error(license)}
               </p>
             </div>
           </div>
@@ -254,10 +247,9 @@
                 Phone Number
               </label>
               <input
+                {...contact.as("text")}
                 type="tel"
-                id="phone"
-                name="phone"
-                defaultValue={school.contact}
+                value={school.contact}
                 disabled={!edit_mode}
                 placeholder="+232XXXXXXXX"
                 class="input {edit_mode
@@ -274,10 +266,9 @@
                 Official Email
               </label>
               <input
+                {...email.as("email")}
                 type="email"
-                id="email"
-                name="email"
-                defaultValue={school.email}
+                value={school.email}
                 disabled={!edit_mode}
                 placeholder="info@school.edu"
                 class="input {edit_mode
@@ -293,10 +284,9 @@
               >
                 Website
               </label>
+              <!-- {...website.as("url")} -->
               <input
                 type="url"
-                id="website"
-                name="website"
                 defaultValue={school.website || ""}
                 disabled={!edit_mode}
                 placeholder="https://www.school.edu"
@@ -314,10 +304,9 @@
                 Founded on
               </label>
               <input
+                {...founded_on.as("date")}
                 type="date"
-                id="founded_on"
-                name="founded_on"
-                defaultValue={school.founded_on}
+                value={school.founded_on}
                 disabled={!edit_mode}
                 class="input {edit_mode
                   ? ''

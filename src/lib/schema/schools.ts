@@ -21,9 +21,8 @@ export const school_schema = z.object({
 		.min(2, { error: "contact must be at least 2 characters long" }),
 	city: z.enum(cities, { error: "City is invalid or not in the list" }),
 	email: z.email(),
-	password: z
-		.string()
-		.min(8, { error: "Password must be at least 8 characters long" }),
-	phone: z.string().trim().optional(),
 	website: z.url().optional(),
+	founded_on: z.iso.date({ error: "Founded on must be a valid date" }),
 });
+
+// logo_url: text(),

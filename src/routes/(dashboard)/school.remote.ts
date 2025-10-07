@@ -42,25 +42,28 @@ export const get_school = query(z.string(), async (school_id) => {
 	return school;
 });
 
-export const update_school = form(school_schema, async (parsed) => {
-	try {
-		await db
-			.update(schools_table)
-			.set({
-				name: parsed.name,
-				address: parsed.address,
-				city: parsed.city,
-				license: parsed.license,
-			})
-			.where(eq(schools_table.id, parsed.school_id))
-			.returning();
+export const update_school = form(
+	school_schema.omit({ website: true }),
+	async (parsed) => {
+		try {
+			await db
+				.update(schools_table)
+				.set({
+					name: parsed.name,
+					address: parsed.address,
+					city: parsed.city,
+					license: parsed.license,
+				})
+				.where(eq(schools_table.id, parsed.school_id))
+				.returning();
 
-		await get_school(parsed.school_id).refresh();
-	} catch (_e) {
-		console.log(_e);
-		return { message: "failed to update school" };
-	}
-});
+			await get_school(parsed.school_id).refresh();
+		} catch (_e) {
+			console.log(_e);
+			return { message: "failed to update school" };
+		}
+	},
+);
 
 /* ==================== Classes RF for school ============================ */
 export const get_classes = query(z.string(), async (school_id) => {

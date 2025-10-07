@@ -11,21 +11,21 @@ export async function upload_file(file: File) {
 		await mkdir(upload_dir, { recursive: true });
 	}
 
-	const filename = nanoid();
 	const ext = file.name.split(".").at(-1);
+	const filename = `${nanoid()}.${ext}`;
 
 	if (["png", "jpeg", "jpg"].includes(String(ext))) {
 		await sharp(await file.arrayBuffer())
 			.webp({ lossless: true })
-			.toFile(`${upload_dir}/${filename}.${ext}`);
+			.toFile(`${upload_dir}/${filename}`);
 
-		return `${filename}.${ext}`;
+		return filename;
 	}
 
 	await writeFile(
-		`${upload_dir}/${filename}.${ext}`,
+		`${upload_dir}/${filename}`,
 		Buffer.from(await file.arrayBuffer()),
 	);
 
-	return `${filename}.${ext}`;
+	return filename;
 }

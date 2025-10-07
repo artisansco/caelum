@@ -2,7 +2,6 @@ import { error } from "@sveltejs/kit";
 import { desc, eq, getTableColumns } from "drizzle-orm";
 import z from "zod";
 import { command, form, query } from "$app/server";
-import { API_ENDPOINT } from "$env/static/private";
 import { db } from "$lib/db/drizzle";
 import { assignments_table, classes_table } from "$lib/db/schema";
 import { assignment_schema } from "$lib/schema/assignments";
