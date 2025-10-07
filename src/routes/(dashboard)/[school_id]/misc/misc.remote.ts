@@ -1,7 +1,9 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { command, form, getRequestEvent, query } from "$app/server";
 import { API_ENDPOINT } from "$env/static/private";
-import { get_classes } from "../../school.remote";
+import { db } from "$lib/db/drizzle";
+import { subjects_table } from "$lib/db/schema";
 
 const subject_schema = z.object({
 	name: z
@@ -15,63 +17,33 @@ const subject_schema = z.object({
 		.optional(),
 });
 
-export const get_all_subjects = query(async () => {
-	const { fetch } = getRequestEvent();
-
+export const get_subjects = query(async () => {
 	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/subjects`);
-		const { message, data } = await res.json();
-		if (!res.ok) {
-			return { message };
-		}
+		const subjects = await db.query.subjects_table.findMany();
 
-		return data.subjects;
+		return subjects;
 	} catch (_e) {
-		//@ts-expect-error
-		return { message: _e.message };
+		return [];
 	}
 });
 
 export const add_subject = form(subject_schema, async (parsed) => {
-	const { cookies, fetch } = getRequestEvent();
-
 	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/subjects`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-			body: JSON.stringify(parsed),
-		});
-		const { message } = await res.json();
-		if (!res.ok) {
-			return { message };
-		}
+		await db.insert(subjects_table).values(parsed);
 
-		await get_all_subjects().refresh();
+		await get_subjects().refresh();
+		return { message: "subject created successfully" };
 	} catch (_e) {
 		//@ts-expect-error
 		return { message: _e.message };
 	}
 });
 
-export const delete_subject = command("unchecked", async (subject_id) => {
-	const { cookies, fetch } = getRequestEvent();
+export const delete_subject = command(z.string(), async (subject_id) => {
 	try {
-		const res = await fetch(`${API_ENDPOINT}/api/v1/subjects/${subject_id}`, {
-			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${cookies.get("token")}`,
-			},
-		});
-		const { message } = await res.json();
-		if (!res.ok) {
-			return { message };
-		}
+		await db.delete(subjects_table).where(eq(subjects_table.id, subject_id));
 
-		await get_all_subjects().refresh();
+		await get_subjects().refresh();
 	} catch (_e) {
 		//@ts-expect-error
 		return { message: _e.message };

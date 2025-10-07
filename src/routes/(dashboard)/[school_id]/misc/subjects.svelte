@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { toast } from "svelte-sonner";
-  import { add_subject, delete_subject, get_all_subjects } from "./misc.remote";
+  import { add_subject, delete_subject, get_subjects } from "./misc.remote";
 
   $effect(() => {
     if (add_subject.result?.message) {
@@ -30,7 +30,7 @@
     </thead>
 
     <tbody class="divide-y divide-gray-200">
-      {#each await get_all_subjects() as subject}
+      {#each await get_subjects() as subject}
         <tr class="group [&>td]:px-5 [&>td]:py-3">
           <td>{subject.name}</td>
           <td>{subject.code || "N/A"}</td>

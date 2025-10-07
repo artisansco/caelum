@@ -235,7 +235,7 @@
               required
             />
             <p class="text-xs text-red-500 mt-1">
-              {add_announcement.issues?.title?.at(0)?.message}
+              <!-- {add_announcement.issues?.title?.at(0)?.message} -->
             </p>
           </div>
 
@@ -255,7 +255,7 @@
               required
             ></textarea>
             <p class="text-xs text-red-500 mt-1">
-              {add_announcement.issues?.content?.at(0)?.message}
+              <!-- {add_announcement.issues?.content?.at(0)?.message} -->
             </p>
           </div>
 
