@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "postbuild": "cp package*.json build/ && cp prod.sql build/ && cp -r drizzle build/",
+    "postbuild": "cp -r package*.json *.sql drizzle build/",
     "start": "node build/",
     "preview": "vite preview",
     "lint": "prettier --plugin-search-dir . --check .",
@@ -51,7 +51,6 @@
   "dependencies": {
     "@formkit/tempo": "^0.1.2",
     "@lucide/svelte": "^0.544.0",
-    "@node-rs/argon2": "^2.0.2",
     "@tiptap/extension-link": "^3.6.5",
     "@tiptap/starter-kit": "^3.6.5",
     "arctic": "^3.7.0",
@@ -59,7 +58,6 @@
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
     "chart.js": "^4.5.0",
-    "dayjs": "^1.11.18",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.6",
     "drizzle-seed": "^0.3.1",
@@ -69,7 +67,6 @@
     "nanoid": "^5.1.6",
     "sharp": "^0.34.4",
     "svelte-sonner": "^1.0.5",
-    "valibot": "^1.1.0",
     "zod": "^4.1.11"
   },
   "repository": {
