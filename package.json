@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "postbuild": "cp -r package*.json *.sql drizzle build/",
+    "postbuild": "cp -r package.json *.sql drizzle build/",
     "start": "node build/",
     "preview": "vite preview",
     "lint": "prettier --plugin-search-dir . --check .",
