@@ -1,6 +1,6 @@
 import { error, redirect } from "@sveltejs/kit";
 import { desc, eq } from "drizzle-orm";
-import z from "zod";
+import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import { students_table } from "$lib/db/schema";
@@ -51,13 +51,13 @@ export const update_student = form(
 	student_schema.omit({ admission_number: true, admission_date: true }),
 	async (parsed) => {
 		try {
-			await db
+			const [student] = await db
 				.update(students_table)
 				.set({ ...parsed })
-				.where(eq(students_table.id, parsed.student_id));
-			// .returning();
+				.where(eq(students_table.id, parsed.student_id))
+				.returning();
 
-			await get_student(parsed.student_id).refresh();
+			get_student(parsed.student_id).set(student);
 		} catch (_e) {
 			console.error(_e);
 			return { message: "Student not updated" };

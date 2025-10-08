@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { student_statuses } from "$lib/constants";
 
 export const student_schema = z.object({
 	first_name: z
@@ -9,6 +10,7 @@ export const student_schema = z.object({
 		.string({ error: "Middle name is required" })
 		.trim()
 		.min(2, { error: "Middle name must be at least 2 characters long" })
+		.or(z.literal(""))
 		.optional(),
 	last_name: z
 		.string({ error: "Last name is required" })
@@ -24,6 +26,7 @@ export const student_schema = z.object({
 		.string({ error: "Invalid address" })
 		.trim()
 		.min(2, { error: "Address must be at least 2 characters long" }),
+	// status: z.enum(student_statuses),
 	phone_number: z
 		.string({ error: "Invalid phone number" })
 		.trim()

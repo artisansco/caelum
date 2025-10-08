@@ -12,7 +12,8 @@
 	const { address, email, first_name, last_name, middle_name, phone_number } =
 		update_student.fields;
 
-	const student = $derived(await get_student(params.student_id));
+	let student_promise = $derived(get_student(params.student_id));
+	let student = $derived(await student_promise);
 	let status = $derived(student.status);
 	let edit_mode = $state(false);
 
@@ -21,6 +22,8 @@
 			toast.info(update_student.result.message);
 		}
 	});
+
+	$inspect(student);
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -136,7 +139,7 @@
 		</div>
 	</header>
 
-	<form id="edit_details" {...update_student}>
+	<form id="edit_details" {...update_student} oninput={() => update_student.validate()}>
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 			<!-- Left Column - Main Information -->
 			<section class="lg:col-span-2">

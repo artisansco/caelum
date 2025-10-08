@@ -9,9 +9,12 @@
 	let { params } = $props();
 	const { description, due_date, file, title } = upload_assignment.fields;
 
+	let assign_promise = $derived(get_assignments(params.school_id));
+	let class_promise = $derived(get_classes(params.school_id));
+
+	let assignments = $derived(await assign_promise);
+	let classes = $derived(await class_promise);
 	let class_id = $state('');
-	let assignments = $derived(await get_assignments(params.school_id));
-	let classes = $derived(await get_classes(params.school_id));
 
 	$effect(() => {
 		if (upload_assignment.result?.message) {

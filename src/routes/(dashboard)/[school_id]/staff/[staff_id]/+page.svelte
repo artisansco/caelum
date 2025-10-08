@@ -21,7 +21,8 @@
 		phone_number
 	} = update_staff.fields;
 
-	const staff = $derived(await get_staff_by_id(params.staff_id));
+	let staff_promise = $derived(get_staff_by_id(params.staff_id));
+	let staff = $derived(await staff_promise);
 	let role = $derived(staff.role);
 	let status = $derived(staff.status);
 	let edit_mode = $state(false);

@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { desc, eq, getTableColumns } from "drizzle-orm";
-import z from "zod";
+import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import { assignments_table, classes_table } from "$lib/db/schema";
