@@ -4,7 +4,7 @@ import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import { staff_table } from "$lib/db/schema";
-import { staff_schema } from "$lib/schema/staff";
+import { staff_schema } from "$lib/schemas";
 
 export const get_all_staff = query(z.string(), async (school_id) => {
 	// const limit = Number(c.req.query("limit")) || 10;

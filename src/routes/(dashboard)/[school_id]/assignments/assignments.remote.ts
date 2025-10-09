@@ -4,7 +4,7 @@ import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import { assignments_table, classes_table } from "$lib/db/schema";
-import { assignment_schema } from "$lib/schema/assignments";
+import { assignment_schema } from "$lib/schemas";
 import { upload_file } from "$lib/upload";
 
 export const get_assignments = query(z.string(), async (school_id) => {

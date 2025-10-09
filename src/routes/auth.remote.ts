@@ -3,13 +3,13 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
-import { z } from "zod";
+import * as z from "zod";
 import { command, form, getRequestEvent } from "$app/server";
 import { set_token } from "$lib/auth";
 import { config } from "$lib/config";
 import { db } from "$lib/db/drizzle";
 import { schools_table, staff_table } from "$lib/db/schema";
-import { school_schema } from "$lib/schema/schools";
+import { school_schema } from "$lib/schemas";
 
 export const login = form(
 	z.object({ email: z.email(), password: z.string() }),

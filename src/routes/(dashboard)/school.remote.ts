@@ -1,5 +1,5 @@
 import { and, desc, eq, getTableColumns } from "drizzle-orm";
-import z from "zod";
+import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
 import {
@@ -8,7 +8,7 @@ import {
 	schools_table,
 	subscriptions_table,
 } from "$lib/db/schema";
-import { school_schema } from "$lib/schema/schools";
+import { school_schema } from "$lib/schemas";
 
 export const get_school = query(z.string(), async (school_id) => {
 	// guard_route();
