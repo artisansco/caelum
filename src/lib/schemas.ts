@@ -32,8 +32,10 @@ export const staff_schema = z.object({
 		.trim()
 		.min(2, { error: "first name must be at least 2 characters long" }),
 	middle_name: z
-		.string({ error: "middle name must be a string" })
+		.string({ error: "Middle name is required" })
 		.trim()
+		.min(1, { error: "Middle name must be at least 1 characters long" })
+		.or(z.literal(""))
 		.optional(),
 	last_name: z
 		.string({ error: "last name must be a string" })
@@ -103,7 +105,7 @@ export const student_schema = z.object({
 	middle_name: z
 		.string({ error: "Middle name is required" })
 		.trim()
-		.min(2, { error: "Middle name must be at least 2 characters long" })
+		.min(1, { error: "Middle name must be at least 1 characters long" })
 		.or(z.literal(""))
 		.optional(),
 	last_name: z

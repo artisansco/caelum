@@ -91,7 +91,15 @@
 		</div>
 	</header>
 
-	<form id="school_details" {...update_school}>
+	<form
+		id="school_details"
+		{...update_school.enhance(async ({ submit }) => {
+			await submit();
+			toast.success('School details updated successfully');
+			edit_mode = false;
+		})}
+		oninput={() => update_school.validate()}
+	>
 		<input type="hidden" name="city" bind:value={selected_city} />
 		<input type="hidden" name="school_id" value={params.school_id} />
 

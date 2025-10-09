@@ -139,7 +139,15 @@
 		</div>
 	</header>
 
-	<form id="edit_details" {...update_student} oninput={() => update_student.validate()}>
+	<form
+		id="edit_details"
+		{...update_student.enhance(async ({ submit }) => {
+			await submit();
+			toast.success('Student updated successfully');
+			edit_mode = false;
+		})}
+		oninput={() => update_student.validate()}
+	>
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 			<!-- Left Column - Main Information -->
 			<section class="lg:col-span-2">

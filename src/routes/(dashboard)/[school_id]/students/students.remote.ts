@@ -62,8 +62,6 @@ export const update_student = form(
 			console.error(_e);
 			return { message: "Student not updated" };
 		}
-
-		// return { message: "User updated successfully" };
 	},
 );
 

@@ -9,7 +9,6 @@
 	import { melt } from '@melt-ui/svelte';
 
 	const { params } = $props();
-
 	const {
 		address,
 		email,
@@ -143,7 +142,15 @@
 		</div>
 	</header>
 
-	<form id="edit_details" {...update_staff}>
+	<form
+		id="edit_details"
+		{...update_staff.enhance(async ({ submit }) => {
+			await submit();
+			toast.success('Staff updated successfully');
+			edit_mode = false;
+		})}
+		oninput={() => update_staff.validate()}
+	>
 		<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 			<!-- Left Column - Main Information -->
 			<section class="lg:col-span-2">
