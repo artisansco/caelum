@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Avatar } from 'melt/components';
 	import { get_school } from '../../school.remote';
-	import { get_payments, get_payment_statistics } from './payments.remote';
+	import { get_payments } from './payments.remote';
 	import AddNewPayment from './add-payment.svelte';
 	import { format_currency } from '$lib/utils';
 	import { format } from '@formkit/tempo';
@@ -9,12 +9,10 @@
 	const { params } = $props();
 
 	let school_promise = $derived(get_school(params.school_id));
-	let statistics_promise = $derived(get_payment_statistics());
 	let payments_promise = $derived(get_payments());
 
 	let school = $derived(await school_promise);
 	let payments = $derived(await payments_promise);
-	let statistics = $derived(await statistics_promise);
 
 	// State for modals and forms
 	let show_add_form = $state(false);
@@ -168,25 +166,21 @@
 					<div class="space-y-4">
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">Total Payments</span>
-							<span class="text-sm font-medium text-gray-900">{statistics.total_payments}</span>
+							<span class="text-sm font-medium text-gray-900">0</span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">This Year</span>
-							<span class="text-sm font-medium text-green-600">
-								{statistics.by_status.completed}
-							</span>
+							<span class="text-sm font-medium text-green-600">0 </span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">This Month</span>
-							<span class="text-sm font-medium text-green-600">
-								{statistics.by_status.completed}
-							</span>
+							<span class="text-sm font-medium text-green-600">0 </span>
 						</div>
 
 						<div class="flex justify-between border-t pt-4">
 							<span class="text-sm font-medium text-gray-900">Total Revenue</span>
 							<span class="text-sm font-bold text-gray-900">
-								{format_currency(statistics.total_amount)}
+								{format_currency(1000)}
 							</span>
 						</div>
 					</div>

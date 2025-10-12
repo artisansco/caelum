@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { get_faqs, get_plans } from './billing.remote';
+	import { get_faqs, get_plans } from './pricing.remote';
 </script>
 
 <div class="min-h-screen bg-gray-50 py-12">

@@ -56,13 +56,13 @@
 			<table class="table min-w-full divide-y divide-gray-200">
 				<thead class="bg-gray-50">
 					<tr class="bg-gray-50 *:text-gray-500 *:uppercase *:tracking-wider">
-						<th class="text-xs"> Reference </th>
-						<th class="text-xs"> Amount </th>
-						<th class="text-xs"> Type </th>
-						<th class="text-xs"> Method </th>
-						<th class="text-xs"> Status </th>
-						<th class="text-xs"> Plan </th>
-						<th class="text-xs"> Date </th>
+						<th class="text-xs">Reference</th>
+						<th class="text-xs">Amount</th>
+						<th class="text-xs">Type</th>
+						<th class="text-xs">Method</th>
+						<th class="text-xs">Status</th>
+						<th class="text-xs">Plan</th>
+						<th class="text-xs">Date</th>
 					</tr>
 				</thead>
 				<tbody class="bg-white divide-y divide-gray-200">

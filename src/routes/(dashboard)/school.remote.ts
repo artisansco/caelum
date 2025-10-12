@@ -1,16 +1,17 @@
 import { and, desc, eq, getTableColumns } from "drizzle-orm";
+import * as v from "valibot";
 import * as z from "zod";
 import { command, form, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
 import {
 	classes_table,
+	db,
 	plans_table,
 	schools_table,
 	subscriptions_table,
-} from "$lib/db/schema";
+} from "$lib/db";
 import { school_schema } from "$lib/schemas";
 
-export const get_school = query(z.string(), async (school_id) => {
+export const get_school = query(v.string(), async (school_id) => {
 	// guard_route();
 
 	const [school] = await db
@@ -66,7 +67,7 @@ export const update_school = form(
 );
 
 /* ==================== Classes RF for school ============================ */
-export const get_classes = query(z.string(), async (school_id) => {
+export const get_classes = query(v.string(), async (school_id) => {
 	try {
 		const classes = await db.query.classes_table.findMany({
 			where: eq(classes_table.school_id, school_id),
@@ -103,9 +104,9 @@ export const add_class = form(
 );
 
 export const delete_class = command(
-	z.object({
-		school_id: z.string(),
-		class_id: z.string(),
+	v.object({
+		school_id: v.string(),
+		class_id: v.string(),
 	}),
 	async (parsed) => {
 		try {

@@ -16,7 +16,7 @@
     "test": "echo \"no node:test test implemented yet\"",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "db:seed": "npx tsx ./src/db/seed.ts",
+    "db:seed": "npx tsx ./src/lib/db/seed.ts",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",

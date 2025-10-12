@@ -82,6 +82,33 @@ export const default_permissions = [
 	"classes:view",
 ];
 
+export const grade_types = [
+	"assignment",
+	"quiz",
+	"exam",
+	"project",
+	"test",
+	"participation",
+] as const;
+
+export const payment_type = [
+	"tuition",
+	"registration",
+	"transport",
+	"meals",
+	"books",
+	"other",
+] as const;
+
+export const payment_method = [
+	"cash",
+	"bank_transfer",
+	"mobile_money",
+	"cheque",
+	"card",
+	"paypal",
+] as const;
+
 // ------
 
 export function get_error_message(status: number) {

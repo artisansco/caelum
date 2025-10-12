@@ -1,12 +1,11 @@
 import { error, redirect } from "@sveltejs/kit";
 import { desc, eq, getTableColumns } from "drizzle-orm";
-import * as z from "zod";
+import * as v from "valibot";
 import { command, form, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
-import { classes_table, students_table } from "$lib/db/schema";
+import { classes_table, db, students_table } from "$lib/db";
 import { student_schema } from "$lib/schemas";
 
-export const get_all_students = query(z.string(), async (school_id) => {
+export const get_all_students = query(v.string(), async (school_id) => {
 	const students = await db
 		.select({
 			...getTableColumns(students_table),
@@ -24,7 +23,7 @@ export const get_all_students = query(z.string(), async (school_id) => {
 	return students;
 });
 
-export const get_student = query(z.string().trim(), async (student_id) => {
+export const get_student = query(v.string(), async (student_id) => {
 	const student = await db.query.students_table.findFirst({
 		where: eq(students_table.id, student_id),
 	});
@@ -71,7 +70,7 @@ export const update_student = form(
 	},
 );
 
-export const delete_student = command(z.string(), async (student_id) => {
+export const delete_student = command(v.string(), async (student_id) => {
 	try {
 		await db.delete(students_table).where(eq(students_table.id, student_id));
 
