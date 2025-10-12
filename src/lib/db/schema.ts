@@ -154,3 +154,143 @@ export const plans_table = sqliteTable("plans", {
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
+
+// grades table for student academic performance
+export const grades_table = sqliteTable("grades", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	student_id: text()
+		.notNull()
+		.references(() => students_table.id, { onDelete: "cascade" }),
+	subject_id: text()
+		.notNull()
+		.references(() => subjects_table.id, { onDelete: "cascade" }),
+	assignment_id: text().references(() => assignments_table.id, {
+		onDelete: "cascade",
+	}),
+	grade_value: text().notNull(), // can be letter grade (A, B, C) or numeric (85, 90)
+	grade_type: text({
+		enum: ["assignment", "quiz", "exam", "project", "participation"],
+	})
+		.notNull()
+		.default("assignment"),
+	max_score: int().default(100),
+	actual_score: int().notNull(),
+	weight: int().default(1), // for weighted grades
+	graded_by: text()
+		.notNull()
+		.references(() => staff_table.id, { onDelete: "cascade" }),
+	term: text().notNull().default("first"),
+	academic_year: text().notNull(),
+	notes: text(),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
+// payments table for student fee payments
+export const payments_table = sqliteTable("payments", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	student_id: text()
+		.notNull()
+		.references(() => students_table.id, { onDelete: "cascade" }),
+	amount: int().notNull(),
+	payment_type: text({
+		enum: ["tuition", "registration", "transport", "meals", "books", "other"],
+	})
+		.notNull()
+		.default("tuition"),
+	payment_method: text({
+		enum: ["cash", "bank_transfer", "mobile_money", "cheque"],
+	})
+		.notNull()
+		.default("cash"),
+	payment_status: text({ enum: ["pending", "completed", "failed", "refunded"] })
+		.notNull()
+		.default("completed"),
+	reference_number: text(),
+	term: text().notNull().default("first"),
+	academic_year: text().notNull(),
+	due_date: text(),
+	paid_date: text().default(sql`CURRENT_TIMESTAMP`),
+	notes: text(),
+	received_by: text()
+		.notNull()
+		.references(() => staff_table.id, { onDelete: "cascade" }),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
+// transactions table for school payments to the platform
+export const transactions_table = sqliteTable("transactions", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	subscription_id: text().references(() => subscriptions_table.id, {
+		onDelete: "cascade",
+	}),
+	amount: int().notNull(),
+	transaction_type: text({
+		enum: ["subscription", "upgrade", "addon", "penalty"],
+	})
+		.notNull()
+		.default("subscription"),
+	payment_method: text({
+		enum: ["bank_transfer", "mobile_money", "card", "paypal"],
+	})
+		.notNull()
+		.default("bank_transfer"),
+	transaction_status: text({
+		enum: ["pending", "completed", "failed", "refunded"],
+	})
+		.notNull()
+		.default("pending"),
+	reference_number: text().unique(),
+	description: text(),
+	processed_date: text(),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
+// admission table for new student admissions
+export const admissions_table = sqliteTable("admissions", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	application_number: text().notNull().unique(),
+	first_name: text().notNull(),
+	middle_name: text(),
+	last_name: text().notNull(),
+	email: text(),
+	phone_number: text(),
+	gender: text({ enum: ["male", "female"] }).notNull(),
+	date_of_birth: text(),
+	address: text(),
+	guardian_name: text().notNull(),
+	guardian_phone: text().notNull(),
+	guardian_email: text(),
+	guardian_relationship: text().default("parent"),
+	previous_school: text(),
+	class_applying_for: text()
+		.notNull()
+		.references(() => classes_table.id, { onDelete: "cascade" }),
+	application_status: text({
+		enum: ["pending", "approved", "rejected", "enrolled"],
+	})
+		.notNull()
+		.default("pending"),
+	admission_date: text(),
+	notes: text(),
+	documents_submitted: text(), // JSON string of document types
+	reviewed_by: text().references(() => staff_table.id, {
+		onDelete: "set null",
+	}),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});

@@ -2,10 +2,6 @@
 	import { get_faqs, get_plans } from './billing.remote';
 </script>
 
-<svelte:head>
-	<title>Billing & Pricing - Caelum</title>
-</svelte:head>
-
 <div class="min-h-screen bg-gray-50 py-12">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<!-- Header -->

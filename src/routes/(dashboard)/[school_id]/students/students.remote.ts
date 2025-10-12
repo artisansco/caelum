@@ -1,19 +1,25 @@
 import { error, redirect } from "@sveltejs/kit";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, getTableColumns } from "drizzle-orm";
 import * as z from "zod";
 import { command, form, query } from "$app/server";
 import { db } from "$lib/db/drizzle";
-import { students_table } from "$lib/db/schema";
+import { classes_table, students_table } from "$lib/db/schema";
 import { student_schema } from "$lib/schemas";
 
 export const get_all_students = query(z.string(), async (school_id) => {
-	const students = await db.query.students_table.findMany({
-		where: eq(students_table.school_id, school_id),
-		orderBy: desc(students_table.created_at),
-		limit: 10,
-	});
-
-	// return { message: "students fetched successfully" };
+	const students = await db
+		.select({
+			...getTableColumns(students_table),
+			class: getTableColumns(classes_table),
+		})
+		.from(students_table)
+		.leftJoin(
+			classes_table,
+			eq(classes_table.school_id, students_table.school_id),
+		)
+		.where(eq(students_table.school_id, school_id))
+		.orderBy(desc(students_table.created_at))
+		.limit(10);
 
 	return students;
 });

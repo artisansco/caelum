@@ -24,10 +24,10 @@
 					<span class="sr-only text-xs">Notifications</span>
 				</button>
 
-				<button type="button" class="btn-sm-ghost">
+				<!-- <button type="button" class="btn-sm-ghost">
 					<span class="icon-[lucide--activity] size-4"></span>
 					<span class="sr-only text-xs">Activity</span>
-				</button>
+				</button> -->
 
 				<Popover sameWidth={false}>
 					{#snippet children(popover)}

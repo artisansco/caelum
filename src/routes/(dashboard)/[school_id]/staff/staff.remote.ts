@@ -1,12 +1,11 @@
 import { error, redirect } from "@sveltejs/kit";
 import { desc, eq } from "drizzle-orm";
-import * as z from "zod";
+import * as v from "valibot";
 import { command, form, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
-import { staff_table } from "$lib/db/schema";
+import { db, staff_table } from "$lib/db";
 import { staff_schema } from "$lib/schemas";
 
-export const get_all_staff = query(z.string(), async (school_id) => {
+export const get_all_staff = query(v.string(), async (school_id) => {
 	// const limit = Number(c.req.query("limit")) || 10;
 
 	const staff = await db.query.staff_table.findMany({
@@ -15,12 +14,10 @@ export const get_all_staff = query(z.string(), async (school_id) => {
 		limit: 10,
 	});
 
-	// return { message: "All staff fetched successfully" };
-
 	return staff;
 });
 
-export const get_staff_by_id = query(z.string().trim(), async (staff_id) => {
+export const get_staff_by_id = query(v.string(), async (staff_id) => {
 	try {
 		const staff = await db.query.staff_table.findFirst({
 			where: eq(staff_table.id, staff_id),
@@ -94,7 +91,7 @@ export const update_staff = form(
 	},
 );
 
-export const delete_staff = command(z.string(), async (staff_id) => {
+export const delete_staff = command(v.string(), async (staff_id) => {
 	try {
 		await db
 			.delete(staff_table)

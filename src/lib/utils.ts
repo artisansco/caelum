@@ -24,3 +24,12 @@ export function get_field_error(key: RemoteFormField<string | File>) {
 
 	return issues.at(0)?.message;
 }
+
+export function format_currency(amount: number): string {
+	return new Intl.NumberFormat("en-SL", {
+		style: "currency",
+		currency: "SLE",
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
+	}).format(amount);
+}

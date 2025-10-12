@@ -5,6 +5,9 @@
 	import { get_all_students } from './students.remote';
 
 	const { params } = $props();
+
+	let stud_promise = $derived(get_all_students(params.school_id));
+	let students = $derived(await stud_promise);
 </script>
 
 <!-- Table Section -->
@@ -55,7 +58,7 @@
 						</thead>
 
 						<tbody class="divide-y divide-gray-200">
-							{#each await get_all_students(params.school_id) as student}
+							{#each students as student}
 								{@render student_card(student)}
 							{:else}
 								<tr>
@@ -73,7 +76,7 @@
 						<div>
 							<p class="text-sm text-gray-600">
 								<span class="font-semibold text-gray-800">
-									{(await get_all_students(params.school_id)).length || 0} results
+									{students.length || 0} results
 								</span>
 							</p>
 						</div>
@@ -142,7 +145,7 @@
 		<td class="h-px w-72 whitespace-nowrap">
 			<div class="px-6 py-3">
 				<span class="block text-sm font-semibold text-gray-800">
-					{student.class || 'N/A'}
+					{student.class.name || 'N/A'}
 				</span>
 				<span class="block text-sm text-gray-500">
 					{student.status || 'enrolled'}
@@ -152,7 +155,7 @@
 		<td class="size-px whitespace-nowrap">
 			<div class="px-6 py-3">
 				<span class="text-sm text-gray-500">
-					{student.contact || 'N/A'}
+					{student.phone_number || 'N/A'}
 				</span>
 			</div>
 		</td>
