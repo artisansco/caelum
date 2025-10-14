@@ -6,19 +6,10 @@
 	import { delete_staff, get_staff_by_id, update_staff } from '../staff.remote';
 	import { toast } from 'svelte-sonner';
 	import Dialog from '$lib/components/dialog.svelte';
-	import { melt } from '@melt-ui/svelte';
 
 	const { params } = $props();
-	const {
-		address,
-		email,
-		first_name,
-		last_name,
-		middle_name,
-		password,
-		permissions,
-		phone_number
-	} = update_staff.fields;
+	const { address, email, first_name, last_name, middle_name, permissions, phone_number } =
+		update_staff.fields;
 
 	let staff_promise = $derived(get_staff_by_id(params.staff_id));
 	let staff = $derived(await staff_promise);
@@ -26,6 +17,7 @@
 	let status = $derived(staff.status);
 	let edit_mode = $state(false);
 	let view_password = $state(false);
+	let toggle_dialog = $state(false);
 
 	$effect(() => {
 		if (update_staff.result?.message) {
@@ -112,14 +104,13 @@
 						<i class="icon-[mdi--pencil]"></i>
 						Edit
 					</button>
-					<Dialog label="Dialog Title" outside_close={false}>
-						{#snippet trigger_btn($trigger: any)}
-							<button use:melt={$trigger} class="btn-sm-destructive">
-								<i class="icon-[mdi--trash] size-4"></i>
-								Delete
-							</button>
-						{/snippet}
-
+					<Dialog
+						label="Dialog Title"
+						btn_txt="Delete"
+						icon="icon-[mdi--trash]"
+						trigger_class="btn-sm-destructive"
+						{toggle_dialog}
+					>
 						<p class="mb-5 mt-2 leading-normal text-zinc-600">
 							This action cannot be undone. This will permanently delete the staff and remove it
 							from our servers.

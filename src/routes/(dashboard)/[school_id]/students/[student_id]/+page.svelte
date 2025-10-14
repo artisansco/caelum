@@ -4,7 +4,6 @@
 	import { get_status_pill } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import Dialog from '$lib/components/dialog.svelte';
-	import { melt } from '@melt-ui/svelte';
 	import { delete_student, get_student, update_student } from '../students.remote';
 	import { student_statuses } from '$lib/constants';
 
@@ -16,6 +15,7 @@
 	let student = $derived(await student_promise);
 	let status = $derived(student.status);
 	let edit_mode = $state(false);
+	let toggle_dialog = $state(false);
 
 	$effect(() => {
 		if (update_student.result?.message) {
@@ -23,7 +23,7 @@
 		}
 	});
 
-	$inspect(student);
+	// $inspect(student);
 </script>
 
 <div class="max-w-7xl px-6 py-8">
@@ -109,14 +109,13 @@
 						<i class="icon-[mdi--pencil]"></i>
 						Edit
 					</button>
-					<Dialog label="Delete Student?" outside_close={false}>
-						{#snippet trigger_btn($trigger: any)}
-							<button use:melt={$trigger} class="btn-sm-destructive">
-								<i class="icon-[mdi--trash] size-4"></i>
-								Delete
-							</button>
-						{/snippet}
-
+					<Dialog
+						label="Delete Student?"
+						btn_txt="Delete"
+						icon="icon-[mdi--trash]"
+						trigger_class="btn-sm-destructive"
+						{toggle_dialog}
+					>
 						<p class="mb-5 mt-2 leading-normal text-zinc-600">
 							This action cannot be undone. This will permanently delete the student and remove it
 							from our servers.

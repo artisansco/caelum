@@ -84,16 +84,10 @@ export const add_transaction = form(transaction_schema, async (parsed) => {
 		const { params } = getRequestEvent();
 		const school_id = params.school_id as string;
 
-		// Generate reference number if not provided
-		const reference_number =
-			parsed.reference_number ||
-			`TXN${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-
 		await db.insert(transactions_table).values({
 			...parsed,
 			school_id,
 			amount: 0,
-			// reference_number,
 		});
 
 		await get_transactions().refresh();

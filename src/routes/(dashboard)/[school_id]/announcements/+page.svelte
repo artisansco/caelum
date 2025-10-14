@@ -9,12 +9,12 @@
 	} from './announcements.remote';
 	import { toast } from 'svelte-sonner';
 	import { format } from '@formkit/tempo';
-	import { melt } from '@melt-ui/svelte';
 
 	let selected_announcement = $state(null);
 	let priority = $state('medium');
 	let announcement_type = $state('general');
 	let audience = $state('all');
+	let toggle_dialog = $state(false);
 
 	const { params } = $props();
 	const { content, expires_at, is_active, target_audience, title, type } = add_announcement.fields;
@@ -82,14 +82,12 @@
 				<h1 class="text-2xl font-bold text-gray-900">Announcements</h1>
 				<p class="text-gray-600">Manage school announcements and important notices</p>
 			</div>
-			<Dialog label="Add Announcement" outside_close={false}>
-				{#snippet trigger_btn($trigger: any)}
-					<button use:melt={$trigger} class="btn-sm">
-						<i class="icon-[mdi--plus]"></i>
-						New Announcement
-					</button>
-				{/snippet}
-
+			<Dialog
+				label="Add Announcement"
+				btn_txt="New Announcement"
+				icon="icon-[mdi--bullhorn]"
+				{toggle_dialog}
+			>
 				<form
 					{...add_announcement.enhance(async ({ submit }) => await submit())}
 					oninput={() => add_announcement.validate()}

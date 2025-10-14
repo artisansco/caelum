@@ -1,12 +1,12 @@
 <script lang="ts">
 	import Dialog from '$lib/components/dialog.svelte';
-	import { melt } from '@melt-ui/svelte';
 	import ClassCard from './class-card.svelte';
 	import { add_class, get_classes } from './classes.remote';
 	import { toast } from 'svelte-sonner';
 	import { get_field_error } from '$lib/utils';
 
 	const { params } = $props();
+	let toggle_dialog = $state(false);
 
 	$effect(() => {
 		if (add_class.result?.message) {
@@ -23,15 +23,7 @@
 				<p class="text-gray-600">Manage your school's class levels</p>
 			</div>
 
-			<!-- Add Class Dialog -->
-			<Dialog label="Add New Class" outside_close={false}>
-				{#snippet trigger_btn($trigger: any)}
-					<button use:melt={$trigger} class="btn-sm">
-						<i class="icon-[mdi--plus]"></i>
-						Add Class
-					</button>
-				{/snippet}
-
+			<Dialog label="Add New Class" btn_txt="New Class" icon="icon-[mdi--plus]" {toggle_dialog}>
 				<form
 					{...add_class.enhance(async ({ submit }) => await submit())}
 					oninput={() => add_class.validate()}

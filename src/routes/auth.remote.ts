@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import * as v from "valibot";
 import * as z from "zod";
 import { command, form, getRequestEvent } from "$app/server";
 import { set_token } from "$lib/auth";
@@ -12,7 +13,7 @@ import { schools_table, staff_table } from "$lib/db/schema";
 import { school_schema } from "$lib/schemas";
 
 export const login = form(
-	z.object({ email: z.email(), password: z.string() }),
+	v.object({ email: v.pipe(v.string(), v.email()), password: v.string() }),
 	async (parsed) => {
 		const user = await db.query.staff_table.findFirst({
 			where: eq(staff_table.email, parsed.email),
@@ -35,37 +36,42 @@ export const login = form(
 	},
 );
 
-export const register = form(school_schema, async (parsed) => {
-	try {
-		const [school] = await db
-			.insert(schools_table)
-			.values({
-				name: parsed.name,
+export const register = form(
+	school_schema.extend({
+		password: z.string(),
+	}),
+	async (parsed) => {
+		try {
+			const [school] = await db
+				.insert(schools_table)
+				.values({
+					name: parsed.name,
+					address: parsed.address,
+					city: parsed.city,
+					logo_url: `https://placehold.co/100?text=${parsed.name[0]}`,
+				})
+				.returning({ id: schools_table.id });
+
+			await db.insert(staff_table).values({
+				staff_id: nanoid(),
+				first_name: "School",
+				last_name: "Admin",
+				role: "admin",
 				address: parsed.address,
-				city: parsed.city,
-				logo_url: `https://placehold.co/100?text=${parsed.name[0]}`,
-			})
-			.returning({ id: schools_table.id });
+				contact: "",
+				email: parsed.email,
+				password: parsed.password,
+				school_id: school.id,
+				employed_date: new Date().toISOString(),
+			});
+		} catch (_e) {
+			console.log(_e);
+			return { message: "failed to register new school" };
+		}
 
-		await db.insert(staff_table).values({
-			staff_id: nanoid(),
-			first_name: "School",
-			last_name: "Admin",
-			role: "admin",
-			address: parsed.address,
-			contact: "",
-			email: parsed.email,
-			password: parsed.password,
-			school_id: school.id,
-			employed_date: new Date().toISOString(),
-		});
-	} catch (_e) {
-		console.log(_e);
-		return { message: "failed to register new school" };
-	}
-
-	redirect(302, "/");
-});
+		redirect(302, "/");
+	},
+);
 
 export const logout = command(async () => {
 	const { cookies } = getRequestEvent();

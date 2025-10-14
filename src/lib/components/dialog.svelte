@@ -3,30 +3,39 @@
 	import type { Snippet } from 'svelte';
 
 	const {
-		trigger_btn,
+		btn_txt = 'Trigger',
+		trigger_class = 'btn-sm',
+		icon = '',
 		children,
-		outside_close = true,
+		outside_click = false,
 		scroll = true,
-		label
+		label,
+		toggle_dialog = $bindable(true)
 	}: {
-		trigger_btn: any;
+		btn_txt?: string;
+		trigger_class?: string;
+		icon?: string;
 		children?: Snippet;
-		outside_close?: boolean;
+		outside_click?: boolean;
 		scroll?: boolean;
 		label: string;
+		toggle_dialog: boolean;
 	} = $props();
 	const {
 		elements: { trigger, portalled, overlay, content, title, close },
 		states: { open }
 	} = createDialog({
-		closeOnOutsideClick: outside_close,
+		closeOnOutsideClick: outside_click,
 		preventScroll: scroll
 	});
+
+	$open = toggle_dialog;
 </script>
 
-{#if trigger_btn}
-	{@render trigger_btn($trigger)}
-{/if}
+<button use:melt={$trigger} class={trigger_class}>
+	<i class={icon}></i>
+	{btn_txt}
+</button>
 
 {#if $open}
 	<div use:melt={$portalled}>

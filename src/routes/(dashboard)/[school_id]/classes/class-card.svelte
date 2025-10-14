@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Dialog from '$lib/components/dialog.svelte';
-	import { melt } from '@melt-ui/svelte';
 	import { delete_class } from './classes.remote';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
@@ -20,6 +19,7 @@
 
 	let student_count = $state(0);
 	let assignment_count = $state(0);
+	let toggle_dialog = $state(false);
 
 	onMount(async () => {
 		const [studs, assigns] = await Promise.all([
@@ -38,13 +38,12 @@
 			{class_name || 'N/A'}
 		</h3>
 		<div class="flex-shrink-0">
-			<Dialog label="Add New Class">
-				{#snippet trigger_btn($trigger: any)}
-					<button use:melt={$trigger} class="btn-sm-destructive bg-red-50 text-red-500">
-						<i class="icon-[mdi--trash]"></i>
-					</button>
-				{/snippet}
-
+			<Dialog
+				label="Add New Class"
+				icon="icon-[mdi--trash]"
+				trigger_class="btn-sm-destructive bg-red-50 text-red-500"
+				{toggle_dialog}
+			>
 				<div class="space-y-4">
 					<p>Are you sure you want to delete {class_name}? This action cannot be undone.</p>
 					<button

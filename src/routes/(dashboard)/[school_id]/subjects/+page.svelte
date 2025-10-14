@@ -1,16 +1,17 @@
 <script lang="ts">
 	import Dialog from '$lib/components/dialog.svelte';
-	import { melt } from '@melt-ui/svelte';
 	import { add_subject, get_subjects, delete_subject } from './subjects.remote';
 	import { toast } from 'svelte-sonner';
 
 	let selected_subject = $state();
 
 	const { params } = $props();
+	const { code, name } = add_subject.fields;
+
 	let subs_promise = $derived(get_subjects(params.school_id));
 	let subjects = $derived(await subs_promise);
 
-	const { code, name } = add_subject.fields;
+	let toggle_dialog = $state(false);
 
 	$effect(() => {
 		if (add_subject.result?.message) {
@@ -27,14 +28,7 @@
 				<p class="text-gray-600">Manage your school's academic subjects</p>
 			</div>
 
-			<Dialog label="Add New Subject" outside_close={false}>
-				{#snippet trigger_btn($trigger: any)}
-					<button use:melt={$trigger} class="btn-sm">
-						<i class="icon-[mdi--plus]"></i>
-						New Subject
-					</button>
-				{/snippet}
-
+			<Dialog label="Add New Subject" btn_txt="New Subject" icon="icon-[mdi--plus]" {toggle_dialog}>
 				<form
 					{...add_subject.enhance(async ({ submit }) => await submit())}
 					oninput={() => add_subject.validate()}
@@ -131,13 +125,12 @@
 						<div class="flex items-center justify-between">
 							<h2 class="text-xl font-semibold text-gray-900">{selected_subject?.name}</h2>
 
-							<Dialog label="Delete Class">
-								{#snippet trigger_btn($trigger: any)}
-									<button use:melt={$trigger} class="btn-sm-destructive">
-										<i class="icon-[mdi--trash]"></i>
-									</button>
-								{/snippet}
-
+							<Dialog
+								label="Delete Class"
+								icon="icon-[mdi--trash]"
+								trigger_class="btn-sm-destructive"
+								{toggle_dialog}
+							>
 								<div class="space-y-4">
 									<p>
 										Are you sure you want to delete "{selected_subject?.name}"? This action cannot
