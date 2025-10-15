@@ -2,6 +2,9 @@ import { sql } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
 import {
+	announcement_audience,
+	announcement_priority,
+	announcement_types,
 	cities,
 	default_permissions,
 	employment_types,
@@ -111,6 +114,22 @@ export const classes_table = sqliteTable("classes", {
 	school_id: text().references(() => schools_table.id, {
 		onDelete: "cascade",
 	}),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
+export const announcements_table = sqliteTable("announcements", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	title: text().notNull(),
+	content: text().notNull(),
+	priority: text({ enum: announcement_priority }).notNull().default("medium"),
+	type: text({ enum: announcement_types }).notNull().default("general"),
+	target_audience: text({ enum: announcement_audience })
+		.notNull()
+		.default("all"),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });

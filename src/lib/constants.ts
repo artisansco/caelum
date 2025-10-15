@@ -109,6 +109,23 @@ export const payment_method = [
 	"paypal",
 ] as const;
 
+export const announcement_types = [
+	"general",
+	"urgent",
+	"event",
+	"academic",
+	"administrative",
+] as const;
+
+export const announcement_priority = ["low", "medium", "high"] as const;
+
+export const announcement_audience = [
+	"all",
+	"students",
+	"staff",
+	// "parents",
+] as const;
+
 // ------
 
 export function get_error_message(status: number) {

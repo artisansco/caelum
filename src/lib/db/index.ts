@@ -1,6 +1,6 @@
 import { db } from "./drizzle";
 import {
-	admissions_table,
+	announcements_table,
 	assignments_table,
 	classes_table,
 	grades_table,
@@ -16,7 +16,7 @@ import {
 
 export {
 	db,
-	admissions_table,
+	announcements_table,
 	assignments_table,
 	classes_table,
 	grades_table,

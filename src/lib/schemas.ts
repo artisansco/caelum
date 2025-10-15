@@ -1,5 +1,10 @@
 import * as z from "zod";
-import { cities } from "./constants";
+import {
+	announcement_audience,
+	announcement_priority,
+	announcement_types,
+	cities,
+} from "./constants";
 
 export const assignment_schema = z.object({
 	school_id: z.string(),
@@ -150,15 +155,11 @@ export const announcement_schema = z.object({
 		.string()
 		.trim()
 		.min(10, { error: "Content must be at least 10 characters long" }),
-	priority: z.enum(["low", "medium", "high"], {
-		error: "Please select a valid priority",
-	}),
-	type: z.enum(["general", "urgent", "event", "academic", "administrative"], {
-		error: "Please select a valid type",
-	}),
-	target_audience: z.string().optional(),
-	expires_at: z.iso.date().optional().or(z.literal("")),
-	is_active: z.boolean().optional(),
+	priority: z
+		.enum(announcement_priority, { error: "invalid priority" })
+		.default("low"),
+	type: z.enum(announcement_types, { error: "Please select a valid type" }),
+	target_audience: z.enum(announcement_audience).default("all"),
 });
 
 export const subject_schema = z.object({
@@ -171,6 +172,12 @@ export const subject_schema = z.object({
 		.string()
 		.trim()
 		.min(4, { error: "subject code is too small, 4 or more characters" })
+		.or(z.literal(""))
+		.optional(),
+	notes: z
+		.string()
+		.trim()
+		.min(4, { error: "notes is too small, 4 or more characters" })
 		.or(z.literal(""))
 		.optional(),
 });

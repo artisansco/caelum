@@ -1,43 +1,40 @@
 <script lang="ts">
+	import { dialog_state } from '$lib/dialog-state.svelte';
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import type { Snippet } from 'svelte';
 
-	const {
-		btn_txt = 'Trigger',
+	let {
+		btn_txt = '',
 		trigger_class = 'btn-sm',
 		icon = '',
 		children,
 		outside_click = false,
 		scroll = true,
-		label,
-		toggle_dialog = $bindable(true)
+		label
 	}: {
 		btn_txt?: string;
 		trigger_class?: string;
 		icon?: string;
-		children?: Snippet;
+		children: Snippet;
 		outside_click?: boolean;
 		scroll?: boolean;
 		label: string;
-		toggle_dialog: boolean;
 	} = $props();
 	const {
-		elements: { trigger, portalled, overlay, content, title, close },
-		states: { open }
+		elements: { trigger, portalled, overlay, content, title, close }
+		// states: { open }
 	} = createDialog({
 		closeOnOutsideClick: outside_click,
 		preventScroll: scroll
 	});
-
-	$open = toggle_dialog;
 </script>
 
-<button use:melt={$trigger} class={trigger_class}>
+<button use:melt={$trigger} class={trigger_class} onclick={() => (dialog_state.open = true)}>
 	<i class={icon}></i>
 	{btn_txt}
 </button>
 
-{#if $open}
+{#if dialog_state.open}
 	<div use:melt={$portalled}>
 		<div use:melt={$overlay} class="fixed inset-0 z-90 bg-black/50"></div>
 		<div
@@ -53,6 +50,7 @@
 				use:melt={$close}
 				aria-label="close"
 				class="btn-sm-ghost absolute right-4 top-3 rounded-full p-1"
+				onclick={() => (dialog_state.open = false)}
 			>
 				<i class="icon-[mdi--close] size-5 bg-red-400 hover:bg-red-700"></i>
 			</button>

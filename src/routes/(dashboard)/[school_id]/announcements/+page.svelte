@@ -1,35 +1,30 @@
 <script lang="ts">
 	import Dialog from '$lib/components/dialog.svelte';
 	import { Select } from 'melt/components';
-	import {
-		add_announcement,
-		delete_announcement,
-		get_announcements,
-		update_announcement
-	} from './announcements.remote';
+	import { add_announcement, delete_announcement, get_announcements } from './announcements.remote';
 	import { toast } from 'svelte-sonner';
 	import { format } from '@formkit/tempo';
+	import { announcement_audience, announcement_priority, announcement_types } from '$lib/constants';
+	import { dialog_state } from '$lib/dialog-state.svelte';
 
-	let selected_announcement = $state(null);
-	let priority = $state('medium');
-	let announcement_type = $state('general');
-	let audience = $state('all');
-	let toggle_dialog = $state(false);
+	let announcement_promise = $derived(get_announcements());
+	let announcements = $derived(await announcement_promise);
+
+	let selected_announcement: (typeof announcements)[number] | null = $state(null);
+	let priority: (typeof announcement_priority)[number] = $state('medium');
+	let announcement_type: (typeof announcement_types)[number] = $state('general');
+	let audience: (typeof announcement_audience)[number] = $state('all');
 
 	const { params } = $props();
-	const { content, expires_at, is_active, target_audience, title, type } = add_announcement.fields;
+	const { content, target_audience, title, type } = add_announcement.fields;
 
-	$inspect(add_announcement.fields.allIssues());
+	$inspect({ issues: add_announcement.fields.allIssues() });
 
 	$effect(() => {
 		if (add_announcement.result?.message) {
 			toast.success(add_announcement.result.message);
 		}
 	});
-
-	function selectAnnouncement(announcement) {
-		selected_announcement = announcement;
-	}
 
 	function getPriorityColor(priority: string) {
 		switch (priority) {
@@ -39,21 +34,6 @@
 				return 'bg-yellow-100 text-yellow-800';
 			case 'low':
 				return 'bg-green-100 text-green-800';
-			default:
-				return 'bg-gray-100 text-gray-800';
-		}
-	}
-
-	function getTypeColor(type: string) {
-		switch (type) {
-			case 'urgent':
-				return 'bg-red-100 text-red-800';
-			case 'event':
-				return 'bg-blue-100 text-blue-800';
-			case 'academic':
-				return 'bg-purple-100 text-purple-800';
-			case 'administrative':
-				return 'bg-orange-100 text-orange-800';
 			default:
 				return 'bg-gray-100 text-gray-800';
 		}
@@ -82,14 +62,13 @@
 				<h1 class="text-2xl font-bold text-gray-900">Announcements</h1>
 				<p class="text-gray-600">Manage school announcements and important notices</p>
 			</div>
-			<Dialog
-				label="Add Announcement"
-				btn_txt="New Announcement"
-				icon="icon-[mdi--bullhorn]"
-				{toggle_dialog}
-			>
+			<Dialog label="Add Announcement" btn_txt="New Announcement" icon="icon-[mdi--bullhorn]">
 				<form
-					{...add_announcement.enhance(async ({ submit }) => await submit())}
+					{...add_announcement.enhance(async ({ submit }) => {
+						await submit();
+						dialog_state.open = false;
+						toast.success('Announcement created successfully');
+					})}
 					oninput={() => add_announcement.validate()}
 					class="space-y-4"
 				>
@@ -137,7 +116,7 @@
 									{...select.content}
 									class="max-h-48 w-full rounded-lg border border-gray-300 text-sm bg-white"
 								>
-									{#each ['low', 'medium', 'high'] as priority}
+									{#each announcement_priority as priority}
 										<p
 											{...select.getOption(priority, priority)}
 											class="{priority === select.value &&
@@ -166,7 +145,7 @@
 									{...select.content}
 									class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm bg-white"
 								>
-									{#each ['general', 'urgent', 'event', 'academic', 'administrative'] as type_item}
+									{#each announcement_types as type_item}
 										<p
 											{...select.getOption(type_item, type_item)}
 											class="{type_item === select.value &&
@@ -195,7 +174,7 @@
 									{...select.content}
 									class="max-h-48 w-full cursor-default rounded-lg border border-gray-300 text-sm bg-white"
 								>
-									{#each ['all', 'students', 'staff'] as audience}
+									{#each announcement_audience as audience}
 										<p
 											{...select.getOption(audience, audience)}
 											class="{audience === select.value &&
@@ -233,40 +212,28 @@
 			</header>
 
 			<div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-				{#each await get_announcements(params.school_id) as announcement}
+				{#each announcements as announcement}
 					<button
 						type="button"
-						class="w-full text-left px-6 py-4 hover:bg-gray-50 transition-colors {selected_announcement?.id ===
+						class="w-full text-left p-4 hover:bg-gray-50 transition-colors {selected_announcement?.id ===
 						announcement.id
-							? 'bg-blue-50 border-r-2 border-blue-500'
+							? 'bg-blue-50 border-r border-blue-500'
 							: ''}"
-						onclick={() => selectAnnouncement(announcement)}
+						onclick={() => (selected_announcement = announcement)}
 					>
-						<div class="flex items-start justify-between">
-							<div class="flex-1">
+						<div class="flex items-center justify-between">
+							<div class="">
 								<div class="flex items-center gap-2 mb-2">
 									<i class="{getTypeIcon(announcement.type)} text-gray-600 size-4"></i>
 									<h3 class="font-medium text-gray-900 truncate">{announcement.title}</h3>
 								</div>
 								<div class="flex items-center gap-2 mb-2">
-									<span
-										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {getPriorityColor(
-											announcement.priority
-										)}"
-									>
+									<span class="badge {getPriorityColor(announcement.priority)}">
 										{announcement.priority}
 									</span>
-									<span
-										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {announcement.is_active
-											? 'bg-green-100 text-green-800'
-											: 'bg-gray-100 text-gray-800'}"
-									>
-										{announcement.is_active ? 'Active' : 'Inactive'}
-									</span>
+									<span class="badge">{announcement.target_audience}</span>
 								</div>
-								<p class="text-xs text-gray-500">
-									{format({ date: announcement.created_at, format: 'DDD MMM, YYYY' })}
-								</p>
+								<p class="text-xs text-gray-500">{format(announcement.created_at)}</p>
 							</div>
 							<i class="icon-[mdi--chevron-right] size-5 text-gray-400"></i>
 						</div>
@@ -288,124 +255,69 @@
 			{#if selected_announcement}
 				<article class="bg-white rounded-lg border shadow-sm">
 					<header class="px-6 py-4 border-b border-gray-200">
-						<div class="flex items-start justify-between">
-							<div class="flex-1">
-								<div class="flex items-center gap-3 mb-3">
-									<i class="{getTypeIcon(selected_announcement.type)} text-gray-600 size-6"></i>
-									<h2 class="text-xl font-semibold text-gray-900">
-										{selected_announcement.title}
-									</h2>
-								</div>
-								<div class="flex items-center gap-2">
-									<span
-										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {getPriorityColor(
-											selected_announcement.priority
-										)}"
-									>
-										{selected_announcement.priority}
-									</span>
-									<span
-										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {getTypeColor(
-											selected_announcement.type
-										)}"
-									>
-										{selected_announcement.type}
-									</span>
-									<span
-										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {selected_announcement.is_active
-											? 'bg-green-100 text-green-800'
-											: 'bg-gray-100 text-gray-800'}"
-									>
-										{selected_announcement.is_active ? 'Active' : 'Inactive'}
-									</span>
-								</div>
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-2">
+								<i class="{getTypeIcon(selected_announcement.type)} text-gray-600 size-5"></i>
+								<h2 class="font-semibold text-gray-900">{selected_announcement.title}</h2>
 							</div>
-							<div class="flex items-center space-x-2">
-								<button
-									type="button"
-									class="btn-sm {selected_announcement.is_active
-										? 'text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100'
-										: 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'}"
-									onclick={async () => {
-										await update_announcement({
-											school_id: params.school_id,
-											announcement_id: selected_announcement.id
-										});
-										toast.success(
-											`Announcement ${selected_announcement.is_active ? 'deactivated' : 'activated'}`
-										);
-										// Update local state
-										selected_announcement.is_active = !selected_announcement.is_active;
-									}}
-								>
-									<i class="icon-[mdi--{selected_announcement.is_active ? 'pause' : 'play'}] size-4"
-									></i>
-									{selected_announcement.is_active ? 'Deactivate' : 'Activate'}
-								</button>
-								<button
-									type="button"
-									class="btn-sm-destructive"
-									onclick={async () => {
-										const confirmed = confirm(
-											`Are you sure you want to delete "${selected_announcement.title}"?`
-										);
-										if (confirmed) {
-											await delete_announcement({
-												school_id: params.school_id,
-												announcement_id: selected_announcement.id
-											});
-											toast.success('Announcement deleted successfully');
-											selected_announcement = null;
-										}
-									}}
-								>
-									<i class="icon-[mdi--trash] size-4"></i>
-									Delete
-								</button>
-							</div>
+
+							<Dialog
+								label="Delete Announcement"
+								trigger_class="btn-sm-destructive"
+								icon="icon-[mdi--trash]"
+							>
+								<div class="space-y-4">
+									<p>Are you sure you want to delete this announcement??</p>
+
+									<button
+										type="button"
+										class="btn-sm-destructive"
+										onclick={async () => {
+											await delete_announcement(String(selected_announcement?.id));
+											dialog_state.open = false;
+										}}
+									>
+										<i class="icon-[mdi--trash]"></i>
+										<span class="">Delete Announcement</span>
+									</button>
+								</div>
+							</Dialog>
 						</div>
 					</header>
 
 					<div class="p-6">
 						<div class="mb-6">
 							<h3 class="text-lg font-medium text-gray-900 mb-3">Content</h3>
-							<div class="bg-gray-50 rounded-lg p-4">
-								<p class="text-gray-700 leading-relaxed">{selected_announcement.content}</p>
+							<div class="bg-gray-10">
+								<p class="text-gray-700 text-sm leading-relaxed">{selected_announcement.content}</p>
 							</div>
 						</div>
 
-						<dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+						<dl class="flex gap-6 divide-x-2 *:px-3">
 							<div>
-								<dt class="text-sm font-medium text-gray-500">Created Date</dt>
+								<dt class="text-sm font-medium text-gray-500">Posted on</dt>
 								<dd class="mt-1 text-sm text-gray-900">
-									{format(selected_announcement.created_at, {
-										dateStyle: 'full',
-										timeStyle: 'short'
-									})}
+									{format(selected_announcement.created_at)}
 								</dd>
 							</div>
-							{#if selected_announcement.expires_at}
-								<div>
-									<dt class="text-sm font-medium text-gray-500">Expires</dt>
-									<dd class="mt-1 text-sm text-gray-900">
-										{format(selected_announcement.expires_at, {
-											dateStyle: 'full',
-											timeStyle: 'short'
-										})}
-									</dd>
-								</div>
-							{/if}
-							{#if selected_announcement.target_audience}
-								<div>
-									<dt class="text-sm font-medium text-gray-500">Target Audience</dt>
-									<dd class="mt-1 text-sm text-gray-900 capitalize">
-										{selected_announcement.target_audience}
-									</dd>
-								</div>
-							{/if}
+
 							<div>
-								<dt class="text-sm font-medium text-gray-500">Announcement ID</dt>
-								<dd class="mt-1 text-sm font-mono text-gray-900">{selected_announcement.id}</dd>
+								<dt class="text-sm font-medium text-gray-500">Audience</dt>
+								<dd class="mt-1 text-sm text-gray-900 capitalize">
+									{selected_announcement.target_audience}
+								</dd>
+							</div>
+
+							<div>
+								<dt class="text-sm font-medium text-gray-500">Priority</dt>
+								<dd class="mt-1 text-sm font-mono text-gray-900">
+									{selected_announcement.priority}
+								</dd>
+							</div>
+
+							<div>
+								<dt class="text-sm font-medium text-gray-500">Announcement Type</dt>
+								<dd class="mt-1 text-sm font-mono text-gray-900">{selected_announcement.type}</dd>
 							</div>
 						</dl>
 					</div>

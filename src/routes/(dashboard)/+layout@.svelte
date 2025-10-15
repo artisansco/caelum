@@ -1,8 +1,14 @@
 <script>
+	import { afterNavigate } from '$app/navigation';
+	import { dialog_state } from '$lib/dialog-state.svelte';
 	import Header from './header.svelte';
 	import Sidebar from './sidebar.svelte';
 
 	const { children } = $props();
+
+	afterNavigate(() => {
+		dialog_state.open = false;
+	});
 </script>
 
 <div class="min-h-screen bg-white">

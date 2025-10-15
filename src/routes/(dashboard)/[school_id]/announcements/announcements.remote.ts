@@ -1,9 +1,10 @@
-import * as z from "zod";
-import { command, form, query } from "$app/server";
-import { guard_route } from "$lib/auth";
+import { desc, eq } from "drizzle-orm";
+import * as v from "valibot";
+import { command, form, getRequestEvent, query } from "$app/server";
+import { announcements_table, db } from "$lib/db";
 import { announcement_schema } from "$lib/schemas";
 
-export const get_announcement = query(z.string(), async (_id) => {
+export const get_announcement = query(v.string(), async (_id) => {
 	try {
 		return {};
 	} catch (_e) {
@@ -11,11 +12,17 @@ export const get_announcement = query(z.string(), async (_id) => {
 	}
 });
 
-export const get_announcements = query(z.string(), async (_school_id) => {
-	guard_route();
+export const get_announcements = query(async () => {
+	const { locals } = getRequestEvent();
 
 	try {
-		return [];
+		const announcements = await db
+			.select()
+			.from(announcements_table)
+			.where(eq(announcements_table.school_id, locals.school_id))
+			.orderBy(desc(announcements_table.created_at));
+
+		return announcements;
 	} catch (_e) {
 		console.error("Error fetching announcements:", _e);
 		return [];
@@ -24,25 +31,24 @@ export const get_announcements = query(z.string(), async (_school_id) => {
 
 export const add_announcement = form(announcement_schema, async (parsed) => {
 	try {
-		console.log("Parsed Announcement:", parsed);
+		await db.insert(announcements_table).values(parsed);
 
-		// await get_announcements(parsed.school_id).refresh();
-		return { message: "Announcement created successfully" };
+		await get_announcements().refresh();
 	} catch (_e) {
 		return { message: _e.message };
 	}
 });
 
 export const delete_announcement = command(
-	z.object({
-		school_id: z.string(),
-		announcement_id: z.string(),
-	}),
-	async (_parsed) => {
+	v.string(),
+	async (announcement_id) => {
 		try {
-			return { message: "Announcement deleted successfully" };
+			await db
+				.delete(announcements_table)
+				.where(eq(announcements_table.id, announcement_id));
 
-			// await get_announcements(parsed.school_id).refresh();
+			await get_announcements().refresh();
+			return { message: "Announcement deleted successfully" };
 		} catch (_e) {
 			return { message: _e.message };
 		}
@@ -50,10 +56,7 @@ export const delete_announcement = command(
 );
 
 export const update_announcement = command(
-	z.object({
-		school_id: z.string(),
-		announcement_id: z.string(),
-	}),
+	announcement_schema,
 	async (_parsed) => {
 		try {
 			return { message: "Announcement updated successfully" };
