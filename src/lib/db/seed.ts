@@ -3,7 +3,12 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { reset, seed } from "drizzle-seed";
 import { nanoid } from "nanoid";
 import { config } from "../config";
-import { default_permissions } from "../constants";
+import {
+	announcement_audience,
+	announcement_priority,
+	announcement_types,
+	default_permissions,
+} from "../constants";
 import * as schema from "./schema";
 
 const db = drizzle(config.DATABASE_URL);
@@ -19,6 +24,7 @@ async function seed_data() {
 		subjects_table: schema.subjects_table,
 		subscriptions_table: schema.subscriptions_table,
 		plans_table: schema.plans_table,
+		announcements_table: schema.announcements_table,
 	}).refine((f) => ({
 		plans_table: {
 			columns: {
@@ -187,6 +193,22 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
+		},
+
+		announcements_table: {
+			columns: {
+				id: f.uuid(),
+				title: f.loremIpsum(),
+				content: f.loremIpsum({ sentencesCount: 3 }),
+				priority: f.valuesFromArray({ values: [...announcement_priority] }),
+				type: f.valuesFromArray({ values: [...announcement_types] }),
+				target_audience: f.valuesFromArray({
+					values: [...announcement_audience],
+				}),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 30,
 		},
 
 		// end

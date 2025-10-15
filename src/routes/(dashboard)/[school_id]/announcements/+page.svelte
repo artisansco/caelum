@@ -208,7 +208,9 @@
 		<!-- Announcements List -->
 		<section class="lg:col-span-1 bg-white rounded-lg border shadow-sm">
 			<header class="px-6 py-4 border-b border-gray-200">
-				<h2 class="text-lg font-semibold text-gray-900">All Announcements</h2>
+				<h2 class="text-lg font-semibold text-gray-900">
+					All Announcements ({announcements.length})
+				</h2>
 			</header>
 
 			<div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
@@ -223,10 +225,10 @@
 					>
 						<div class="flex items-center justify-between">
 							<div class="">
-								<div class="flex items-center gap-2 mb-2">
-									<i class="{getTypeIcon(announcement.type)} text-gray-600 size-4"></i>
-									<h3 class="font-medium text-gray-900 truncate">{announcement.title}</h3>
-								</div>
+								<h3 class="font-medium text-gray-900 truncate line-clamp-1 text-wrap">
+									{announcement.title}
+								</h3>
+
 								<div class="flex items-center gap-2 mb-2">
 									<span class="badge {getPriorityColor(announcement.priority)}">
 										{announcement.priority}
@@ -275,6 +277,7 @@
 										onclick={async () => {
 											await delete_announcement(String(selected_announcement?.id));
 											dialog_state.open = false;
+											selected_announcement = null;
 										}}
 									>
 										<i class="icon-[mdi--trash]"></i>
