@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { get_grades } from './grades.remote';
 	import AddNewGrade from './add-grade.svelte';
+	import { school_terms } from '$lib/constants';
 
-	const { params } = $props();
-
-	let grade_promise = $derived(get_grades(params.school_id));
+	let grade_promise = $derived(get_grades());
 	const grades = $derived(await grade_promise);
 
 	let show_add_form = $state(false);
@@ -43,6 +42,8 @@
 
 		return filtered;
 	});
+
+	$inspect(grades);
 </script>
 
 <div class="p-6">
@@ -86,9 +87,9 @@
 				<label for="filter_term" class="label">Filter by Term</label>
 				<select id="filter_term" bind:value={filter_term} class="select">
 					<option value="">All Terms</option>
-					<option value="first">First Term</option>
-					<option value="second">Second Term</option>
-					<option value="third">Third Term</option>
+					{#each school_terms as term}
+						<option value={term} class="capitalize">{term}</option>
+					{/each}
 				</select>
 			</div>
 			<div>
@@ -134,22 +135,20 @@
 							</td>
 							<td class="whitespace-nowrap">
 								<div class="text-sm text-gray-900">{grade.subject_name}</div>
-								<div class="text-sm text-gray-500">{grade.subject_code}</div>
+								<div class="text-xs text-gray-500">{grade.class_name}</div>
 							</td>
 							<td class="whitespace-nowrap">
-								<span class="badge-secondary">
-									{grade.grade_type}
-								</span>
+								<span class="badge-secondary">{grade.grade_type}</span>
 							</td>
 							<td class="whitespace-nowrap text-sm text-gray-900">
-								{grade.actual_score}/{grade.max_score}
+								{Math.round(grade.actual_score)} / {Math.round(Number(grade.max_score))}
 								<p class="text-xs text-gray-500">
-									{Math.round((grade.actual_score / grade.max_score) * 100)}%
+									{Math.round((grade.actual_score / Number(grade.max_score)) * 100)}%
 								</p>
 							</td>
 
 							<td class="whitespace-nowrap text-sm text-gray-900">
-								<div>{grade.term} Term</div>
+								<div class="capitalize">{grade.term} Term</div>
 								<div class="text-xs text-gray-500">{grade.academic_year}</div>
 							</td>
 							<td class="whitespace-nowrap text-sm text-gray-900">

@@ -11,12 +11,11 @@ import {
 	grade_types,
 	payment_method,
 	payment_type,
+	school_terms,
 	staff_roles,
 	staff_statuses,
 	student_statuses,
 } from "../constants";
-
-const terms = ["first", "second", "third"] as const;
 
 export const students_table = sqliteTable("students", {
 	id: text().primaryKey().$defaultFn(nanoid),
@@ -175,12 +174,13 @@ export const grades_table = sqliteTable("grades", {
 		.notNull()
 		.references(() => subjects_table.id, { onDelete: "cascade" }),
 	grade_type: text({ enum: grade_types }).notNull().default("assignment"),
+	// max_score: int().notNull().default(100),
 	max_score: int().default(100),
 	actual_score: int().notNull(),
 	graded_by: text()
 		.notNull()
 		.references(() => staff_table.id, { onDelete: "cascade" }),
-	term: text({ enum: terms }).notNull().default("first"),
+	term: text({ enum: school_terms }).notNull().default("first"),
 	academic_year: text().notNull(),
 	notes: text(),
 	school_id: text()
@@ -199,7 +199,7 @@ export const payments_table = sqliteTable("payments", {
 	amount: int().notNull(),
 	payment_type: text({ enum: payment_type }).notNull().default("tuition"),
 	payment_method: text({ enum: payment_method }).notNull().default("cash"),
-	term: text({ enum: terms }).notNull().default("first"),
+	term: text({ enum: school_terms }).notNull().default("first"),
 	academic_year: text().notNull(),
 	due_date: text(),
 	paid_date: text().default(sql`CURRENT_TIMESTAMP`),

@@ -2,6 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
 import {
+	classes_table,
 	db,
 	grades_table,
 	staff_table,
@@ -10,7 +11,9 @@ import {
 } from "$lib/db";
 import { grade_schema } from "$lib/schemas";
 
-export const get_grades = query(v.string(), async (school_id) => {
+export const get_grades = query(async () => {
+	const { locals } = getRequestEvent();
+
 	const grades = await db
 		.select({
 			id: grades_table.id,
@@ -28,37 +31,32 @@ export const get_grades = query(v.string(), async (school_id) => {
 			subject_code: subjects_table.code,
 			grader_name: staff_table.first_name,
 			grader_last_name: staff_table.last_name,
+			class_name: classes_table.name,
 		})
 		.from(grades_table)
 		.leftJoin(students_table, eq(grades_table.student_id, students_table.id))
 		.leftJoin(subjects_table, eq(grades_table.subject_id, subjects_table.id))
 		.leftJoin(staff_table, eq(grades_table.graded_by, staff_table.id))
-		.where(eq(grades_table.school_id, school_id))
+		.leftJoin(classes_table, eq(students_table.class_id, classes_table.id))
+		.where(eq(grades_table.school_id, locals.school_id))
 		.orderBy(desc(grades_table.created_at))
-		.limit(20);
+		.limit(10);
 
 	return grades;
 });
 
 export const add_grade = form(grade_schema, async (parsed) => {
-	try {
-		await db.insert(grades_table).values({
-			...parsed,
-			academic_year: "",
-			graded_by: "",
-			actual_score: 0,
-			student_id: "",
-			school_id: "",
-			subject_id: "",
-		});
+	const { locals } = getRequestEvent();
 
-		await get_grades(parsed.school_id).refresh();
-		return { message: "Grade added successfully" };
-	} catch (error) {
-		console.error("Error adding grade:", error);
-		return {
-			message: error?.message || "Failed to add grade",
-		};
+	try {
+		await db
+			.insert(grades_table)
+			.values({ ...parsed, school_id: locals.school_id });
+
+		await get_grades().refresh();
+	} catch (_e) {
+		console.error("Error adding grade:", _e);
+		return { message: _e?.message || "Failed to add grade" };
 	}
 });
 

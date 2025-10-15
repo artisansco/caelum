@@ -4,6 +4,8 @@
 	import { get_all_students } from '../students/students.remote';
 	import { get_subjects } from '../subjects/subjects.remote';
 	import { get_all_staff } from '../staff/staff.remote';
+	import { toast } from 'svelte-sonner';
+	import { grade_types, school_terms } from '$lib/constants';
 
 	let { show_add_grade = $bindable(true) } = $props();
 	const { academic_year, actual_score, grade_type, graded_by, max_score, notes, term } =
@@ -11,7 +13,7 @@
 
 	let studs_promise = $derived(get_all_students(String(page.params.school_id)));
 	let staff_promise = $derived(get_all_staff(String(page.params.school_id)));
-	let subjs_promise = $derived(get_subjects(String(page.params.school_id)));
+	let subjs_promise = $derived(get_subjects());
 
 	let students = $derived(await studs_promise);
 	let subjects = $derived(await subjs_promise);
@@ -25,6 +27,7 @@
 			{...add_grade.enhance(async ({ submit }) => {
 				await submit();
 				show_add_grade = false;
+				toast.success('Grade added successfully');
 			})}
 		>
 			<input type="hidden" name="school_id" value={page.params.school_id} />
@@ -56,7 +59,7 @@
 				<div>
 					<label for="grade_type" class="label">Grade Type</label>
 					<select id="grade_type" name="grade_type" class="select w-full">
-						{#each ['assignment', 'quiz', 'exam', 'project', 'participation', 'attendance'] as grade_type}
+						{#each grade_types as grade_type}
 							<option value={grade_type}>{grade_type}</option>
 						{/each}
 					</select>
@@ -75,9 +78,9 @@
 				<div>
 					<label for="term" class="label">Term</label>
 					<select id="term" name="term" class="select w-full">
-						<option value="first">First Term</option>
-						<option value="second">Second Term</option>
-						<option value="third">Third Term</option>
+						{#each school_terms as term}
+							<option value={term} class="capitalize">{term}</option>
+						{/each}
 					</select>
 				</div>
 

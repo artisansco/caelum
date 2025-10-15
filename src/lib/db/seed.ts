@@ -8,10 +8,26 @@ import {
 	announcement_priority,
 	announcement_types,
 	default_permissions,
+	grade_types,
+	school_terms,
 } from "../constants";
 import * as schema from "./schema";
 
 const db = drizzle(config.DATABASE_URL);
+const dummy_subjects = [
+	"Math",
+	"English",
+	"Science",
+	"Social Studies",
+	"History",
+	"Geography",
+	"Physics",
+	"Chemistry",
+	"Biology",
+	"Economics",
+	"Agriculture",
+	"Business Studies",
+];
 
 async function seed_data() {
 	await reset(db, schema);
@@ -25,6 +41,7 @@ async function seed_data() {
 		subscriptions_table: schema.subscriptions_table,
 		plans_table: schema.plans_table,
 		announcements_table: schema.announcements_table,
+		grades_table: schema.grades_table,
 	}).refine((f) => ({
 		plans_table: {
 			columns: {
@@ -173,22 +190,7 @@ async function seed_data() {
 		subjects_table: {
 			columns: {
 				id: f.uuid(),
-				name: f.valuesFromArray({
-					values: [
-						"Math",
-						"English",
-						"Science",
-						"Social Studies",
-						"History",
-						"Geography",
-						"Physics",
-						"Chemistry",
-						"Biology",
-						"Economics",
-						"Agriculture",
-						"Business Studies",
-					],
-				}),
+				name: f.valuesFromArray({ values: dummy_subjects }),
 				code: f.string({ isUnique: true }),
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
@@ -209,6 +211,22 @@ async function seed_data() {
 				updated_at: f.default({ defaultValue: undefined }),
 			},
 			count: 30,
+		},
+
+		grades_table: {
+			columns: {
+				id: f.uuid(),
+				name: f.valuesFromArray({ values: dummy_subjects }),
+				grade_type: f.valuesFromArray({ values: [...grade_types] }),
+				max_score: f.number({ minValue: 100, maxValue: 100 }),
+				actual_score: f.number({ minValue: 0, maxValue: 100 }),
+				term: f.valuesFromArray({ values: [...school_terms] }),
+				academic_year: f.year(),
+				notes: f.loremIpsum({ sentencesCount: 2 }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 100,
 		},
 
 		// end

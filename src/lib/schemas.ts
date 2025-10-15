@@ -4,6 +4,8 @@ import {
 	announcement_priority,
 	announcement_types,
 	cities,
+	grade_types,
+	school_terms,
 } from "./constants";
 
 export const assignment_schema = z.object({
@@ -182,36 +184,32 @@ export const subject_schema = z.object({
 		.optional(),
 });
 
-// TODO: actual grade should not be greater than max_score
-export const grade_schema = z.object({
-	student_id: z.string({ error: "Student ID is required" }),
-	subject_id: z.string({ error: "Subject ID is required" }),
-	assignment_id: z.string().optional(),
-	grade_type: z
-		.enum(["assignment", "quiz", "exam", "project", "participation"], {
-			error: "Please select a valid grade type",
-		})
-		.default("assignment"),
-	max_score: z.number().int().min(1).max(1000).default(100),
-	actual_score: z
-		.number({ error: "Actual score is required" })
-		.int()
-		.min(0, { error: "Score cannot be negative" }),
-	weight: z.number().int().min(1).default(1),
-	graded_by: z.string({ error: "Grader ID is required" }),
-	term: z
-		.string({ error: "Term is required" })
-		.trim()
-		.min(1, { error: "Term must be specified" })
-		.default("first"),
-	academic_year: z
-		.string({ error: "Academic year is required" })
-		.trim()
-		.min(4, { error: "Academic year must be at least 4 characters" })
-		.max(4, { error: "Academic year must be at most 4 characters" }),
-	notes: z.string().trim().optional(),
-	school_id: z.string({ error: "School ID is required" }),
-});
+export const grade_schema = z
+	.object({
+		student_id: z.string({ error: "Student ID is required" }),
+		subject_id: z.string({ error: "Subject ID is required" }),
+		school_id: z.string({ error: "School ID is required" }),
+		graded_by: z.string({ error: "Grader ID is required" }),
+		grade_type: z
+			.enum(grade_types, { error: "Please select a valid grade type" })
+			.default("assignment"),
+		max_score: z.number().int().min(0).max(100).default(100),
+		actual_score: z
+			.number({ error: "Actual score is required" })
+			.min(0, { error: "Score cannot be negative" }),
+		term: z.enum(school_terms, { error: "Term is required" }).default("first"),
+		academic_year: z
+			.string({ error: "Academic year is required" })
+			.trim()
+			.min(4, { error: "Academic year must be at least 4 characters" })
+			.max(4, { error: "Academic year must be at most 4 characters" }),
+		notes: z.string().trim().or(z.literal("")).optional(),
+	})
+	.refine((data) => data.actual_score <= data.max_score, {
+		message: "Actual score cannot be greater than max score",
+		abort: true,
+		path: ["actual_score", "max_score"],
+	});
 
 export const payment_schema = z.object({
 	student_id: z.string({ error: "Student ID is required" }),

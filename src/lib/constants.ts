@@ -126,6 +126,8 @@ export const announcement_audience = [
 	// "parents",
 ] as const;
 
+export const school_terms = ["first", "second", "third"] as const;
+
 // ------
 
 export function get_error_message(status: number) {
