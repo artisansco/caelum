@@ -23,7 +23,7 @@
 				<p class="text-gray-600">Manage your school's class levels</p>
 			</div>
 
-			<Dialog label="Add New Class" btn_txt="New Class" icon="icon-[mdi--plus]" {toggle_dialog}>
+			<Dialog label="Add New Class" btn_txt="New Class" icon="icon-[mdi--plus]">
 				<form
 					{...add_class.enhance(async ({ submit }) => await submit())}
 					oninput={() => add_class.validate()}
@@ -43,7 +43,7 @@
 						/>
 						<p class="text-xs text-gray-500 my-1">Enter the name/level of the class</p>
 						<small class="label text-xs text-red-500">
-							{get_field_error(add_class.fields.name)} lorem
+							{get_field_error(add_class.fields.name)}
 						</small>
 					</div>
 
@@ -63,14 +63,9 @@
 		</div>
 	</header>
 
-	<!-- Classes Grid -->
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 		{#each await get_classes(params.school_id) as class_item}
-			<ClassCard
-				class_id={class_item.id}
-				class_name={class_item.name}
-				teacher_name="Not Assigned"
-			/>
+			<ClassCard {...class_item} />
 		{:else}
 			<div class="col-span-full">
 				<div class="bg-white rounded-lg border shadow-sm p-12 text-center">

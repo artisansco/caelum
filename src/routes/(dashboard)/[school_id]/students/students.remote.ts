@@ -20,8 +20,6 @@ export const get_all_students = query(v.string(), async (school_id) => {
 		.orderBy(desc(students_table.admission_date))
 		.limit(-1);
 
-	console.log(students[0]);
-
 	return students;
 });
 
@@ -39,7 +37,7 @@ export const add_student = form(
 	student_schema.omit({ student_id: true }),
 	async (parsed) => {
 		try {
-			await db.insert(students_table).values(parsed).returning();
+			await db.insert(students_table).values(parsed);
 		} catch (_e) {
 			console.error(_e);
 			return { message: "Student not created" };

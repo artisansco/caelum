@@ -1,63 +1,59 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import Dialog from '$lib/components/dialog.svelte';
 	import { delete_class } from './classes.remote';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
 	import { get_all_students } from '../students/students.remote';
 	import { get_assignments } from '../assignments/assignments.remote';
 
-	const {
-		class_id,
-		class_name = '',
-		teacher_name = 'Not Assigned'
-	}: {
-		class_id: string;
-		class_name: string;
-		teacher_name?: 'Not Assigned' | string;
-	} = $props();
+	type Class = {
+		id: string;
+		name: string;
+		school_id: string | null;
+		created_at: string;
+		updated_at: string | null;
+	};
 
-	let student_count = $state(0);
-	let assignment_count = $state(0);
-	let toggle_dialog = $state(false);
+	const props: Class = $props();
 
-	onMount(async () => {
-		const [studs, assigns] = await Promise.all([
-			await get_all_students(String(page.params.school_id)),
-			await get_assignments(String(page.params.school_id))
-		]);
+	let studs_promise = $derived(get_all_students(props.school_id!));
+	let students = $derived(await studs_promise);
 
-		student_count = studs.filter((student) => student.class_id === class_id).length;
-		assignment_count = assigns.filter((assignment) => assignment.class_id === class_id).length;
+	let assigns_promise = $derived(get_assignments(props.school_id!));
+	let assignments = $derived(await assigns_promise);
+
+	let student_count = $derived.by(() => {
+		const num = students.filter((student) => student.class_id === props.id).length;
+		return num;
 	});
+
+	let assignment_count = $derived.by(() => {
+		const num = assignments.filter((assignment) => assignment.class_id === props.id).length;
+		return num;
+	});
+
+	let toggle_dialog = $state(false);
 </script>
 
 <div class="w-full p-4 bg-white rounded-lg border hover:shadow-md">
 	<div class="flex items-start justify-between mb-3">
 		<h3 class="font-semibold text-gray-900 text-lg">
-			{class_name || 'N/A'}
+			{props.name || 'N/A'}
 		</h3>
 		<div class="flex-shrink-0">
 			<Dialog
 				label="Add New Class"
 				icon="icon-[mdi--trash]"
 				trigger_class="btn-sm-destructive bg-red-50 text-red-500"
-				{toggle_dialog}
 			>
 				<div class="space-y-4">
-					<p>Are you sure you want to delete {class_name}? This action cannot be undone.</p>
+					<p>Are you sure you want to delete {props.name}? This action cannot be undone.</p>
 					<button
 						type="button"
 						class="btn-sm-destructive"
 						disabled={delete_class.pending > 0}
 						onclick={async () => {
-							const result = await delete_class({
-								class_id: class_id,
-								school_id: String(page.params.school_id)
-							});
-							if (result?.message) {
-								toast.success(result.message);
-							}
+							const result = await delete_class(props.id);
+							if (result?.message) toast.success(result.message);
 						}}
 					>
 						<i class="icon-[mdi--trash]"></i>
@@ -94,15 +90,13 @@
 	</div>
 
 	<!-- Teacher Info -->
-	<div class="flex items-center space-x-2 pt-2 border-t border-gray-100">
+	<!-- <div class="flex items-center space-x-2 pt-2 border-t border-gray-100">
 		<div class="w-6 h-6 rounded bg-purple-100 flex items-center justify-center">
 			<i class="icon-[mdi--account-tie] size-3 text-purple-600"></i>
 		</div>
 		<div class="flex-1 min-w-0">
 			<p class="text-xs text-gray-500">Teacher</p>
-			<p class="text-sm font-medium text-gray-900 truncate" title={teacher_name}>
-				{teacher_name}
-			</p>
+			<p class="text-sm font-medium text-gray-900 truncate" title="teacher_name">teacher_name"</p>
 		</div>
-	</div>
+	</div> -->
 </div>

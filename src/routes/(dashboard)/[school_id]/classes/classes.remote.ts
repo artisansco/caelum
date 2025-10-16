@@ -1,11 +1,10 @@
 import { and, desc, eq } from "drizzle-orm";
-import * as z from "zod";
-import { command, form, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
-import { classes_table } from "$lib/db/schema";
+import * as v from "valibot";
+import { command, form, getRequestEvent, query } from "$app/server";
+import { classes_table, db } from "$lib/db";
 import { class_schema } from "$lib/schemas";
 
-export const get_classes = query(z.string(), async (school_id) => {
+export const get_classes = query(v.string(), async (school_id) => {
 	try {
 		const classes = await db.query.classes_table.findMany({
 			where: eq(classes_table.school_id, school_id),
@@ -21,9 +20,9 @@ export const get_classes = query(z.string(), async (school_id) => {
 
 export const add_class = form(class_schema, async (parsed) => {
 	try {
-		await db.insert(classes_table).values(parsed).returning();
+		await db.insert(classes_table).values(parsed);
 
-		await get_classes(parsed.school_id).refresh();
+		// await get_classes(parsed.school_id).refresh();
 		return { message: "class created successfully" };
 	} catch (_e) {
 		console.log(_e);
@@ -32,26 +31,22 @@ export const add_class = form(class_schema, async (parsed) => {
 	}
 });
 
-export const delete_class = command(
-	z.object({
-		school_id: z.string(),
-		class_id: z.string(),
-	}),
-	async (parsed) => {
-		try {
-			await db
-				.delete(classes_table)
-				.where(
-					and(
-						eq(classes_table.id, parsed.class_id),
-						eq(classes_table.school_id, parsed.school_id),
-					),
-				);
+export const delete_class = command(v.string(), async (class_id) => {
+	const { locals } = getRequestEvent();
 
-			await get_classes(parsed.school_id).refresh();
-			return { message: "class deleted successfully" };
-		} catch (_e) {
-			console.log(_e);
-		}
-	},
-);
+	try {
+		await db
+			.delete(classes_table)
+			.where(
+				and(
+					eq(classes_table.id, class_id),
+					eq(classes_table.school_id, locals.school_id),
+				),
+			);
+
+		await get_classes(locals.school_id).refresh();
+		return { message: "class deleted successfully" };
+	} catch (_e) {
+		console.log(_e);
+	}
+});

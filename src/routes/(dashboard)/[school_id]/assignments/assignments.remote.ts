@@ -1,13 +1,12 @@
 import { error } from "@sveltejs/kit";
 import { desc, eq, getTableColumns } from "drizzle-orm";
-import * as z from "zod";
+import * as v from "valibot";
 import { command, form, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
-import { assignments_table, classes_table } from "$lib/db/schema";
+import { assignments_table, classes_table, db } from "$lib/db";
 import { assignment_schema } from "$lib/schemas";
 import { upload_file } from "$lib/upload";
 
-export const get_assignments = query(z.string(), async (school_id) => {
+export const get_assignments = query(v.string(), async (school_id) => {
 	try {
 		const assignments = await db
 			.select({
@@ -49,9 +48,9 @@ export const upload_assignment = form(assignment_schema, async (parsed) => {
 });
 
 export const delete_assignment = command(
-	z.object({
-		assignment_id: z.string(),
-		school_id: z.string(),
+	v.object({
+		assignment_id: v.string(),
+		school_id: v.string(),
 	}),
 	async (parsed) => {
 		try {

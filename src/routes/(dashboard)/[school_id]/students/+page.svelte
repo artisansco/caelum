@@ -8,8 +8,6 @@
 
 	let stud_promise = $derived(get_all_students(params.school_id));
 	let students = $derived(await stud_promise);
-
-	$inspect(students);
 </script>
 
 <!-- Table Section -->
