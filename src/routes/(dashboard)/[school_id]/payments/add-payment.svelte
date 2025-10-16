@@ -14,6 +14,8 @@
 
 	let students = $derived(await students_promise);
 	let staff = $derived(await staff_promise);
+
+	$inspect(add_payment.fields.allIssues());
 </script>
 
 <!-- Add Payment Form -->
@@ -26,7 +28,9 @@
 				show_payment = false;
 			})}
 		>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<input type="hidden" name="school_id" value={page.params.school_id} />
+
+			<div class="grid md:grid-cols-2 gap-6">
 				<div>
 					<label for="student_id" class="block text-sm font-medium text-gray-700 mb-2">
 						Student
@@ -51,7 +55,7 @@
 					<label for="payment_type" class="block text-sm font-medium text-gray-700 mb-2">
 						Payment Type
 					</label>
-					<select {...payment_type.as('select')} class="select w-full">
+					<select {...payment_type.as('select')} class="select w-full capitalize">
 						{#each payment_types as type}
 							<option value={type} class="capitalize">{type}</option>
 						{/each}
@@ -62,9 +66,9 @@
 					<label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">
 						Payment Method
 					</label>
-					<select {...payment_method.as('select')} class="select w-full">
+					<select {...payment_method.as('select')} class="select w-full capitalize">
 						{#each payment_methods as method}
-							<option value={method} class="capitalize">{method}</option>
+							<option value={method} class="capitalize">{method.replace('_', ' ')}</option>
 						{/each}
 					</select>
 				</div>

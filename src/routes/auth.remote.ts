@@ -31,7 +31,6 @@ export const login = form(
 		);
 
 		set_token("token", token);
-
 		redirect(302, user.school_id);
 	},
 );

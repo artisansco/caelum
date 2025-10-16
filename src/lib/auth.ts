@@ -15,7 +15,7 @@ export function set_token(key: string, value: string, days = 1) {
 }
 
 export function get_current_user() {
-	const { cookies } = getRequestEvent();
+	const { cookies, locals } = getRequestEvent();
 	const token = cookies.get("token");
 	if (!token) return null;
 
@@ -24,7 +24,10 @@ export function get_current_user() {
 			Buffer.from(token.split(".")[1], "base64").toString(),
 		);
 
-		return decoded as CurrentUser;
+		const user = decoded as CurrentUser;
+
+		locals.school_id = user.school_id;
+		return user;
 	} catch (_e) {
 		return null;
 	}

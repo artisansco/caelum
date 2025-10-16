@@ -1,11 +1,12 @@
 import { and, desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import { db, payments_table, staff_table, students_table } from "$lib/db";
 import { payment_schema } from "$lib/schemas";
 
-export const get_payments = query(async () => {
-	const { locals } = getRequestEvent();
+export const get_payments = query(v.string(), async (school_id) => {
+	guard_route();
 
 	const payments = await db
 		.select({
@@ -27,7 +28,7 @@ export const get_payments = query(async () => {
 		.from(payments_table)
 		.leftJoin(students_table, eq(payments_table.student_id, students_table.id))
 		.leftJoin(staff_table, eq(payments_table.received_by, staff_table.id))
-		.where(eq(payments_table.school_id, locals.school_id))
+		.where(eq(payments_table.school_id, school_id))
 		.orderBy(desc(payments_table.created_at))
 		.limit(-1);
 
@@ -36,13 +37,9 @@ export const get_payments = query(async () => {
 
 export const add_payment = form(payment_schema, async (parsed) => {
 	try {
-		const { locals } = getRequestEvent();
+		await db.insert(payments_table).values(parsed);
 
-		await db
-			.insert(payments_table)
-			.values({ ...parsed, school_id: locals.school_id });
-
-		await get_payments().refresh();
+		await get_payments(parsed.school_id).refresh();
 		return { message: "Payment recorded successfully" };
 	} catch (_e) {
 		console.error("Error recording payment:", _e);

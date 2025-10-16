@@ -8,7 +8,7 @@
 	const { params } = $props();
 
 	let school_promise = $derived(get_school(params.school_id));
-	let payments_promise = $derived(get_payments());
+	let payments_promise = $derived(get_payments(params.school_id));
 
 	let school = $derived(await school_promise);
 	let payments = $derived(await payments_promise);
@@ -108,16 +108,10 @@
 												{payment.student_name}
 												{payment.student_last_name}
 											</div>
-											<div class="text-gray-500">
-												{payment.student_admission_number}
-											</div>
+											<div class="text-gray-500">{payment.student_admission_number}</div>
 										</td>
-										<td class="font-medium text-gray-900">
-											{format_currency(payment.amount)}
-										</td>
-										<td class="capitalize text-gray-900">
-											{payment.payment_type}
-										</td>
+										<td class="font-medium text-gray-900">{format_currency(payment.amount)}</td>
+										<td class="capitalize text-gray-900">{payment.payment_type}</td>
 										<td class="capitalize">{payment.payment_method.replace('_', ' ')}</td>
 										<td class="">{payment.received_by_name}</td>
 										<td class="text-gray-900"> {format(payment.payment_date!)} </td>
