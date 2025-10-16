@@ -8,6 +8,8 @@
 
 	let stud_promise = $derived(get_all_students(params.school_id));
 	let students = $derived(await stud_promise);
+
+	$inspect(students)
 </script>
 
 <!-- Table Section -->
@@ -22,7 +24,7 @@
 						class="grid gap-3 border-b border-gray-200 px-6 py-4 md:flex md:items-center md:justify-between"
 					>
 						<div>
-							<h2 class="text-xl font-semibold text-gray-800">Students</h2>
+							<h2 class="text-xl font-semibold text-gray-800">({students.length}) - Students</h2>
 							<p class="text-sm text-gray-600">Add students, view, edit and more.</p>
 						</div>
 
@@ -145,7 +147,7 @@
 		<td class="h-px w-72 whitespace-nowrap">
 			<div class="px-6 py-3">
 				<span class="block text-sm font-semibold text-gray-800">
-					{student.class.name || 'N/A'}
+					{student.class?.name || 'N/A'}
 				</span>
 				<span class="block text-sm text-gray-500">
 					{student.status || 'enrolled'}

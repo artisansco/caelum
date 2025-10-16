@@ -131,13 +131,14 @@ export const student_schema = z.object({
 		.string({ error: "Invalid address" })
 		.trim()
 		.min(2, { error: "Address must be at least 2 characters long" }),
-	// status: z.enum(student_statuses),
+	gender: z.enum(["male", "female"]),
 	phone_number: z
 		.string({ error: "Invalid phone number" })
 		.trim()
 		.min(6, { error: "Phone number must be at least 6 characters long" }),
 	school_id: z.string({ error: "school Id is required" }),
 	student_id: z.string({ error: "student id is required" }),
+	class_id: z.string({ error: "class id is required" }),
 });
 
 export const class_schema = z.object({
