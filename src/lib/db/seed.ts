@@ -9,8 +9,8 @@ import {
 	announcement_types,
 	default_permissions,
 	grade_types,
-	payment_method,
-	payment_type,
+	payment_methods,
+	payment_types,
 	school_terms,
 } from "../constants";
 import * as schema from "./schema";
@@ -236,8 +236,8 @@ async function seed_data() {
 			columns: {
 				id: f.uuid(),
 				amount: f.number({ minValue: 1 }),
-				payment_type: f.valuesFromArray({ values: [...payment_type] }),
-				payment_method: f.valuesFromArray({ values: [...payment_method] }),
+				payment_type: f.valuesFromArray({ values: [...payment_types] }),
+				payment_method: f.valuesFromArray({ values: [...payment_methods] }),
 				term: f.default({ defaultValue: undefined }),
 				academic_year: f.default({ defaultValue: undefined }),
 				payment_date: f.date({ maxDate: new Date() }),

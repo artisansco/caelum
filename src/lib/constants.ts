@@ -91,7 +91,7 @@ export const grade_types = [
 	"participation",
 ] as const;
 
-export const payment_type = [
+export const payment_types = [
 	"tuition",
 	"registration",
 	"transport",
@@ -100,7 +100,7 @@ export const payment_type = [
 	"other",
 ] as const;
 
-export const payment_method = [
+export const payment_methods = [
 	"cash",
 	"bank_transfer",
 	"mobile_money",

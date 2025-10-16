@@ -9,8 +9,8 @@ import {
 	default_permissions,
 	employment_types,
 	grade_types,
-	payment_method,
-	payment_type,
+	payment_methods,
+	payment_types,
 	school_terms,
 	staff_roles,
 	staff_statuses,
@@ -203,8 +203,8 @@ export const payments_table = sqliteTable("payments", {
 		.notNull()
 		.references(() => schools_table.id, { onDelete: "cascade" }),
 	amount: int().notNull(),
-	payment_type: text({ enum: payment_type }).notNull().default("tuition"),
-	payment_method: text({ enum: payment_method }).notNull().default("cash"),
+	payment_type: text({ enum: payment_types }).notNull().default("tuition"),
+	payment_method: text({ enum: payment_methods }).notNull().default("cash"),
 	// term: text({ enum: school_terms }).notNull().default("first"),
 	term: text(),
 	academic_year: text(),
@@ -229,7 +229,7 @@ export const transactions_table = sqliteTable("transactions", {
 	})
 		.notNull()
 		.default("subscription"),
-	payment_method: text({ enum: payment_method })
+	payment_method: text({ enum: payment_methods })
 		.notNull()
 		.default("bank_transfer"),
 	description: text(),

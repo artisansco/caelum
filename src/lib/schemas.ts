@@ -5,8 +5,8 @@ import {
 	announcement_types,
 	cities,
 	grade_types,
-	payment_method,
-	payment_type,
+	payment_methods,
+	payment_types,
 	school_terms,
 } from "./constants";
 
@@ -221,10 +221,10 @@ export const payment_schema = z.object({
 		.number({ error: "Amount is required" })
 		.min(1, { error: "Amount must be greater than 0" }),
 	payment_type: z
-		.enum(payment_type, { error: "Please select a valid payment type" })
+		.enum(payment_types, { error: "Please select a valid payment type" })
 		.default("tuition"),
 	payment_method: z
-		.enum(payment_method, { error: "Please select a valid payment method" })
+		.enum(payment_methods, { error: "Please select a valid payment method" })
 		.default("cash"),
 	term: z
 		.enum(school_terms, { error: "Term is required" })
@@ -267,57 +267,4 @@ export const transaction_schema = z.object({
 	reference_number: z.string().trim().optional(),
 	description: z.string().trim().optional(),
 	processed_date: z.iso.date().optional(),
-});
-
-export const admission_schema = z.object({
-	application_number: z
-		.string({ error: "Application number is required" })
-		.trim()
-		.min(3, { error: "Application number must be at least 3 characters" }),
-	first_name: z
-		.string({ error: "First name is required" })
-		.trim()
-		.min(2, { error: "First name must be at least 2 characters long" }),
-	middle_name: z.string().trim().optional(),
-	last_name: z
-		.string({ error: "Last name is required" })
-		.trim()
-		.min(2, { error: "Last name must be at least 2 characters long" }),
-	email: z.email({ error: "Invalid email address" }).optional(),
-	phone_number: z
-		.string()
-		.trim()
-		.min(6, { error: "Phone number must be at least 6 characters long" })
-		.optional(),
-	gender: z.enum(["male", "female"], {
-		error: "Please select a valid gender",
-	}),
-	date_of_birth: z.iso
-		.date({ error: "Please select a valid date of birth" })
-		.optional(),
-	address: z.string().trim().optional(),
-	guardian_name: z
-		.string({ error: "Guardian name is required" })
-		.trim()
-		.min(2, { error: "Guardian name must be at least 2 characters long" }),
-	guardian_phone: z
-		.string({ error: "Guardian phone is required" })
-		.trim()
-		.min(6, { error: "Guardian phone must be at least 6 characters long" }),
-	guardian_email: z
-		.email({ error: "Invalid guardian email address" })
-		.optional(),
-	guardian_relationship: z.string().trim().default("parent"),
-	previous_school: z.string().trim().optional(),
-	class_applying_for: z.string({ error: "Class applying for is required" }),
-	application_status: z
-		.enum(["pending", "approved", "rejected", "enrolled"], {
-			error: "Please select a valid application status",
-		})
-		.default("pending"),
-	admission_date: z.iso.date().optional(),
-	notes: z.string().trim().optional(),
-	documents_submitted: z.string().optional(), // JSON string
-	reviewed_by: z.string().optional(),
-	school_id: z.string({ error: "School ID is required" }),
 });

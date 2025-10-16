@@ -3,10 +3,11 @@
 	import { get_all_students } from '../students/students.remote';
 	import { get_all_staff } from '../staff/staff.remote';
 	import { page } from '$app/state';
-	import { payment_type, payment_method } from '$lib/constants';
+	import { payment_types, payment_methods } from '$lib/constants';
 
 	let { show_payment = $bindable(false) } = $props();
-	const { amount, notes, received_by, payment_date } = add_payment.fields;
+	const { amount, notes, received_by, payment_date, payment_method, payment_type, student_id } =
+		add_payment.fields;
 
 	let students_promise = $derived(get_all_students(String(page.params.school_id)));
 	let staff_promise = $derived(get_all_staff(String(page.params.school_id)));
@@ -24,17 +25,14 @@
 				await submit();
 				show_payment = false;
 			})}
-			oninput={() => add_payment.validate()}
 		>
-			<input type="hidden" name="school_id" value={page.params.school_id} />
-
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<div>
 					<label for="student_id" class="block text-sm font-medium text-gray-700 mb-2">
 						Student
 					</label>
-					<select id="student_id" name="student_id" class="select w-full">
-						<option value="">Select a student</option>
+					<select {...student_id.as('select')} class="select w-full">
+						<option value="" selected disabled>Select a student</option>
 						{#each students as student}
 							<option value={student.id}>
 								{student.first_name}
@@ -53,8 +51,8 @@
 					<label for="payment_type" class="block text-sm font-medium text-gray-700 mb-2">
 						Payment Type
 					</label>
-					<select id="payment_type" name="payment_type" class="select w-full">
-						{#each payment_type as type}
+					<select {...payment_type.as('select')} class="select w-full">
+						{#each payment_types as type}
 							<option value={type} class="capitalize">{type}</option>
 						{/each}
 					</select>
@@ -64,8 +62,8 @@
 					<label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">
 						Payment Method
 					</label>
-					<select id="payment_method" name="payment_method" class="select w-full">
-						{#each payment_method as method}
+					<select {...payment_method.as('select')} class="select w-full">
+						{#each payment_methods as method}
 							<option value={method} class="capitalize">{method}</option>
 						{/each}
 					</select>
@@ -87,7 +85,7 @@
 					<label for="received_by" class="block text-sm font-medium text-gray-700 mb-2">
 						Received By
 					</label>
-					<select id="received_by" name="received_by" class="select w-full">
+					<select {...received_by.as('select')} class="select w-full">
 						<option value="" selected disabled>Select staff member</option>
 						{#each staff as staff_member}
 							<option value={staff_member.id}>
