@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import {
 	classes_table,
 	db,
@@ -12,6 +13,7 @@ import {
 import { grade_schema } from "$lib/schemas";
 
 export const get_grades = query(async () => {
+	guard_route();
 	const { locals } = getRequestEvent();
 
 	const grades = await db

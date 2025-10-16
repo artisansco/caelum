@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import { announcements_table, db } from "$lib/db";
 import { announcement_schema } from "$lib/schemas";
 
@@ -13,6 +14,8 @@ export const get_announcement = query(v.string(), async (_id) => {
 });
 
 export const get_announcements = query(async () => {
+	guard_route();
+
 	const { locals } = getRequestEvent();
 
 	try {

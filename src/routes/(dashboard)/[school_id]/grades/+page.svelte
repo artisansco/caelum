@@ -42,8 +42,6 @@
 
 		return filtered;
 	});
-
-	$inspect(grades);
 </script>
 
 <div class="p-6">

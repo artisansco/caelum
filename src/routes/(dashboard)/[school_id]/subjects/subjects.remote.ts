@@ -1,10 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import { db, subjects_table } from "$lib/db";
 import { subject_schema } from "$lib/schemas";
 
 export const get_subjects = query(async () => {
+	guard_route();
 	const { locals } = getRequestEvent();
 
 	try {

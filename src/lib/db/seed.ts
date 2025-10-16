@@ -215,7 +215,6 @@ async function seed_data() {
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),
 			},
-			count: 30,
 		},
 
 		grades_table: {
