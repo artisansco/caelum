@@ -15,6 +15,7 @@ import {
 	staff_roles,
 	staff_statuses,
 	student_statuses,
+	transaction_types,
 } from "../constants";
 
 export const students_table = sqliteTable("students", {
@@ -164,6 +165,27 @@ export const plans_table = sqliteTable("plans", {
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
+// transactions table for school payments to the platform
+export const transactions_table = sqliteTable("transactions", {
+	id: text().primaryKey().$defaultFn(nanoid),
+	school_id: text()
+		.notNull()
+		.references(() => schools_table.id, { onDelete: "cascade" }),
+	subscription_id: text()
+		.notNull()
+		.references(() => subscriptions_table.id, { onDelete: "cascade" }),
+	amount: int().notNull(),
+	transaction_type: text({ enum: transaction_types })
+		.notNull()
+		.default("subscription"),
+	payment_method: text({ enum: payment_methods })
+		.notNull()
+		.default("mobile_money"),
+	description: text(),
+	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+});
+
 // grades table for student academic performance
 export const grades_table = sqliteTable("grades", {
 	id: text().primaryKey().$defaultFn(nanoid),
@@ -174,8 +196,7 @@ export const grades_table = sqliteTable("grades", {
 		.notNull()
 		.references(() => subjects_table.id, { onDelete: "cascade" }),
 	grade_type: text({ enum: grade_types }).notNull().default("assignment"),
-	// max_score: int().notNull().default(100),
-	max_score: int().default(100),
+	max_score: int().notNull().default(100),
 	actual_score: int().notNull(),
 	graded_by: text()
 		.notNull()
@@ -210,29 +231,6 @@ export const payments_table = sqliteTable("payments", {
 	academic_year: text(),
 	payment_date: text().default(sql`CURRENT_TIMESTAMP`),
 	notes: text(),
-	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
-	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
-});
-
-// transactions table for school payments to the platform
-export const transactions_table = sqliteTable("transactions", {
-	id: text().primaryKey().$defaultFn(nanoid),
-	school_id: text()
-		.notNull()
-		.references(() => schools_table.id, { onDelete: "cascade" }),
-	subscription_id: text().references(() => subscriptions_table.id, {
-		onDelete: "cascade",
-	}),
-	amount: int().notNull(),
-	transaction_type: text({
-		enum: ["subscription", "upgrade", "addon", "penalty"],
-	})
-		.notNull()
-		.default("subscription"),
-	payment_method: text({ enum: payment_methods })
-		.notNull()
-		.default("bank_transfer"),
-	description: text(),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });

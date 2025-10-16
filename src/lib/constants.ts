@@ -128,6 +128,8 @@ export const announcement_audience = [
 
 export const school_terms = ["first", "second", "third"] as const;
 
+export const transaction_types = ["subscription", "upgrade"] as const;
+
 // ------
 
 export function get_error_message(status: number) {

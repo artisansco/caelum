@@ -1,6 +1,7 @@
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import {
 	db,
 	plans_table,
@@ -10,8 +11,9 @@ import {
 import { transaction_schema } from "$lib/schemas";
 
 export const get_transactions = query(async () => {
-	const { params } = getRequestEvent();
-	const school_id = params.school_id as string;
+	guard_route();
+
+	const { locals } = getRequestEvent();
 
 	const transactions = await db
 		.select({
@@ -19,14 +21,11 @@ export const get_transactions = query(async () => {
 			amount: transactions_table.amount,
 			transaction_type: transactions_table.transaction_type,
 			payment_method: transactions_table.payment_method,
-			// transaction_status: transactions_table.transaction_status,
-			// reference_number: transactions_table.reference_number,
 			description: transactions_table.description,
-			// processed_date: transactions_table.processed_date,
 			created_at: transactions_table.created_at,
 			subscription_id: transactions_table.subscription_id,
 			plan_name: plans_table.name,
-			plan_duration_days: plans_table.duration_days,
+			plan_duration: plans_table.duration_days,
 		})
 		.from(transactions_table)
 		.leftJoin(
@@ -34,61 +33,18 @@ export const get_transactions = query(async () => {
 			eq(transactions_table.subscription_id, subscriptions_table.id),
 		)
 		.leftJoin(plans_table, eq(subscriptions_table.plan_id, plans_table.id))
-		.where(eq(transactions_table.school_id, school_id))
+		.where(eq(transactions_table.school_id, locals.school_id))
 		.orderBy(desc(transactions_table.created_at));
 
 	return transactions;
 });
-
-export const get_transaction_by_id = query(
-	v.string(),
-	async (transaction_id) => {
-		const { params } = getRequestEvent();
-		const school_id = params.school_id as string;
-
-		const [transaction] = await db
-			.select({
-				id: transactions_table.id,
-				amount: transactions_table.amount,
-				transaction_type: transactions_table.transaction_type,
-				payment_method: transactions_table.payment_method,
-				// transaction_status: transactions_table.transaction_status,
-				// reference_number: transactions_table.reference_number,
-				description: transactions_table.description,
-				// processed_date: transactions_table.processed_date,
-				created_at: transactions_table.created_at,
-				subscription_id: transactions_table.subscription_id,
-				plan_name: plans_table.name,
-				plan_duration_days: plans_table.duration_days,
-				plan_price: plans_table.price,
-			})
-			.from(transactions_table)
-			.leftJoin(
-				subscriptions_table,
-				eq(transactions_table.subscription_id, subscriptions_table.id),
-			)
-			.leftJoin(plans_table, eq(subscriptions_table.plan_id, plans_table.id))
-			.where(
-				and(
-					eq(transactions_table.id, transaction_id),
-					eq(transactions_table.school_id, school_id),
-				),
-			);
-
-		return transaction;
-	},
-);
 
 export const add_transaction = form(transaction_schema, async (parsed) => {
 	try {
 		const { params } = getRequestEvent();
 		const school_id = params.school_id as string;
 
-		await db.insert(transactions_table).values({
-			...parsed,
-			school_id,
-			amount: 0,
-		});
+		await db.insert(transactions_table).values(parsed);
 
 		await get_transactions().refresh();
 		return { message: "Transaction recorded successfully" };

@@ -24,6 +24,8 @@ export const get_all_students = query(v.string(), async (school_id) => {
 });
 
 export const get_student = query(v.string(), async (student_id) => {
+	guard_route();
+
 	const student = await db.query.students_table.findFirst({
 		where: eq(students_table.id, student_id),
 	});

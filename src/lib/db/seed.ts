@@ -12,6 +12,7 @@ import {
 	payment_methods,
 	payment_types,
 	school_terms,
+	transaction_types,
 } from "../constants";
 import * as schema from "./schema";
 
@@ -45,6 +46,7 @@ async function seed_data() {
 		announcements_table: schema.announcements_table,
 		grades_table: schema.grades_table,
 		payments_table: schema.payments_table,
+		transactions_table: schema.transactions_table,
 	}).refine((f) => ({
 		plans_table: {
 			columns: {
@@ -246,6 +248,20 @@ async function seed_data() {
 				updated_at: f.default({ defaultValue: undefined }),
 			},
 			count: 100,
+		},
+
+		transactions_table: {
+			columns: {
+				id: f.uuid(),
+				amount: f.number({ minValue: 1 }),
+				transaction_type: f.valuesFromArray({ values: [...transaction_types] }),
+				payment_method: f.valuesFromArray({ values: [...payment_methods] }),
+				// payment_date: f.date({ maxDate: new Date() }),
+				description: f.loremIpsum({ sentencesCount: 2 }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 20,
 		},
 
 		// end
