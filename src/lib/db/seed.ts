@@ -9,6 +9,8 @@ import {
 	announcement_types,
 	default_permissions,
 	grade_types,
+	payment_method,
+	payment_type,
 	school_terms,
 } from "../constants";
 import * as schema from "./schema";
@@ -42,6 +44,7 @@ async function seed_data() {
 		plans_table: schema.plans_table,
 		announcements_table: schema.announcements_table,
 		grades_table: schema.grades_table,
+		payments_table: schema.payments_table,
 	}).refine((f) => ({
 		plans_table: {
 			columns: {
@@ -222,6 +225,22 @@ async function seed_data() {
 				actual_score: f.number({ minValue: 0, maxValue: 100 }),
 				term: f.valuesFromArray({ values: [...school_terms] }),
 				academic_year: f.year(),
+				notes: f.loremIpsum({ sentencesCount: 2 }),
+				created_at: f.timestamp(),
+				updated_at: f.default({ defaultValue: undefined }),
+			},
+			count: 100,
+		},
+
+		payments_table: {
+			columns: {
+				id: f.uuid(),
+				amount: f.number({ minValue: 1 }),
+				payment_type: f.valuesFromArray({ values: [...payment_type] }),
+				payment_method: f.valuesFromArray({ values: [...payment_method] }),
+				term: f.default({ defaultValue: undefined }),
+				academic_year: f.default({ defaultValue: undefined }),
+				payment_date: f.date({ maxDate: new Date() }),
 				notes: f.loremIpsum({ sentencesCount: 2 }),
 				created_at: f.timestamp(),
 				updated_at: f.default({ defaultValue: undefined }),

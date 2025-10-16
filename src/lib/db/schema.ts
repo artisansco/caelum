@@ -196,20 +196,20 @@ export const payments_table = sqliteTable("payments", {
 	student_id: text()
 		.notNull()
 		.references(() => students_table.id, { onDelete: "cascade" }),
-	amount: int().notNull(),
-	payment_type: text({ enum: payment_type }).notNull().default("tuition"),
-	payment_method: text({ enum: payment_method }).notNull().default("cash"),
-	term: text({ enum: school_terms }).notNull().default("first"),
-	academic_year: text().notNull(),
-	due_date: text(),
-	paid_date: text().default(sql`CURRENT_TIMESTAMP`),
-	notes: text(),
 	received_by: text()
 		.notNull()
 		.references(() => staff_table.id, { onDelete: "cascade" }),
 	school_id: text()
 		.notNull()
 		.references(() => schools_table.id, { onDelete: "cascade" }),
+	amount: int().notNull(),
+	payment_type: text({ enum: payment_type }).notNull().default("tuition"),
+	payment_method: text({ enum: payment_method }).notNull().default("cash"),
+	// term: text({ enum: school_terms }).notNull().default("first"),
+	term: text(),
+	academic_year: text(),
+	payment_date: text().default(sql`CURRENT_TIMESTAMP`),
+	notes: text(),
 	created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 	updated_at: text().$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });

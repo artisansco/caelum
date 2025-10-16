@@ -5,6 +5,8 @@ import {
 	announcement_types,
 	cities,
 	grade_types,
+	payment_method,
+	payment_type,
 	school_terms,
 } from "./constants";
 
@@ -193,7 +195,7 @@ export const grade_schema = z
 		grade_type: z
 			.enum(grade_types, { error: "Please select a valid grade type" })
 			.default("assignment"),
-		max_score: z.number().int().min(0).max(100).default(100),
+		max_score: z.number().int().min(1).max(100).default(100),
 		actual_score: z
 			.number({ error: "Actual score is required" })
 			.min(0, { error: "Score cannot be negative" }),
@@ -213,40 +215,31 @@ export const grade_schema = z
 
 export const payment_schema = z.object({
 	student_id: z.string({ error: "Student ID is required" }),
+	received_by: z.string({ error: "Receiver ID is required" }),
+	school_id: z.string({ error: "School ID is required" }),
 	amount: z
 		.number({ error: "Amount is required" })
-		.int()
 		.min(1, { error: "Amount must be greater than 0" }),
 	payment_type: z
-		.enum(["tuition", "registration", "transport", "meals", "books", "other"], {
-			error: "Please select a valid payment type",
-		})
+		.enum(payment_type, { error: "Please select a valid payment type" })
 		.default("tuition"),
 	payment_method: z
-		.enum(["cash", "bank_transfer", "mobile_money", "cheque"], {
-			error: "Please select a valid payment method",
-		})
+		.enum(payment_method, { error: "Please select a valid payment method" })
 		.default("cash"),
-	payment_status: z
-		.enum(["pending", "completed", "failed", "refunded"], {
-			error: "Please select a valid payment status",
-		})
-		.default("completed"),
-	reference_number: z.string().trim().optional(),
 	term: z
-		.string({ error: "Term is required" })
-		.trim()
-		.min(1, { error: "Term must be specified" })
-		.default("first"),
+		.enum(school_terms, { error: "Term is required" })
+		.default("first")
+		.or(z.literal(""))
+		.optional(),
 	academic_year: z
 		.string({ error: "Academic year is required" })
 		.trim()
-		.min(4, { error: "Academic year must be at least 4 characters" }),
-	due_date: z.iso.date().optional(),
-	paid_date: z.iso.date().optional(),
-	notes: z.string().trim().optional(),
-	received_by: z.string({ error: "Receiver ID is required" }),
-	school_id: z.string({ error: "School ID is required" }),
+		.min(4, { error: "Academic year must be at least 4 characters" })
+		.max(4, { error: "Academic year must be at most 4 characters" })
+		.or(z.literal(""))
+		.optional(),
+	payment_date: z.iso.date(),
+	notes: z.string().trim().or(z.literal("")).optional(),
 });
 
 export const transaction_schema = z.object({

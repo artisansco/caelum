@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Avatar } from 'melt/components';
 	import { get_school } from '../../school.remote';
 	import { get_payments } from './payments.remote';
 	import AddNewPayment from './add-payment.svelte';
@@ -14,22 +13,40 @@
 	let school = $derived(await school_promise);
 	let payments = $derived(await payments_promise);
 
+	const payments_this_year = $derived(
+		payments.filter((p) => {
+			const payment_year = Number(p.payment_date!.split('-')[0]);
+			const current_year = new Date().getFullYear();
+			return payment_year === current_year;
+		})
+	);
+	const payments_this_month = $derived(
+		payments.filter((p) => {
+			const payment_year = Number(p.payment_date!.split('-')[0]);
+			const payment_month = Number(p.payment_date!.split('-')[1]);
+			const current_month = new Date().getMonth() + 1;
+
+			return payment_year === new Date().getFullYear() && payment_month === current_month;
+		})
+	);
+
+	const total_revenue = $derived(payments.reduce((acc, payment) => acc + payment.amount, 0));
+	const revenue_this_year = $derived(
+		payments_this_year.reduce((acc, payment) => acc + payment.amount, 0)
+	);
+	const revenue_this_month = $derived(
+		payments_this_month.reduce((acc, payment) => acc + payment.amount, 0)
+	);
+
 	// State for modals and forms
 	let show_add_form = $state(false);
 	let filter_student = $state('');
-
-	const current_user = $derived({
-		name: 'School Admin',
-		username: '@admin',
-		avatar: school.logo_url || ''
-	});
-	const subscription = $state({ plan: 'Pro', renewal_date: 'Nov. 2021' });
 </script>
 
 <div class="min-h-screen bg-gray-50">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-0">
 		<!-- Header -->
-		<header class="mb-8">
+		<header class="mb-3">
 			<div class="flex items-center justify-between">
 				<h1 class="text-2xl font-bold text-gray-900">Payments</h1>
 				<button type="button" onclick={() => (show_add_form = !show_add_form)} class="btn-sm">
@@ -42,27 +59,6 @@
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Main Content -->
 			<div class="lg:col-span-2 space-y-8">
-				<!-- User Profile Section -->
-				<section class="bg-white rounded-lg shadow-sm p-6">
-					<div class="flex items-center space-x-4">
-						<Avatar src={current_user.avatar}>
-							{#snippet children(avatar)}
-								<img {...avatar.image} alt={current_user.name} class="size-12 rounded-full" />
-								<span
-									{...avatar.fallback}
-									class="text-lg font-semibold bg-gray-200 text-gray-700 rounded-full flex items-center justify-center"
-								>
-									{current_user.name[0]}
-								</span>
-							{/snippet}
-						</Avatar>
-						<div>
-							<h2 class="text-lg font-semibold text-gray-900">{current_user.name}</h2>
-							<p class="text-sm text-gray-500">{current_user.username}</p>
-						</div>
-					</div>
-				</section>
-
 				<AddNewPayment show_payment={show_add_form} />
 
 				<!-- Filters -->
@@ -83,9 +79,11 @@
 
 				<!-- Order History Section -->
 				<section class="bg-white rounded-lg shadow-sm overflow-hidden">
-					<div class="px-6 py-4 border-b border-gray-200">
+					<div class="p-4 border-b border-gray-200">
 						<div class="flex justify-between items-center">
-							<h3 class="text-lg font-semibold text-gray-900">Payments History</h3>
+							<h3 class="text-lg font-semibold text-gray-900">
+								Payments History ({payments.length})
+							</h3>
 							<p class="text-sm text-gray-500">Manage billing information and view receipts</p>
 						</div>
 					</div>
@@ -99,36 +97,30 @@
 									<th class="text-xs">Type</th>
 									<th class="text-xs">Method</th>
 									<th class="text-xs">Received by</th>
-									<th class="text-xs">Date</th>
+									<th class="text-xs">Payment Date</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-gray-200">
 								{#each payments as payment}
 									<tr class="hover:bg-gray-50">
-										<td class="py-4 px-6">
-											<div class="text-sm font-medium text-gray-900">
+										<td class="">
+											<div class="font-medium text-gray-900">
 												{payment.student_name}
 												{payment.student_last_name}
 											</div>
-											<div class="text-sm text-gray-500">
+											<div class="text-gray-500">
 												{payment.student_admission_number}
 											</div>
 										</td>
-										<td class="py-4 px-6 text-sm font-medium text-gray-900">
+										<td class="font-medium text-gray-900">
 											{format_currency(payment.amount)}
 										</td>
-										<td class="py-4 px-6 text-sm text-gray-900">
+										<td class="capitalize text-gray-900">
 											{payment.payment_type}
 										</td>
-										<td class="py-4 px-6">
-											{payment.payment_status}
-										</td>
-										<td class="py-4 px-6">
-											{payment.received_by_name}
-										</td>
-										<td class="py-4 px-6 text-sm text-gray-900">
-											{format({ date: payment.created_at, format: 'MMM DD, YYYY' })}
-										</td>
+										<td class="capitalize">{payment.payment_method.replace('_', ' ')}</td>
+										<td class="">{payment.received_by_name}</td>
+										<td class="text-gray-900"> {format(payment.payment_date!)} </td>
 									</tr>
 								{:else}
 									<tr>
@@ -150,9 +142,9 @@
 					<div class="flex items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-red-100 mb-2">Your plan</p>
-							<h3 class="text-xl font-bold mb-1">{subscription.plan}</h3>
+							<h3 class="text-xl font-bold mb-1">{school.current_plan?.name}</h3>
 							<p class="text-sm text-red-100 mb-6">
-								Ends on {subscription.renewal_date}
+								Ends on {format(school.current_plan?.end_date!, 'MMM. DD, YYYY')}
 							</p>
 						</div>
 						<i class="block icon-[mdi--clock] text-5xl animate-spin"></i>
@@ -166,21 +158,25 @@
 					<div class="space-y-4">
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">Total Payments</span>
-							<span class="text-sm font-medium text-gray-900">0</span>
+							<span class="text-sm font-medium text-gray-900">{payments.length || 0}</span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">This Year</span>
-							<span class="text-sm font-medium text-green-600">0 </span>
+							<span class="text-sm font-medium text-green-600">
+								{format_currency(revenue_this_year)}
+							</span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-sm text-gray-600">This Month</span>
-							<span class="text-sm font-medium text-green-600">0 </span>
+							<span class="text-sm font-medium text-green-600">
+								{format_currency(revenue_this_month)}
+							</span>
 						</div>
 
 						<div class="flex justify-between border-t pt-4">
 							<span class="text-sm font-medium text-gray-900">Total Revenue</span>
 							<span class="text-sm font-bold text-gray-900">
-								{format_currency(1000)}
+								{format_currency(total_revenue)}
 							</span>
 						</div>
 					</div>

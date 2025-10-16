@@ -5,8 +5,7 @@ import { db, payments_table, staff_table, students_table } from "$lib/db";
 import { payment_schema } from "$lib/schemas";
 
 export const get_payments = query(async () => {
-	const { params } = getRequestEvent();
-	const school_id = params.school_id as string;
+	const { locals } = getRequestEvent();
 
 	const payments = await db
 		.select({
@@ -16,8 +15,7 @@ export const get_payments = query(async () => {
 			payment_method: payments_table.payment_method,
 			term: payments_table.term,
 			academic_year: payments_table.academic_year,
-			due_date: payments_table.due_date,
-			paid_date: payments_table.paid_date,
+			payment_date: payments_table.payment_date,
 			notes: payments_table.notes,
 			created_at: payments_table.created_at,
 			student_name: students_table.first_name,
@@ -29,56 +27,42 @@ export const get_payments = query(async () => {
 		.from(payments_table)
 		.leftJoin(students_table, eq(payments_table.student_id, students_table.id))
 		.leftJoin(staff_table, eq(payments_table.received_by, staff_table.id))
-		.where(eq(payments_table.school_id, school_id))
-		.orderBy(desc(payments_table.created_at));
+		.where(eq(payments_table.school_id, locals.school_id))
+		.orderBy(desc(payments_table.created_at))
+		.limit(-1);
 
 	return payments;
 });
 
 export const add_payment = form(payment_schema, async (parsed) => {
 	try {
-		const { params } = getRequestEvent();
-		const school_id = params.school_id as string;
+		const { locals } = getRequestEvent();
 
-		await db.insert(payments_table).values({
-			...parsed,
-			school_id,
-			amount: 0,
-			received_by: "",
-			student_id: "",
-			academic_year: new Date().getFullYear(),
-			paid_date: parsed.paid_date || new Date().toISOString(),
-		});
+		await db
+			.insert(payments_table)
+			.values({ ...parsed, school_id: locals.school_id });
 
 		await get_payments().refresh();
 		return { message: "Payment recorded successfully" };
-	} catch (error) {
-		console.error("Error recording payment:", error);
-		return {
-			message: error?.message || "Failed to record payment",
-		};
+	} catch (_e) {
+		console.error("Error recording payment:", _e);
+		return { message: _e?.message || "Failed to record payment" };
 	}
 });
 
 export const delete_payment = command(v.string(), async (payment_id) => {
 	try {
-		const { params } = getRequestEvent();
-		const school_id = params.school_id as string;
+		const { locals } = getRequestEvent();
 
 		await db
 			.delete(payments_table)
 			.where(
 				and(
 					eq(payments_table.id, payment_id),
-					eq(payments_table.school_id, school_id),
+					eq(payments_table.school_id, locals.school_id),
 				),
 			);
-
-		return { success: true };
-	} catch (error) {
-		console.error("Error deleting payment:", error);
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to delete payment";
-		throw new Error(errorMessage);
+	} catch (_e) {
+		console.error("Error deleting payment:", _e);
 	}
 });

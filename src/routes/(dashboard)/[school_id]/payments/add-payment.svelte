@@ -3,29 +3,16 @@
 	import { get_all_students } from '../students/students.remote';
 	import { get_all_staff } from '../staff/staff.remote';
 	import { page } from '$app/state';
+	import { payment_type, payment_method } from '$lib/constants';
 
 	let { show_payment = $bindable(false) } = $props();
-	const {
-		academic_year,
-		amount,
-		due_date,
-		notes,
-		paid_date,
-		payment_method,
-		payment_status,
-		payment_type,
-		received_by,
-		reference_number,
-		term
-	} = add_payment.fields;
+	const { amount, notes, received_by, payment_date } = add_payment.fields;
 
 	let students_promise = $derived(get_all_students(String(page.params.school_id)));
 	let staff_promise = $derived(get_all_staff(String(page.params.school_id)));
 
 	let students = $derived(await students_promise);
 	let staff = $derived(await staff_promise);
-
-	// show_payment = true;
 </script>
 
 <!-- Add Payment Form -->
@@ -67,11 +54,9 @@
 						Payment Type
 					</label>
 					<select id="payment_type" name="payment_type" class="select w-full">
-						<option value="tuition">Tuition</option>
-						<option value="registration">Registration</option>
-						<option value="transport">Transport</option>
-						<option value="books">Books</option>
-						<option value="other">Other</option>
+						{#each payment_type as type}
+							<option value={type} class="capitalize">{type}</option>
+						{/each}
 					</select>
 				</div>
 
@@ -80,22 +65,20 @@
 						Payment Method
 					</label>
 					<select id="payment_method" name="payment_method" class="select w-full">
-						<option value="cash">Cash</option>
-						<option value="bank_transfer">Bank Transfer</option>
-						<option value="mobile_money">Mobile Money (Orange/Afri/Q Money)</option>
-						<option value="cheque">Cheque</option>
+						{#each payment_method as method}
+							<option value={method} class="capitalize">{method}</option>
+						{/each}
 					</select>
 				</div>
 
 				<div>
 					<label for="payment_status" class="block text-sm font-medium text-gray-700 mb-2">
-						Paid on
+						Payment Date
 					</label>
 					<input
+						{...payment_date.as('date')}
 						type="date"
-						id="paid_on"
-						name="paid_on"
-						defaultValue={new Date().toISOString().split('T')[0]}
+						value={new Date().toISOString().split('T')[0]}
 						class="input w-full"
 					/>
 				</div>
@@ -113,6 +96,17 @@
 							</option>
 						{/each}
 					</select>
+				</div>
+
+				<div>
+					<label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+						Extra Notes
+					</label>
+					<textarea
+						{...notes.as('text')}
+						class="textarea w-full resize-none"
+						placeholder="extra notes about the payment"
+					></textarea>
 				</div>
 			</div>
 

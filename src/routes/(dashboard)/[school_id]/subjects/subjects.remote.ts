@@ -1,8 +1,7 @@
 import { desc, eq } from "drizzle-orm";
-import * as z from "zod";
+import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
-import { db } from "$lib/db/drizzle";
-import { subjects_table } from "$lib/db/schema";
+import { db, subjects_table } from "$lib/db";
 import { subject_schema } from "$lib/schemas";
 
 export const get_subjects = query(async () => {
@@ -32,7 +31,7 @@ export const add_subject = form(subject_schema, async (parsed) => {
 	}
 });
 
-export const delete_subject = command(z.string(), async (subject_id) => {
+export const delete_subject = command(v.string(), async (subject_id) => {
 	try {
 		await db.delete(subjects_table).where(eq(subjects_table.id, subject_id));
 		await get_subjects().refresh();

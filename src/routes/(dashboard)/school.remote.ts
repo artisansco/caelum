@@ -28,6 +28,7 @@ export const get_school = query(v.string(), async (school_id) => {
 			current_plan: {
 				id: plans_table.id,
 				name: plans_table.name,
+				end_date: subscriptions_table.end_date,
 			},
 		})
 		.from(schools_table)
