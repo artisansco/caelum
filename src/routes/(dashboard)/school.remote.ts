@@ -97,10 +97,11 @@ export const add_class = form(
 			await get_classes(parsed.school_id).refresh();
 			return { message: "class created successfully" };
 		} catch (_e) {
-			console.log(_e);
-			// @ts-expect-error
-			return { message: _e.message };
-		}
+		if (_e instanceof Error) {
+		 console.log(_e);
+		 return { message: _e.message };
+		 }
+	}
 	},
 );
 
@@ -123,9 +124,10 @@ export const delete_class = command(
 			await get_classes(parsed.school_id).refresh();
 			return { message: "class deleted successfully" };
 		} catch (_e) {
-			console.log(_e);
-			// @ts-expect-error
-			return { message: _e.message };
-		}
+		if (_e instanceof Error) {
+		 console.log(_e);
+		 return { message: _e.message };
+		 }
+	}
 	},
 );

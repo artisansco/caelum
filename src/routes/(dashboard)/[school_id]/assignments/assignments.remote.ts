@@ -60,8 +60,10 @@ export const delete_assignment = command(
 
 			await get_assignments(parsed.school_id).refresh();
 		} catch (_e) {
-			console.log(_e);
-			return { message: _e.message };
+		if (_e instanceof Error) {
+		 console.log(_e);
+		  return { message: _e.message };
 		}
+	}
 	},
 );

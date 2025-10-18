@@ -25,9 +25,10 @@ export const add_class = form(class_schema, async (parsed) => {
 		// await get_classes(parsed.school_id).refresh();
 		return { message: "class created successfully" };
 	} catch (_e) {
-		console.log(_e);
-		// @ts-expect-error
-		return { message: _e.message };
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		}
 	}
 });
 

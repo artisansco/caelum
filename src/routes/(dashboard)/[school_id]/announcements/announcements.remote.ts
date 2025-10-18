@@ -38,7 +38,10 @@ export const add_announcement = form(announcement_schema, async (parsed) => {
 
 		await get_announcements().refresh();
 	} catch (_e) {
-		return { message: _e.message };
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		}
 	}
 });
 
@@ -53,7 +56,10 @@ export const delete_announcement = command(
 			await get_announcements().refresh();
 			return { message: "Announcement deleted successfully" };
 		} catch (_e) {
-			return { message: _e.message };
+			if (_e instanceof Error) {
+				console.log(_e);
+				return { message: _e.message };
+			}
 		}
 	},
 );
@@ -66,7 +72,10 @@ export const update_announcement = command(
 
 			// await get_announcements(parsed.school_id).refresh();
 		} catch (_e) {
-			return { message: _e.message };
+			if (_e instanceof Error) {
+				console.log(_e);
+				return { message: _e.message };
+			}
 		}
 	},
 );

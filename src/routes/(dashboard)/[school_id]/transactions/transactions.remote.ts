@@ -41,18 +41,15 @@ export const get_transactions = query(async () => {
 
 export const add_transaction = form(transaction_schema, async (parsed) => {
 	try {
-		const { params } = getRequestEvent();
-		const _school_id = params.school_id as string;
-
 		await db.insert(transactions_table).values(parsed);
 
 		await get_transactions().refresh();
 		return { message: "Transaction recorded successfully" };
-	} catch (error) {
-		console.error("Error recording transaction:", error);
-		return {
-			message: error?.message || "Failed to record transaction",
-		};
+	} catch (_e) {
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		}
 	}
 });
 

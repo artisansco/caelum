@@ -57,8 +57,12 @@ export const add_grade = form(grade_schema, async (parsed) => {
 
 		await get_grades().refresh();
 	} catch (_e) {
-		console.error("Error adding grade:", _e);
-		return { message: _e?.message || "Failed to add grade" };
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		} else {
+			return { message: "Failed to add grade" };
+		}
 	}
 });
 

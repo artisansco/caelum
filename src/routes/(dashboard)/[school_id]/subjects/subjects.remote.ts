@@ -28,8 +28,10 @@ export const add_subject = form(subject_schema, async (parsed) => {
 		await get_subjects().refresh();
 		return { message: "subject created successfully" };
 	} catch (_e) {
-		//@ts-expect-error
-		return { message: _e.message };
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		}
 	}
 });
 

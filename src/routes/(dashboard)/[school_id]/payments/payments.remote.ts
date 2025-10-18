@@ -42,8 +42,12 @@ export const add_payment = form(payment_schema, async (parsed) => {
 		await get_payments(parsed.school_id).refresh();
 		return { message: "Payment recorded successfully" };
 	} catch (_e) {
-		console.error("Error recording payment:", _e);
-		return { message: _e?.message || "Failed to record payment" };
+		if (_e instanceof Error) {
+			console.log(_e);
+			return { message: _e.message };
+		} else {
+			return { message: "Failed to record payment" };
+		}
 	}
 });
 

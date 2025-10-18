@@ -8,6 +8,7 @@ import {
 	payment_methods,
 	payment_types,
 	school_terms,
+	transaction_types,
 } from "./constants";
 
 export const assignment_schema = z.object({
@@ -248,32 +249,32 @@ export const payment_schema = z.object({
 		.or(z.literal(""))
 		.optional(),
 	payment_date: z.iso.date(),
-	notes: z.string().trim().or(z.literal("")).optional(),
+	notes: z
+		.string()
+		.trim()
+		.min(10, { error: "Notes is too small, 10 or more characters" })
+		.or(z.literal(""))
+		.optional(),
 });
 
 export const transaction_schema = z.object({
 	school_id: z.string({ error: "School ID is required" }),
-	subscription_id: z.string().optional(),
+	subscription_id: z.string({ error: "Subscription ID is required" }),
 	amount: z
 		.number({ error: "Amount is required" })
 		.int()
 		.min(1, { error: "Amount must be greater than 0" }),
 	transaction_type: z
-		.enum(["subscription", "upgrade", "addon", "penalty"], {
-			error: "Please select a valid transaction type",
-		})
+		.enum(transaction_types, { error: "select a valid transaction type" })
 		.default("subscription"),
 	payment_method: z
-		.enum(["bank_transfer", "mobile_money", "card", "paypal"], {
-			error: "Please select a valid payment method",
-		})
-		.default("bank_transfer"),
-	transaction_status: z
-		.enum(["pending", "completed", "failed", "refunded"], {
-			error: "Please select a valid transaction status",
-		})
-		.default("pending"),
-	reference_number: z.string().trim().optional(),
-	description: z.string().trim().optional(),
-	processed_date: z.iso.date().optional(),
+		.enum(payment_methods, { error: "Please select a valid payment method" })
+		.default("mobile_money"),
+	// reference_number: z.string().trim().optional(),
+	description: z
+		.string()
+		.trim()
+		.min(10, { error: "Description is required" })
+		.or(z.literal(""))
+		.optional(),
 });
