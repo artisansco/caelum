@@ -2,10 +2,12 @@ import { error, redirect } from "@sveltejs/kit";
 import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, query } from "$app/server";
+import { guard_route } from "$lib/auth";
 import { db, staff_table } from "$lib/db";
 import { staff_schema } from "$lib/schemas";
 
 export const get_all_staff = query(v.string(), async (school_id) => {
+	guard_route();
 	// const limit = Number(c.req.query("limit")) || 10;
 
 	const staff = await db.query.staff_table.findMany({
@@ -18,6 +20,8 @@ export const get_all_staff = query(v.string(), async (school_id) => {
 });
 
 export const get_staff_by_id = query(v.string(), async (staff_id) => {
+	guard_route();
+
 	try {
 		const staff = await db.query.staff_table.findFirst({
 			where: eq(staff_table.id, staff_id),
@@ -39,23 +43,20 @@ export const get_staff_by_id = query(v.string(), async (staff_id) => {
 
 export const add_staff = form(staff_schema, async (parsed) => {
 	try {
-		await db
-			.insert(staff_table)
-			.values({
-				staff_id: parsed.staff_id,
-				first_name: parsed.first_name,
-				middle_name: parsed.middle_name,
-				last_name: parsed.last_name,
-				email: parsed.email,
-				employed_date: parsed.employed_on,
-				role: parsed.role,
-				permissions: parsed.permissions,
-				password: parsed.password,
-				contact: parsed.phone_number,
-				address: parsed.address,
-				school_id: parsed.school_id,
-			})
-			.returning();
+		await db.insert(staff_table).values({
+			staff_id: parsed.staff_id,
+			first_name: parsed.first_name,
+			middle_name: parsed.middle_name,
+			last_name: parsed.last_name,
+			email: parsed.email,
+			employed_date: parsed.employed_on,
+			role: parsed.role,
+			permissions: parsed.permissions,
+			password: parsed.password,
+			contact: parsed.phone_number,
+			address: parsed.address,
+			school_id: parsed.school_id,
+		});
 	} catch (_e) {
 		console.log(_e);
 		return { message: "An error occurred while creating the staff" };
@@ -65,7 +66,7 @@ export const add_staff = form(staff_schema, async (parsed) => {
 });
 
 export const update_staff = form(
-	staff_schema.omit({ employed_on: true, password: true }),
+	staff_schema.omit({ employed_on: true }),
 	async (parsed) => {
 		try {
 			await db
@@ -79,8 +80,7 @@ export const update_staff = form(
 					permissions: parsed.permissions,
 					// password: parsed.password,
 				})
-				.where(eq(staff_table.id, parsed.staff_id))
-				.returning();
+				.where(eq(staff_table.id, parsed.staff_id));
 
 			await get_staff_by_id(parsed.staff_id).refresh();
 			return { message: "Staff member updated successfully" };
@@ -93,10 +93,7 @@ export const update_staff = form(
 
 export const delete_staff = command(v.string(), async (staff_id) => {
 	try {
-		await db
-			.delete(staff_table)
-			.where(eq(staff_table.id, staff_id))
-			.returning();
+		await db.delete(staff_table).where(eq(staff_table.id, staff_id));
 	} catch (_e) {
 		console.log(_e);
 		return { message: "could not delete staff member" };

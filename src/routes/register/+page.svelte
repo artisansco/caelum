@@ -28,7 +28,7 @@
   <!-- Form -->
   <div class="mx-auto max-w-4xl px-6 py-8">
     <div class="rounded-2xl bg-white p-8 shadow-lg">
-      <form {...register} oninput={() => register.validate()}>
+      <form {...register.enhance(async ({ submit }) => await submit())}>
         <div class="space-y-8 [&_input]:w-full">
           <!-- School Information -->
           <fieldset class="space-y-6 [&_input]:placeholder:text-xs">

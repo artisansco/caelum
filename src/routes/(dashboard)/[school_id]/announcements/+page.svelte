@@ -6,6 +6,7 @@
   import { format } from "@formkit/tempo";
   import { announcement_audience, announcement_priority, announcement_types } from "$lib/constants";
   import { dialog_state } from "$lib/dialog-state.svelte";
+  import { get_field_error } from "$lib/utils";
 
   let announcement_promise = $derived(get_announcements());
   let announcements = $derived(await announcement_promise);
@@ -66,10 +67,8 @@
         <form
           {...add_announcement.enhance(async ({ submit }) => {
             await submit();
-            dialog_state.open = false;
-            toast.success("Announcement created successfully");
+            // dialog_state.open = false;
           })}
-          oninput={() => add_announcement.validate()}
           class="space-y-4"
         >
           <input type="hidden" name="school_id" value={params.school_id} />
@@ -87,6 +86,7 @@
               placeholder="Important School Notice"
               class="input"
             />
+            <span class="text-xs text-red-500 mt-1">{get_field_error(title)}</span>
           </div>
 
           <div>
@@ -99,6 +99,7 @@
               placeholder="Enter the announcement details..."
               class="textarea resize-none"
             ></textarea>
+            <span class="text-xs text-red-500 mt-1">{get_field_error(content)}</span>
           </div>
 
           <div>

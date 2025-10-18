@@ -7,7 +7,7 @@
   import { get_field_error } from "$lib/utils";
 
   let { params } = $props();
-  const { description, due_date, file, title } = upload_assignment.fields;
+  const { description, due_date, file, title, class_id: class_ } = upload_assignment.fields;
 
   let assign_promise = $derived(get_assignments(params.school_id));
   let class_promise = $derived(get_classes(params.school_id));
@@ -21,6 +21,8 @@
       toast.info(upload_assignment.result.message);
     }
   });
+
+  $inspect(upload_assignment.fields.allIssues());
 </script>
 
 <section class="max-w-7xl">
@@ -31,8 +33,7 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-6">Upload Assignment</h2>
 
         <form
-          {...upload_assignment}
-          oninput={() => upload_assignment.validate()}
+          {...upload_assignment.enhance(async ({ submit }) => await submit())}
           class="space-y-6"
           enctype="multipart/form-data"
         >
@@ -49,7 +50,7 @@
                   {select.getOptionLabel(class_id) || "Select Class"}
                   <i class="icon-[lucide--chevron-down]"></i>
                 </button>
-                <!-- <p class="text-xs text-red-500">{get_field_error(class_id)}</p> -->
+                <p class="text-xs text-red-500">{get_field_error(class_)}</p>
 
                 <div
                   {...select.content}
@@ -80,17 +81,17 @@
               placeholder="Enter assignment title"
               class="input"
             />
-            <p class="text-xs text-red-500 -mt-1">{get_field_error(title)}</p>
+            <p class="text-xs text-red-500">{get_field_error(title)}</p>
           </div>
 
           <div class="flex flex-col space-y-2">
             <label for="description" class="label text-gray-500"> Description </label>
             <textarea
               {...description.as("text")}
-              rows="3"
               placeholder="to be submitted on time"
-              class="textarea resize-none"
+              class="textarea resize-none min-h-30"
             ></textarea>
+            <p class="text-xs text-red-500">{get_field_error(description)} bbb</p>
           </div>
 
           <div class="flex flex-col space-y-2">

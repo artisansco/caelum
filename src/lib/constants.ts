@@ -18,7 +18,7 @@ export const cities = [
 	"Koidu",
 ] as const;
 
-export const permissions = [
+export const staff_permissions = [
 	"students:view",
 	"students:create",
 	"students:edit",

@@ -22,7 +22,7 @@
 
   <section class="self-center">
     <div class="form grid place-content-center gap-6 p-5">
-      <form {...login} oninput={() => login.validate()} class="w-80">
+      <form {...login.enhance(async ({ submit }) => await submit())} class="w-80">
         <header class="mb-5 text-center">
           <h2 class="text-lg font-bold">Login as Staff</h2>
           <p class="text-sm">Enter your details below to login to your account</p>
@@ -31,13 +31,13 @@
         <fieldset class="space-y-5">
           <div class="flex flex-col gap-1">
             <label for="" class="label text-gray-600">Email</label>
-            <input {...email.as("email")} placeholder="me@acme.com" required />
+            <input {...email.as("email")} placeholder="me@acme.com" />
             <span class="text-xs text-red-500">{get_field_error(email)} </span>
           </div>
 
           <div class="flex flex-col gap-1">
             <label for="" class="label text-gray-600">Password</label>
-            <input {...password.as("password")} placeholder="******" required />
+            <input {...password.as("password")} placeholder="******" />
             <span class="text-xs text-red-500">
               {get_field_error(password)}
             </span>

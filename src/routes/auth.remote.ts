@@ -8,8 +8,7 @@ import * as z from "zod";
 import { command, form, getRequestEvent } from "$app/server";
 import { set_token } from "$lib/auth";
 import { config } from "$lib/config";
-import { db } from "$lib/db/drizzle";
-import { schools_table, staff_table } from "$lib/db/schema";
+import { db, schools_table, staff_table } from "$lib/db";
 import { school_schema } from "$lib/schemas";
 
 export const login = form(

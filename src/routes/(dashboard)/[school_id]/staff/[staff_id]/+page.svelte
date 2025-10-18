@@ -1,23 +1,29 @@
 <script lang="ts">
   import { Avatar, Select } from "melt/components";
   import { format } from "@formkit/tempo";
-  import { permissions as staff_permissions, staff_roles, staff_statuses } from "$lib/constants";
-  import { format_permissions, get_status_pill } from "$lib/utils";
+  import { staff_permissions, staff_roles, staff_statuses } from "$lib/constants";
+  import { format_permissions, get_field_error, get_status_pill } from "$lib/utils";
   import { delete_staff, get_staff_by_id, update_staff } from "../staff.remote";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
 
   const { params } = $props();
-  const { address, email, first_name, last_name, middle_name, permissions, phone_number } =
-    update_staff.fields;
+  const {
+    address,
+    email,
+    first_name,
+    last_name,
+    middle_name,
+    password,
+    permissions,
+    phone_number,
+  } = update_staff.fields;
 
-  let staff_promise = $derived(get_staff_by_id(params.staff_id));
-  let staff = $derived(await staff_promise);
+  let staff = $derived(await get_staff_by_id(params.staff_id));
   let role = $derived(staff.role);
   let status = $derived(staff.status);
   let edit_mode = $state(false);
   let view_password = $state(false);
-  let toggle_dialog = $state(false);
 
   $effect(() => {
     if (update_staff.result?.message) {
@@ -109,7 +115,6 @@
             btn_txt="Delete"
             icon="icon-[mdi--trash]"
             trigger_class="btn-sm-destructive"
-            {toggle_dialog}
           >
             <p class="mb-5 mt-2 leading-normal text-zinc-600">
               This action cannot be undone. This will permanently delete the staff and remove it
@@ -137,10 +142,9 @@
     id="edit_details"
     {...update_staff.enhance(async ({ submit }) => {
       await submit();
+      // edit_mode = false;
       toast.success("Staff updated successfully");
-      edit_mode = false;
     })}
-    oninput={() => update_staff.validate()}
   >
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Left Column - Main Information -->
@@ -168,6 +172,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(first_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -179,6 +186,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(middle_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -190,6 +200,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(last_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -201,6 +214,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(email)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -212,6 +228,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(phone_number)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -223,6 +242,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(address)}</span>
+                {/if}
               </div>
             </div>
           </article>
@@ -310,22 +332,17 @@
               </div>
 
               <div class="flex flex-col space-y-2">
-                <span class="label text-sm text-gray-500"> Employed Date </span>
-                <p class="font-bold text-gray-600">
-                  {format({
-                    date: staff.employed_date,
-                    format: "MMM DD, YYYY",
-                  })}
-                </p>
+                <span class="label text-sm text-gray-500">Employed Date</span>
+                <p class="font-bold text-gray-600">{format(staff.employed_date)}</p>
               </div>
 
               <div class="flex flex-col space-y-2">
-                <label for="password" class="label text-sm text-gray-500"> Password </label>
+                <label for="password" class="label text-sm text-gray-500">Password</label>
                 <div class="flex items-center gap-1">
                   <input
                     {...password.as("password")}
                     type={view_password ? "text" : "password"}
-                    placeholder="********"
+                    placeholder={edit_mode ? "Leave blank to keep current password" : "******"}
                     disabled={!edit_mode}
                     class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                   />
@@ -340,6 +357,9 @@
                     </button>
                   {/if}
                 </div>
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(password)}</span>
+                {/if}
               </div>
             </div>
           </article>

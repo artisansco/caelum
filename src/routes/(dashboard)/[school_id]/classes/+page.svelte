@@ -24,24 +24,20 @@
       </div>
 
       <Dialog label="Add New Class" btn_txt="New Class" icon="icon-[mdi--plus]">
-        <form
-          {...add_class.enhance(async ({ submit }) => await submit())}
-          oninput={() => add_class.validate()}
-          class="space-y-4"
-        >
+        <form {...add_class.enhance(async ({ submit }) => await submit())} class="space-y-4">
           <input type="hidden" name="school_id" value={params.school_id} />
 
           <div>
-            <label for="class-name" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="class-name" class="block text-sm font-medium text-gray-700">
               Class Name <span class="text-red-500">*</span>
             </label>
+            <p class="text-xs text-gray-500 my-1">Enter the name/level of the class</p>
             <input
               {...add_class.fields.name.as("text")}
               type="text"
               placeholder="e.g., JSS 1, Grade 10, Year 7"
               class="input"
             />
-            <p class="text-xs text-gray-500 my-1">Enter the name/level of the class</p>
             <small class="label text-xs text-red-500">
               {get_field_error(add_class.fields.name)}
             </small>

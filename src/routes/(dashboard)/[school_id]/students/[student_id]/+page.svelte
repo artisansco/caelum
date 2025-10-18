@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Avatar, Select } from "melt/components";
   import { format } from "@formkit/tempo";
-  import { get_status_pill } from "$lib/utils";
+  import { get_field_error, get_status_pill } from "$lib/utils";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
   import { delete_student, get_student, update_student } from "../students.remote";
@@ -15,7 +15,6 @@
   let student = $derived(await student_promise);
   let status = $derived(student.status);
   let edit_mode = $state(false);
-  let toggle_dialog = $state(false);
 
   $effect(() => {
     if (update_student.result?.message) {
@@ -114,7 +113,6 @@
             btn_txt="Delete"
             icon="icon-[mdi--trash]"
             trigger_class="btn-sm-destructive"
-            {toggle_dialog}
           >
             <p class="mb-5 mt-2 leading-normal text-zinc-600">
               This action cannot be undone. This will permanently delete the student and remove it
@@ -143,9 +141,8 @@
     {...update_student.enhance(async ({ submit }) => {
       await submit();
       toast.success("Student updated successfully");
-      edit_mode = false;
+      // edit_mode = false;
     })}
-    oninput={() => update_student.validate()}
   >
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Left Column - Main Information -->
@@ -172,6 +169,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(first_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -183,6 +183,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(middle_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -194,6 +197,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(last_name)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -205,6 +211,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(email)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -216,6 +225,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(phone_number)}</span>
+                {/if}
               </div>
 
               <div class="flex flex-col space-y-2">
@@ -227,6 +239,9 @@
                   disabled={!edit_mode}
                   class="input {edit_mode ? '' : 'border-0 px-0 font-bold'}"
                 />
+                {#if edit_mode}
+                  <span class="text-xs text-red-500">{get_field_error(address)}</span>
+                {/if}
               </div>
 
               <div>

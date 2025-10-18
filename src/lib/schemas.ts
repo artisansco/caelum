@@ -12,12 +12,15 @@ import {
 
 export const assignment_schema = z.object({
 	school_id: z.string(),
-	class_id: z.string(),
+	class_id: z.string({ error: "class is required" }),
 	title: z
 		.string({ error: "title is required" })
 		.trim()
 		.min(2, { error: "title must be at least 2 characters long" }),
-	description: z.string().trim().optional(),
+	description: z
+		.string()
+		.trim()
+		.min(10, { error: "description must be at least 10 characters long" }),
 	due_date: z.iso.date({ error: "please select a valid due date" }),
 	file: z
 		.file()
@@ -138,7 +141,7 @@ export const student_schema = z.object({
 		.min(6, { error: "Phone number must be at least 6 characters long" }),
 	school_id: z.string({ error: "school Id is required" }),
 	student_id: z.string({ error: "student id is required" }),
-	class_id: z.string({ error: "class id is required" }),
+	class_id: z.string({ error: "select a class" }),
 });
 
 export const class_schema = z.object({
@@ -206,12 +209,17 @@ export const grade_schema = z
 			.trim()
 			.min(4, { error: "Academic year must be at least 4 characters" })
 			.max(4, { error: "Academic year must be at most 4 characters" }),
-		notes: z.string().trim().or(z.literal("")).optional(),
+		notes: z
+			.string()
+			.trim()
+			.min(4, { error: "Notes is too small, 4 or more characters" })
+			.or(z.literal(""))
+			.optional(),
 	})
 	.refine((data) => data.actual_score <= data.max_score, {
 		message: "Actual score cannot be greater than max score",
 		abort: true,
-		path: ["actual_score", "max_score"],
+		path: ["actual_score"],
 	});
 
 export const payment_schema = z.object({

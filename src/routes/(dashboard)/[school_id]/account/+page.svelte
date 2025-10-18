@@ -98,7 +98,6 @@
       toast.success("School details updated successfully");
       edit_mode = false;
     })}
-    oninput={() => update_school.validate()}
   >
     <input type="hidden" name="city" bind:value={selected_city} />
     <input type="hidden" name="school_id" value={params.school_id} />
@@ -126,9 +125,11 @@
                   ? ''
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
-              <p class="text-xs text-red-500 mt-1">
-                {get_field_error(name)}
-              </p>
+              {#if edit_mode}
+                <p class="text-xs text-red-500 mt-1">
+                  {get_field_error(name)}
+                </p>
+              {/if}
             </div>
 
             <div>
@@ -145,9 +146,11 @@
                   ? ''
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
-              <p class="text-xs text-red-500 mt-1">
-                {get_field_error(address)}
-              </p>
+              {#if edit_mode}
+                <p class="text-xs text-red-500 mt-1">
+                  {get_field_error(address)}
+                </p>
+              {/if}
             </div>
 
             <div>
@@ -188,9 +191,11 @@
                   </div>
                 {/snippet}
               </Select>
-              <p class="text-xs text-red-500 mt-1">
-                {get_field_error(city)}
-              </p>
+              {#if edit_mode}
+                <p class="text-xs text-red-500 mt-1">
+                  {get_field_error(city)}
+                </p>
+              {/if}
             </div>
 
             <div>
@@ -207,9 +212,11 @@
                   ? ''
                   : 'border-0 px-0 font-semibold bg-transparent focus:ring-0'}"
               />
-              <p class="text-xs text-red-500 mt-1">
-                {get_field_error(license)}
-              </p>
+              {#if edit_mode}
+                <p class="text-xs text-red-500 mt-1">
+                  {get_field_error(license)}
+                </p>
+              {/if}
             </div>
           </div>
         </article>

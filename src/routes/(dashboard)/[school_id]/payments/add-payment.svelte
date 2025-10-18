@@ -4,18 +4,14 @@
   import { get_all_staff } from "../staff/staff.remote";
   import { page } from "$app/state";
   import { payment_types, payment_methods } from "$lib/constants";
+  import { get_field_error } from "$lib/utils";
 
   let { show_payment = $bindable(false) } = $props();
   const { amount, notes, received_by, payment_date, payment_method, payment_type, student_id } =
     add_payment.fields;
 
-  let students_promise = $derived(get_all_students(String(page.params.school_id)));
-  let staff_promise = $derived(get_all_staff(String(page.params.school_id)));
-
-  let students = $derived(await students_promise);
-  let staff = $derived(await staff_promise);
-
-  $inspect(add_payment.fields.allIssues());
+  payment_type.set("tuition");
+  payment_method.set("cash");
 </script>
 
 <!-- Add Payment Form -->
@@ -25,7 +21,7 @@
     <form
       {...add_payment.enhance(async ({ submit }) => {
         await submit();
-        show_payment = false;
+        // show_payment = false;
       })}
     >
       <input type="hidden" name="school_id" value={page.params.school_id} />
@@ -37,18 +33,20 @@
           </label>
           <select {...student_id.as("select")} class="select w-full">
             <option value="" selected disabled>Select a student</option>
-            {#each students as student}
+            {#each await get_all_students(page.params.school_id!) as student}
               <option value={student.id}>
                 {student.first_name}
-                {student.last_name} - {student.admission_number}
+                {student.last_name}
               </option>
             {/each}
           </select>
+          <span class="text-xs text-red-500 mt-1">{get_field_error(student_id)}</span>
         </div>
 
         <div>
-          <label for="amount" class="block text-sm font-medium text-gray-700 mb-2"> Amount </label>
+          <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
           <input {...amount.as("number")} type="number" min="0" class="input w-full" />
+          <span class="text-xs text-red-500 mt-1">{get_field_error(amount)}</span>
         </div>
 
         <div>
@@ -60,6 +58,7 @@
               <option value={type} class="capitalize">{type}</option>
             {/each}
           </select>
+          <span class="text-xs text-red-500 mt-1">{get_field_error(payment_type)}</span>
         </div>
 
         <div>
@@ -71,6 +70,7 @@
               <option value={method} class="capitalize">{method.replace("_", " ")}</option>
             {/each}
           </select>
+          <span class="text-xs text-red-500 mt-1">{get_field_error(payment_method)}</span>
         </div>
 
         <div>
@@ -83,6 +83,7 @@
             value={new Date().toISOString().split("T")[0]}
             class="input w-full"
           />
+          <span class="text-xs text-red-500 mt-1">{get_field_error(payment_date)}</span>
         </div>
 
         <div>
@@ -91,13 +92,14 @@
           </label>
           <select {...received_by.as("select")} class="select w-full">
             <option value="" selected disabled>Select staff member</option>
-            {#each staff as staff_member}
+            {#each await get_all_staff(page.params.school_id!) as staff_member}
               <option value={staff_member.id}>
                 {staff_member.first_name}
                 {staff_member.last_name}
               </option>
             {/each}
           </select>
+          <span class="text-xs text-red-500 mt-1">{get_field_error(received_by)}</span>
         </div>
 
         <div>
@@ -109,6 +111,7 @@
             class="textarea w-full resize-none"
             placeholder="extra notes about the payment"
           ></textarea>
+          <span class="text-xs text-red-500 mt-1">{get_field_error(notes)}</span>
         </div>
       </div>
 

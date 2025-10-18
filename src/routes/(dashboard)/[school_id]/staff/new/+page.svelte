@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
-  import { employment_types, permissions as staff_permissions, staff_roles } from "$lib/constants";
-  import { format_permissions } from "$lib/utils";
+  import { employment_types, staff_permissions, staff_roles } from "$lib/constants";
+  import { format_permissions, get_field_error } from "$lib/utils";
   import { add_staff } from "../staff.remote";
 
   const {
@@ -28,15 +28,13 @@
     }
   });
 
-  $inspect(add_staff.fields.issues());
-
   function generate_staff_id() {
     staff_id.set(Math.random().toString(36).substring(2, 15).toUpperCase());
   }
 </script>
 
 <section class="max-w-6xl">
-  <form {...add_staff} oninput={() => add_staff.validate()}>
+  <form {...add_staff.enhance(async ({ submit }) => await submit())}>
     <h2 class="mb-6 text-xl">Add new staff</h2>
 
     <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -47,16 +45,19 @@
       <div class="flex flex-col space-y-2">
         <label for="first_name" class="label text-gray-500">First Name</label>
         <input {...first_name.as("text")} type="text" placeholder="John" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(first_name)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="middle_name" class="label text-gray-500">Middle Name</label>
         <input {...middle_name.as("text")} type="text" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(middle_name)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="last_name" class="label text-gray-500">Last Name</label>
         <input {...last_name.as("text")} type="text" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(last_name)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
@@ -68,31 +69,37 @@
             <span class="sr-only text-xs">generate</span>
           </button>
         </div>
+        <span class="text-xs text-red-500">{get_field_error(staff_id)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="email" class="label text-gray-500">Email</label>
         <input {...email.as("email")} type="email" placeholder="me@acme.com" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(email)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="employed_on" class="label text-gray-500"> Employed Date </label>
         <input {...employed_on.as("date")} type="date" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(employed_on)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="address" class="label text-gray-500">Address</label>
         <input {...address.as("text")} type="text" placeholder="2 Wise lane" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(address)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="phone_number" class="label text-gray-500"> Phone Number </label>
         <input {...phone_number.as("tel")} type="tel" placeholder="+232-99-456-890" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(phone_number)}</span>
       </div>
 
       <div class="flex flex-col space-y-2">
         <label for="password" class="label text-gray-500">Password</label>
         <input {...password.as("password")} type="password" placeholder="********" class="input" />
+        <span class="text-xs text-red-500">{get_field_error(password)}</span>
       </div>
 
       <div>
@@ -152,14 +159,12 @@
       </div>
 
       <div class="flex flex-col md:col-span-2">
-        <p class="mb-2 text-sm font-medium text-gray-500">Permissions</p>
-        <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <p class="mb-1 text-sm font-medium text-gray-500">Permissions</p>
+        <span class="label mb-5 text-xs text-red-500">{get_field_error(permissions)}</span>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {#each staff_permissions as permission}
             <label class="label capitalize flex items-center text-gray-600">
-              <input
-                {...permissions.as("checkbox", permission)}
-                class="checkbox rounded border-gray-400"
-              />
+              <input {...permissions.as("checkbox", permission)} class="checkbox rounded" />
               {format_permissions(permission)}
             </label>
           {/each}

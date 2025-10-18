@@ -3,6 +3,7 @@
   import { dialog_state } from "$lib/dialog-state.svelte";
   import { add_subject, get_subjects, delete_subject } from "./subjects.remote";
   import { toast } from "svelte-sonner";
+  import { get_field_error } from "$lib/utils";
 
   const { params } = $props();
   const { code, name, notes } = add_subject.fields;
@@ -30,9 +31,9 @@
         <form
           {...add_subject.enhance(async ({ submit }) => {
             await submit();
-            dialog_state.open = false;
+            // dialog_state.open = false;
+            toast.success("Subject added successfully");
           })}
-          oninput={() => add_subject.validate()}
           class="space-y-4"
         >
           <input type="hidden" name="school_id" value={params.school_id} />
@@ -47,6 +48,7 @@
               placeholder="e.g., Mathematics, English Language, Biology"
               class="input"
             />
+            <span class="text-xs text-red-500 mt-1">{get_field_error(name)}</span>
             <p class="text-xs text-gray-500 mt-1">Enter the full name of the subject</p>
           </div>
 
@@ -60,6 +62,7 @@
               placeholder="e.g., MATH-001, ENG-101, BIO-201"
               class="input"
             />
+            <span class="text-xs text-red-500 mt-1">{get_field_error(code)}</span>
             <p class="text-xs text-gray-500 mt-1">Optional: Enter a unique code for the subject</p>
           </div>
 
@@ -72,6 +75,7 @@
               placeholder="e.g., Mathematics, English Language, Biology"
               class="textarea"
             ></textarea>
+            <span class="text-xs text-red-500 mt-1">{get_field_error(notes)}</span>
             <p class="text-xs text-gray-500 mt-1">Optional: Enter a unique code for the subject</p>
           </div>
 
