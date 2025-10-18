@@ -42,7 +42,7 @@ export const get_transactions = query(async () => {
 export const add_transaction = form(transaction_schema, async (parsed) => {
 	try {
 		const { params } = getRequestEvent();
-		const school_id = params.school_id as string;
+		const _school_id = params.school_id as string;
 
 		await db.insert(transactions_table).values(parsed);
 

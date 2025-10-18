@@ -7,14 +7,14 @@
 - **Format code**: `prettier --write ./**/*.svelte && biome check --write .`
 - **Type check**: `svelte-kit sync && svelte-check --tsconfig ./tsconfig.json`
 - **Tests**: No test framework implemented yet
-- **Database**: `db:push`, `db:migrate`, `db:generate`, `db:seed`, `db:studio`
+- **Database**: `db:push`, `db:migrate`, `db:generate`, `db:seed`
 
 ## Code Style Guidelines
 
 ### Formatting
 
 - **Indentation**: Tabs (Prettier)
-- **Quotes**: Single quotes for Svelte/Prettier, double quotes for JS/TS/Biome
+- **Quotes**: Double quotes for Svelte,JS/TS files
 - **Print width**: 100 characters
 - **Trailing commas**: None
 - **Biome**: Handles JS/TS files, Prettier handles Svelte files
