@@ -1,127 +1,60 @@
-import type { cities, staff_statuses, student_statuses } from "./constants";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type {
+	announcements_table,
+	assignments_table,
+	classes_table,
+	grades_table,
+	payments_table,
+	plans_table,
+	schools_table,
+	staff_table,
+	students_table,
+	subjects_table,
+	subscriptions_table,
+	transactions_table,
+} from "./server/database/schema";
+
+export type Student = InferSelectModel<typeof students_table> & {
+	class?: Class;
+};
+export type NewStudent = InferInsertModel<typeof students_table>;
+
+export type Staff = InferSelectModel<typeof staff_table>;
+export type NewStaff = InferInsertModel<typeof staff_table>;
+
+export type School = InferSelectModel<typeof schools_table>;
+export type NewSchool = InferInsertModel<typeof schools_table>;
+
+export type Subject = InferSelectModel<typeof subjects_table>;
+export type NewSubject = InferInsertModel<typeof subjects_table>;
+
+export type Assignment = InferSelectModel<typeof assignments_table>;
+export type NewAssignment = InferInsertModel<typeof assignments_table>;
+
+export type Class = InferSelectModel<typeof classes_table>;
+export type NewClass = InferInsertModel<typeof classes_table>;
+
+export type Announcement = InferSelectModel<typeof announcements_table>;
+export type NewAnnouncement = InferInsertModel<typeof announcements_table>;
+
+export type Subscription = InferSelectModel<typeof subscriptions_table>;
+export type NewSubscription = InferInsertModel<typeof subscriptions_table>;
+
+export type Plan = InferSelectModel<typeof plans_table>;
+export type NewPlan = InferInsertModel<typeof plans_table>;
+
+export type Transaction = InferSelectModel<typeof transactions_table>;
+export type NewTransaction = InferInsertModel<typeof transactions_table>;
+
+export type Grade = InferSelectModel<typeof grades_table>;
+export type NewGrade = InferInsertModel<typeof grades_table>;
+
+export type Payment = InferSelectModel<typeof payments_table>;
+export type NewPayment = InferInsertModel<typeof payments_table>;
 
 export type CurrentUser = {
 	id: string;
 	email?: string;
 	name?: string;
 	school_id: string;
-};
-
-export type Staff = {
-	id: string;
-	first_name: string;
-	middle_name?: string;
-	last_name: string;
-	email: string;
-	contact: string;
-	address: string;
-	staff_id: string;
-	role: "staff" | "admin";
-	department: string;
-	status: (typeof staff_statuses)[number];
-	permissions: string[];
-	employed_date: string | Date;
-	avatar_url?: string;
-	notes?: string;
-	password?: number;
-	school_id: string;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type Student = {
-	id?: string;
-	first_name: string;
-	middle_name?: string;
-	last_name: string;
-	admission_number: string;
-	address: string;
-	email?: string;
-	phone_number?: string;
-	avatar_url?: string;
-	school_id: string;
-	class?: string;
-	status: (typeof student_statuses)[number];
-	admission_date: string | Date;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type Assignment = {
-	id: string;
-	title: string;
-	description?: string;
-	class_id: string;
-	class_name?: string;
-	school_id: string;
-	file_name: string;
-	download_url?: string;
-	due_date: Date | string;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type Class = {
-	id: string;
-	name: string;
-	code?: string;
-	school_id: string;
-	created_at: string | Date;
-	updated_at: string | Date;
-};
-
-export type School = {
-	id?: string;
-	name: string;
-	address: string;
-	license: string;
-	city: (typeof cities)[number];
-	logo_url?: string;
-	contact: string;
-	email: string;
-	website?: string;
-	founded_on: string | Date;
-	current_plan: {
-		id: string;
-		name: "free" | "basic" | "pro";
-	};
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type SchoolYear = {
-	id?: string;
-	name: string;
-	start_date: string | Date;
-	end_date: string | Date;
-	is_active: boolean;
-	school_id: string;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type Department = {
-	id?: string;
-	name: string;
-	code?: string;
-	type: "academic" | "administrative";
-	head_of_department?: string;
-	description?: string;
-	school_id: string;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type Announcement = {
-	id?: string;
-	title: string;
-	content: string;
-	priority: "low" | "medium" | "high";
-	type: "general" | "urgent" | "event" | "academic" | "administrative";
-	target_audience?: string;
-	expires_at?: string | Date;
-	is_active: boolean;
-	school_id: string;
-	created_at?: string | Date;
-	updated_at?: string | Date;
 };

@@ -1,36 +1,35 @@
 import { redirect } from "@sveltejs/kit";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
-import { nanoid } from "nanoid";
 import * as v from "valibot";
 import * as z from "zod";
 import { command, form, getRequestEvent } from "$app/server";
 import { set_token } from "$lib/auth";
 import { config } from "$lib/config";
-import { db, schools_table, staff_table } from "$lib/db";
 import { school_schema } from "$lib/schemas";
+import { database } from "$lib/server/database/queries";
 
 export const login = form(
 	v.object({ email: v.pipe(v.string(), v.email()), password: v.string() }),
 	async (parsed) => {
-		const user = await db.query.staff_table.findFirst({
-			where: eq(staff_table.email, parsed.email),
-			columns: { id: true, password: true, school_id: true },
-		});
+		const { success, data } = await database.get_staff_by_email(parsed.email);
 
-		if (!user || !bcrypt.compare(parsed.password, user.password)) {
-			return { message: "invalid email or password" };
+		if (!success) {
+			return { message: "Invalid email or password" };
+		}
+
+		if (!bcrypt.compare(parsed.password, String(data?.password))) {
+			return { message: "Invalid email or password" };
 		}
 
 		const token = jwt.sign(
-			{ id: user.id, school_id: user.school_id },
+			{ id: data?.id, school_id: data?.school_id },
 			config.JWT_SECRET,
 			{ expiresIn: "1d" },
 		);
 
 		set_token("token", token);
-		redirect(302, user.school_id);
+		redirect(302, data?.school_id as string);
 	},
 );
 
@@ -39,32 +38,16 @@ export const register = form(
 		password: z.string(),
 	}),
 	async (parsed) => {
-		try {
-			const [school] = await db
-				.insert(schools_table)
-				.values({
-					name: parsed.name,
-					address: parsed.address,
-					city: parsed.city,
-					logo_url: `https://placehold.co/100?text=${parsed.name[0]}`,
-				})
-				.returning({ id: schools_table.id });
+		const { success, message } = await database.register_school({
+			name: parsed.name,
+			address: parsed.address,
+			city: parsed.city,
+			email: parsed.email as string,
+			password: parsed.password,
+		});
 
-			await db.insert(staff_table).values({
-				staff_id: nanoid(),
-				first_name: "School",
-				last_name: "Admin",
-				role: "admin",
-				address: parsed.address,
-				contact: "",
-				email: parsed.email,
-				password: parsed.password,
-				school_id: school.id,
-				employed_date: new Date().toISOString(),
-			});
-		} catch (_e) {
-			console.log(_e);
-			return { message: "failed to register new school" };
+		if (!success) {
+			return { message: message || "Failed to register new school" };
 		}
 
 		redirect(302, "/");
@@ -73,5 +56,6 @@ export const register = form(
 
 export const logout = command(async () => {
 	const { cookies } = getRequestEvent();
+
 	cookies.delete("token", { path: "/" });
 });

@@ -4,14 +4,7 @@
   import { toast } from "svelte-sonner";
   import { get_all_students } from "../students/students.remote";
   import { get_assignments } from "../assignments/assignments.remote";
-
-  type Class = {
-    id: string;
-    name: string;
-    school_id: string | null;
-    created_at: string;
-    updated_at: string | null;
-  };
+  import type { Class } from "$lib/types";
 
   const props: Class = $props();
 
@@ -22,7 +15,7 @@
   let assignments = $derived(await assigns_promise);
 
   let student_count = $derived.by(() => {
-    const num = students.filter((student) => student.class_id === props.id).length;
+    const num = students?.filter((student) => student.class_id === props.id).length || 0;
     return num;
   });
 

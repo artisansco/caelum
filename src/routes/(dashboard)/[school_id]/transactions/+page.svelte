@@ -47,7 +47,7 @@
           {#each transactions as transaction}
             <tr class="*:whitespace-nowrap *:text-sm">
               <td class="font-medium text-gray-900">
-                {transaction?.reference_number || "N/A"}
+                {transaction?.id || "N/A"}
               </td>
               <td class="font-medium text-gray-900">
                 {format_currency(transaction.amount)}

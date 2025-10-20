@@ -1,22 +1,21 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
   import { Select } from "melt/components";
-  import { add_announcement, delete_announcement, get_announcements } from "./announcements.remote";
+  import { add_announcement, delete_announcement } from "./announcements.remote";
   import { toast } from "svelte-sonner";
   import { format } from "@formkit/tempo";
   import { announcement_audience, announcement_priority, announcement_types } from "$lib/constants";
   import { dialog_state } from "$lib/dialog-state.svelte";
-  import { get_field_error } from "$lib/utils";
+  import { get_field_error, get_priority_color, get_type_icon } from "$lib/utils";
 
-  let announcement_promise = $derived(get_announcements());
-  let announcements = $derived(await announcement_promise);
+  const { data, params } = $props();
+  let announcements = $derived(data.announcements);
 
   let selected_announcement: (typeof announcements)[number] | null = $state(null);
   let priority: (typeof announcement_priority)[number] = $state("medium");
   let announcement_type: (typeof announcement_types)[number] = $state("general");
   let audience: (typeof announcement_audience)[number] = $state("all");
 
-  const { params } = $props();
   const { content, target_audience, title, type } = add_announcement.fields;
 
   $inspect({ issues: add_announcement.fields.allIssues() });
@@ -27,33 +26,7 @@
     }
   });
 
-  function getPriorityColor(priority: string) {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "low":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  }
 
-  function getTypeIcon(type: string) {
-    switch (type) {
-      case "urgent":
-        return "icon-[mdi--alert-circle]";
-      case "event":
-        return "icon-[mdi--calendar-star]";
-      case "academic":
-        return "icon-[mdi--school]";
-      case "administrative":
-        return "icon-[mdi--office-building]";
-      default:
-        return "icon-[mdi--bullhorn]";
-    }
-  }
 </script>
 
 <section class="max-w-7xl mx-auto p-6">
@@ -231,7 +204,7 @@
                 </h3>
 
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="badge {getPriorityColor(announcement.priority)}">
+                  <span class="badge {get_priority_color(announcement.priority)}">
                     {announcement.priority}
                   </span>
                   <span class="badge">{announcement.target_audience}</span>
@@ -260,7 +233,7 @@
           <header class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <i class="{getTypeIcon(selected_announcement.type)} text-gray-600 size-5"></i>
+                <i class="{get_type_icon(selected_announcement.type)} text-gray-600 size-5"></i>
                 <h2 class="font-semibold text-gray-900">{selected_announcement.title}</h2>
               </div>
 

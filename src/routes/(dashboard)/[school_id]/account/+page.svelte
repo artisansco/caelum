@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { Avatar, Select } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
+  import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
   import { cities } from "$lib/constants";
   import { format } from "@formkit/tempo";
-  import { get_school, update_school } from "../../school.remote";
+  import { update_school } from "../../school.remote";
   import { get_field_error } from "$lib/utils";
 
-  const { params } = $props();
+  const { data, params } = $props();
   const { address, city, contact, email, license, name, founded_on } = update_school.fields;
 
-  let school = $derived(await get_school(params.school_id));
+  let school = $derived(data.school);
   let selected_city = $derived(school.city);
   let edit_mode = $state(false);
 
@@ -25,21 +26,14 @@
   <header class="mb-8">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={String(school.logo_url)}>
-          {#snippet children(avatar)}
-            <img
-              {...avatar.image}
-              alt={school.name}
-              class="size-30 rounded object-cover border border-gray-200"
-            />
-            <div
-              {...avatar.fallback}
-              class="size-20 rounded-full bg-gray-100 text-gray-600 grid place-content-center border-2 border-gray-200 text-lg font-semibold"
-            >
-              {school.name?.at(0)?.toUpperCase()}
-            </div>
-          {/snippet}
-        </Avatar>
+        <Avatar
+          src={String(school.logo_url)}
+          alt={school.name}
+          fallback_text={school.name?.at(0)?.toUpperCase()}
+          size="size-30"
+          img_class="object-cover border border-gray-200"
+          class="size-20 bg-gray-100 text-gray-600 grid place-content-center border-2 border-gray-200 text-lg font-semibold"
+        />
 
         <div>
           <h1 class="text-2xl font-bold text-gray-900 mb-1">

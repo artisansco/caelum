@@ -1,13 +1,26 @@
 <script lang="ts">
   import { format } from "@formkit/tempo";
-  import { Avatar } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
   import { page } from "$app/state";
-  import { get_all_students } from "./students.remote";
+  import { goto } from "$app/navigation";
 
-  const { params } = $props();
+  const { data } = $props();
 
-  let stud_promise = $derived(get_all_students(params.school_id));
-  let students = $derived(await stud_promise);
+  function handle_prev() {
+    const current = Number(page.url.searchParams.get("page")) || 1;
+    if (current > 1) {
+      const url = new URL(page.url);
+      url.searchParams.set("page", String(current - 1));
+      goto(url.toString());
+    }
+  }
+
+  function handle_next() {
+    const current = Number(page.url.searchParams.get("page")) || 1;
+    const url = new URL(page.url);
+    url.searchParams.set("page", String(current + 1));
+    goto(url.toString());
+  }
 </script>
 
 <!-- Table Section -->
@@ -22,7 +35,9 @@
             class="grid gap-3 border-b border-gray-200 px-6 py-4 md:flex md:items-center md:justify-between"
           >
             <div>
-              <h2 class="text-xl font-semibold text-gray-800">({students.length}) - Students</h2>
+              <h2 class="text-xl font-semibold text-gray-800">
+                ({data.students.length}) - Students
+              </h2>
               <p class="text-sm text-gray-600">Add students, view, edit and more.</p>
             </div>
 
@@ -58,7 +73,7 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#each students as student}
+              {#each data.students as student (student.id)}
                 {@render student_card(student)}
               {:else}
                 <tr>
@@ -70,24 +85,14 @@
           <!-- End Table -->
 
           <!-- Footer -->
-          <div
-            class="grid gap-3 border-t border-gray-200 px-6 py-4 md:flex md:items-center md:justify-between"
-          >
-            <div>
-              <p class="text-sm text-gray-600">
-                <span class="font-semibold text-gray-800">
-                  {students.length || 0} results
-                </span>
-              </p>
-            </div>
-
+          <div class="flex items-center border-t border-gray-200 px-6 py-4">
             <div class="inline-flex gap-x-4">
-              <button type="button" class="btn-sm-outline">
+              <button type="button" class="btn-sm-outline" onclick={handle_prev}>
                 <span class="icon-[lucide--chevron-left]"></span>
                 Prev
               </button>
 
-              <button type="button" class="btn-sm-outline">
+              <button type="button" class="btn-sm-outline" onclick={handle_next}>
                 Next
                 <span class="icon-[lucide--chevron-right]"></span>
               </button>
@@ -115,21 +120,13 @@
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
         <div class="flex items-center gap-x-3">
-          <Avatar src={student.avatar_url || `https://robohash.org/${student.first_name}`}>
-            {#snippet children(avatar)}
-              <img
-                {...avatar.image}
-                alt={student.first_name}
-                class="size-10 rounded-full text-xs"
-              />
-              <span
-                {...avatar.fallback}
-                class="text-xs size-10 border rounded-full grid justify-center items-center"
-              >
-                {`${student.first_name[0]}${student.last_name[0]}`}
-              </span>
-            {/snippet}
-          </Avatar>
+          <Avatar
+            src={student.avatar_url || `https://robohash.org/${student.first_name}`}
+            alt={student.first_name}
+            fallback_text={`${student.first_name[0]}${student.last_name[0]}`}
+            img_class="text-xs"
+            class="text-xs"
+          />
 
           <div class="grow">
             <span class="block text-sm font-semibold text-gray-800">

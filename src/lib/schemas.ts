@@ -104,8 +104,8 @@ export const school_schema = z.object({
 		.trim()
 		.min(2, { error: "contact must be at least 2 characters long" }),
 	city: z.enum(cities, { error: "City is invalid or not in the list" }),
-	email: z.email(),
-	website: z.url().optional(),
+	email: z.email().or(z.literal("")).optional(),
+	website: z.url().or(z.literal("")).optional(),
 	founded_on: z.iso.date({ error: "Founded on must be a valid date" }),
 	// logo_url: text(),
 });

@@ -15,15 +15,23 @@
 
   const payments_this_year = $derived(
     payments.filter((p) => {
-      const payment_year = Number(p.payment_date!.split("-")[0]);
+      const date_str =
+        (p.payment_date as any) instanceof Date
+          ? p.payment_date.toISOString().split("T")[0]
+          : p.payment_date!;
+      const payment_year = Number(date_str.split("-")[0]);
       const current_year = new Date().getFullYear();
       return payment_year === current_year;
     })
   );
   const payments_this_month = $derived(
     payments.filter((p) => {
-      const payment_year = Number(p.payment_date!.split("-")[0]);
-      const payment_month = Number(p.payment_date!.split("-")[1]);
+      const date_str =
+        (p.payment_date as any) instanceof Date
+          ? p.payment_date.toISOString().split("T")[0]
+          : p.payment_date!;
+      const payment_year = Number(date_str.split("-")[0]);
+      const payment_month = Number(date_str.split("-")[1]);
       const current_month = new Date().getMonth() + 1;
 
       return payment_year === new Date().getFullYear() && payment_month === current_month;

@@ -38,7 +38,7 @@
           <label for="student_id" class="label">Student</label>
           <select id="student_id" name="student_id" class="select w-full">
             <option value="" selected disabled>Select Student</option>
-            {#each await get_all_students(page.params.school_id!) as student}
+            {#each (await get_all_students(page.params.school_id!))?.students || [] as student}
               <option value={student.id}>
                 {student.first_name}
                 {student.last_name}

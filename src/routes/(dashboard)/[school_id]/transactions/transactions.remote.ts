@@ -1,88 +1,70 @@
-import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
-import { guard_route } from "$lib/auth";
-import {
-	db,
-	plans_table,
-	subscriptions_table,
-	transactions_table,
-} from "$lib/db";
 import { transaction_schema } from "$lib/schemas";
+import { database } from "$lib/server/database/queries";
 
-export const get_transactions = query(async () => {
-	guard_route();
-
+export const get_transactions_query = query(async () => {
 	const { locals } = getRequestEvent();
 
-	const transactions = await db
-		.select({
-			id: transactions_table.id,
-			amount: transactions_table.amount,
-			transaction_type: transactions_table.transaction_type,
-			payment_method: transactions_table.payment_method,
-			description: transactions_table.description,
-			created_at: transactions_table.created_at,
-			subscription_id: transactions_table.subscription_id,
-			plan_name: plans_table.name,
-			plan_duration: plans_table.duration_days,
-		})
-		.from(transactions_table)
-		.leftJoin(
-			subscriptions_table,
-			eq(transactions_table.subscription_id, subscriptions_table.id),
-		)
-		.leftJoin(plans_table, eq(subscriptions_table.plan_id, plans_table.id))
-		.where(eq(transactions_table.school_id, locals.school_id))
-		.orderBy(desc(transactions_table.created_at));
+	const { success, data, message } = await database.get_transactions(
+		locals.school_id,
+	);
 
-	return transactions;
+	if (!success) {
+		console.error(message);
+		return [];
+	}
+
+	return data || [];
 });
 
 export const add_transaction = form(transaction_schema, async (parsed) => {
-	try {
-		await db.insert(transactions_table).values(parsed);
+	const { success, message } = await database.create_transaction({
+		school_id: parsed.school_id,
+		subscription_id: parsed.subscription_id,
+		amount: parsed.amount,
+		transaction_type: parsed.transaction_type,
+		payment_method: parsed.payment_method,
+		description: parsed.description,
+	});
 
-		await get_transactions().refresh();
-		return { message: "Transaction recorded successfully" };
-	} catch (_e) {
-		if (_e instanceof Error) {
-			console.log(_e);
-			return { message: _e.message };
-		}
+	if (!success) {
+		return { message: message || "Failed to record transaction" };
 	}
+
+	await get_transactions_query().refresh();
+	return { message: "Transaction recorded successfully" };
 });
 
-export const create_subscription_transaction = command(
+export const create_subscription_transaction_command = command(
 	v.object({
 		subscription_id: v.string(),
 		amount: v.number(),
 		description: v.optional(v.string()),
 	}),
 	async ({ subscription_id, amount, description }) => {
-		try {
-			const { params } = getRequestEvent();
-			const school_id = params.school_id as string;
+		const { params } = getRequestEvent();
+		const school_id = params.school_id as string;
 
-			const reference_number = `SUB${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+		const { success, data, message } = await database.create_transaction({
+			school_id: school_id,
+			subscription_id: subscription_id,
+			amount: amount,
+			description: description,
+		});
 
-			await db.insert(transactions_table).values({
-				school_id,
-				subscription_id,
-				amount,
-				transaction_type: "subscription",
-				payment_method: "bank_transfer",
-				description: description || "Subscription payment",
-			});
-
-			return { success: true, reference_number };
-		} catch (error: unknown) {
-			console.error("Error creating subscription transaction:", error);
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Failed to create subscription transaction";
-			throw new Error(errorMessage);
+		if (!success) {
+			return {
+				success: false,
+				message: message || "Failed to create subscription transaction",
+			};
 		}
+
+		return { success: true, transaction_id: data?.id };
 	},
 );
+
+// Export with original names for backwards compatibility
+export const get_transactions = get_transactions_query;
+export const create_subscription_transaction_exported =
+	create_subscription_transaction_command;

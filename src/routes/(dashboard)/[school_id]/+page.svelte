@@ -1,8 +1,5 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  // import { get_assignments } from "./assignments/assignments.remote.js";
-  import { get_all_staff } from "./staff/staff.remote.js";
-  import { get_all_students } from "./students/students.remote.js";
   import {
     type ChartItem,
     Chart,
@@ -29,14 +26,11 @@
     ArcElement
   );
 
-  const { params } = $props();
+  const { data } = $props();
 
-  const total_students = $derived((await get_all_students(params.school_id)).length);
-  const total_staff = $derived((await get_all_staff(params.school_id)).length);
-  const total_assignments = 0;
-  //   $derived(
-  //   (await get_assignments(params.school_id)).length,
-  // );
+  const total_students = $derived(data.total_students);
+  const total_staff = $derived(data.total_staff);
+  const total_assignments = $derived(data.total_assignments);
   let current_year = $derived(new Date().getFullYear());
 
   const months = [

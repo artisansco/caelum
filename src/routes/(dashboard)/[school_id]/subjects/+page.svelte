@@ -1,15 +1,14 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
   import { dialog_state } from "$lib/dialog-state.svelte";
-  import { add_subject, get_subjects, delete_subject } from "./subjects.remote";
+  import { add_subject, delete_subject } from "./subjects.remote";
   import { toast } from "svelte-sonner";
   import { get_field_error } from "$lib/utils";
 
-  const { params } = $props();
+  const { data, params } = $props();
   const { code, name, notes } = add_subject.fields;
 
-  let subs_promise = $derived(get_subjects());
-  let subjects = $derived(await subs_promise);
+  let subjects = $derived(data.subjects);
   let selected_subject: (typeof subjects)[number] | null = $state(null);
 
   $effect(() => {

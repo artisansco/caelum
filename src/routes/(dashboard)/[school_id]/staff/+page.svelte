@@ -1,10 +1,10 @@
 <script lang="ts">
   import { format } from "@formkit/tempo";
-  import { Avatar } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
   import { page } from "$app/state";
-  import { get_all_staff } from "./staff.remote";
+  import type { Staff } from "$lib/types";
 
-  const { params } = $props();
+  const { data } = $props();
 </script>
 
 <!-- Table Section -->
@@ -48,7 +48,7 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200">
-              {#each await get_all_staff(params.school_id) as person}
+              {#each data.staff as person}
                 {@render staff_card(person)}
               {:else}
                 <tr>
@@ -68,7 +68,7 @@
             <div>
               <p class="text-sm text-gray-600">
                 <span class="font-semibold text-gray-800">
-                  {(await get_all_staff(params.school_id)).length || 0}
+                  {data.staff?.length || 0}
                 </span>
                 results
               </p>
@@ -103,27 +103,23 @@
   </th>
 {/snippet}
 
-{#snippet staff_card(staff: any)}
+{#snippet staff_card(staff: Staff)}
   <tr>
     <td class="size-px whitespace-nowrap">
       <div class="py-3 ps-6 pe-6 lg:ps-3 xl:ps-0">
         <div class="flex items-center gap-x-3">
-          <Avatar src={staff.avatar_url}>
-            {#snippet children(avatar)}
-              <img {...avatar.image} alt={staff.first_name} class="size-10 rounded-full text-xs" />
-              <span
-                {...avatar.fallback}
-                class="text-xs size-10 border rounded-full grid justify-center items-center"
-              >
-                {`${staff.first_name[0]}${staff.last_name[0]}`}
-              </span>
-            {/snippet}
-          </Avatar>
+          <Avatar
+            src={staff.avatar_url || ""}
+            alt={staff.first_name}
+            fallback_text={`${staff.first_name[0]}${staff.last_name[0]}`}
+            img_class="text-xs"
+            class="text-xs"
+          />
 
           <div class="grow">
             <span class="block text-sm font-semibold text-gray-800">
               {staff.first_name}
-              {staff.middle_name}
+              {staff.middle_name || ""}
               {staff.last_name}
             </span>
             <span class="block text-sm text-gray-500">{staff.email}</span>

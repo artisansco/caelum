@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { Avatar, Select } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
+  import { Select } from "melt/components";
   import { format } from "@formkit/tempo";
   import { staff_permissions, staff_roles, staff_statuses } from "$lib/constants";
   import { format_permissions, get_field_error, get_status_pill } from "$lib/utils";
-  import { delete_staff, get_staff_by_id, update_staff } from "../staff.remote";
+  import { delete_staff, update_staff } from "../staff.remote";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
 
-  const { params } = $props();
+  const { data, params } = $props();
   const {
     address,
     email,
@@ -19,7 +20,7 @@
     phone_number,
   } = update_staff.fields;
 
-  let staff = $derived(await get_staff_by_id(params.staff_id));
+  let staff = $derived(data.staff);
   let role = $derived(staff.role);
   let status = $derived(staff.status);
   let edit_mode = $state(false);
@@ -44,21 +45,14 @@
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={String(staff.avatar_url)}>
-          {#snippet children(avatar)}
-            <img
-              {...avatar.image}
-              alt={staff.first_name}
-              class="size-20 rounded-full object-cover border"
-            />
-            <span
-              {...avatar.fallback}
-              class="size-20 rounded-full text-gray-500 grid place-content-center border"
-            >
-              {staff.first_name?.at(0)}{staff.last_name?.at(0)}
-            </span>
-          {/snippet}
-        </Avatar>
+        <Avatar
+          src={String(staff.avatar_url)}
+          alt={staff.first_name}
+          fallback_text={`${staff.first_name?.at(0)}${staff.last_name?.at(0)}`}
+          size="size-20"
+          img_class="object-cover border"
+          class="text-gray-500"
+        />
 
         <div>
           <h1 class="text-2xl font-bold text-gray-900">

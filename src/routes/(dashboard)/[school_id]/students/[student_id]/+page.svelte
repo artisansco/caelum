@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { Avatar, Select } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
+  import { Select } from "melt/components";
   import { format } from "@formkit/tempo";
   import { get_field_error, get_status_pill } from "$lib/utils";
   import { toast } from "svelte-sonner";
   import Dialog from "$lib/components/dialog.svelte";
-  import { delete_student, get_student, update_student } from "../students.remote";
+  import { delete_student, update_student } from "../students.remote";
   import { student_statuses } from "$lib/constants";
 
-  const { params } = $props();
+  const { data, params } = $props();
   const { address, email, first_name, last_name, middle_name, phone_number } =
     update_student.fields;
 
-  let student_promise = $derived(get_student(params.student_id));
-  let student = $derived(await student_promise);
+  let student = $derived(data.student);
   let status = $derived(student.status);
   let edit_mode = $state(false);
 
@@ -37,21 +37,14 @@
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Avatar src={String(student.avatar_url)}>
-          {#snippet children(avatar)}
-            <img
-              {...avatar.image}
-              alt={student.first_name}
-              class="size-20 rounded-full object-cover border"
-            />
-            <span
-              {...avatar.fallback}
-              class="size-20 rounded-full text-gray-500 grid place-content-center border"
-            >
-              {student.first_name?.at(0)}{student.last_name?.at(0)}
-            </span>
-          {/snippet}
-        </Avatar>
+        <Avatar
+          src={String(student.avatar_url)}
+          alt={student.first_name}
+          fallback_text={`${student.first_name?.at(0)}${student.last_name?.at(0)}`}
+          size="size-20"
+          img_class="object-cover border"
+          class="text-gray-500"
+        />
 
         <div>
           <h1 class="text-2xl font-bold text-gray-900">

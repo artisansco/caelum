@@ -1,11 +1,11 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
   import ClassCard from "./class-card.svelte";
-  import { add_class, get_classes } from "./classes.remote";
+  import { add_class } from "./classes.remote";
   import { toast } from "svelte-sonner";
   import { get_field_error } from "$lib/utils";
 
-  const { params } = $props();
+  const { data, params } = $props();
   let toggle_dialog = $state(false);
 
   $effect(() => {
@@ -60,7 +60,7 @@
   </header>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    {#each await get_classes(params.school_id) as class_item}
+    {#each data.classes as class_item}
       <ClassCard {...class_item} />
     {:else}
       <div class="col-span-full">

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { reset, seed } from "drizzle-seed";
 import { nanoid } from "nanoid";
-import { config } from "../config";
+import { config } from "../../config";
 import {
 	announcement_audience,
 	announcement_priority,
@@ -13,7 +13,7 @@ import {
 	payment_types,
 	school_terms,
 	transaction_types,
-} from "../constants";
+} from "../../constants";
 import * as schema from "./schema";
 
 const db = drizzle(config.DATABASE_URL);
@@ -67,9 +67,9 @@ async function seed_data() {
 				start_date: f.timestamp(),
 				end_date: f.default({
 					defaultValue: (() => {
-						const startDate = new Date();
-						startDate.setMonth(startDate.getMonth() + 1);
-						return startDate.toISOString();
+						const start_date = new Date();
+						start_date.setMonth(start_date.getMonth() + 1);
+						return start_date.toISOString();
 					})(),
 				}),
 				status: f.valuesFromArray({ values: ["active", "inactive"] }),

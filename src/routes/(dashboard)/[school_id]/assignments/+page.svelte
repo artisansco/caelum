@@ -2,18 +2,14 @@
   import { format } from "@formkit/tempo";
   import { Select } from "melt/components";
   import { toast } from "svelte-sonner";
-  import { delete_assignment, get_assignments, upload_assignment } from "./assignments.remote";
-  import { get_classes } from "../../school.remote";
+  import { delete_assignment, upload_assignment } from "./assignments.remote";
   import { get_field_error } from "$lib/utils";
 
-  let { params } = $props();
+  const { data, params } = $props();
   const { description, due_date, file, title, class_id: class_ } = upload_assignment.fields;
 
-  let assign_promise = $derived(get_assignments(params.school_id));
-  let class_promise = $derived(get_classes(params.school_id));
-
-  let assignments = $derived(await assign_promise);
-  let classes = $derived(await class_promise);
+  let assignments = $derived(data.assignments);
+  let classes = $derived(data.classes);
   let class_id = $state("");
 
   $effect(() => {
@@ -198,7 +194,7 @@
 
                 <div class="flex items-center space-x-2 ml-4">
                   <a
-                    href={assignment.download_url}
+                    href={`/uploads/${assignment.file_name}`}
                     download
                     target="_blank"
                     class="btn-sm bg-blue-50"

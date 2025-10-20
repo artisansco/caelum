@@ -1,53 +1,41 @@
-import { and, desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
-import { classes_table, db } from "$lib/db";
 import { class_schema } from "$lib/schemas";
+import { database } from "$lib/server/database/queries";
 
 export const get_classes = query(v.string(), async (school_id) => {
-	try {
-		const classes = await db.query.classes_table.findMany({
-			where: eq(classes_table.school_id, school_id),
-			orderBy: desc(classes_table.created_at),
-		});
+	const { success, data, message } = await database.get_classes(school_id);
 
-		return classes;
-	} catch (_e) {
-		console.log(_e);
+	if (!success) {
+		console.error(message);
 		return [];
 	}
+
+	return data || [];
 });
 
 export const add_class = form(class_schema, async (parsed) => {
-	try {
-		await db.insert(classes_table).values(parsed);
+	const { success, message } = await database.create_class({
+		name: parsed.name,
+		school_id: parsed.school_id,
+	});
 
-		// await get_classes(parsed.school_id).refresh();
-		return { message: "class created successfully" };
-	} catch (_e) {
-		if (_e instanceof Error) {
-			console.log(_e);
-			return { message: _e.message };
-		}
+	if (!success) {
+		return { message: message || "Failed to create class" };
 	}
+
+	return { message: "Class created successfully" };
 });
 
 export const delete_class = command(v.string(), async (class_id) => {
 	const { locals } = getRequestEvent();
 
-	try {
-		await db
-			.delete(classes_table)
-			.where(
-				and(
-					eq(classes_table.id, class_id),
-					eq(classes_table.school_id, locals.school_id),
-				),
-			);
+	const { success, message } = await database.delete_class(class_id);
 
-		await get_classes(locals.school_id).refresh();
-		return { message: "class deleted successfully" };
-	} catch (_e) {
-		console.log(_e);
+	if (!success) {
+		return { message: message || "Failed to delete class" };
 	}
+
+	await get_classes(locals.school_id).refresh();
+	return { message: "Class deleted successfully" };
 });

@@ -30,6 +30,13 @@
   }
 </script>
 
+<nav class="mb-4">
+  <a href="../" class="btn-sm-ghost">
+    <i class="icon-[mdi--arrow-left]"></i>
+    Back to Students
+  </a>
+</nav>
+
 <section class="max-w-6xl">
   <form {...add_student.enhance(async ({ submit }) => await submit())}>
     <h2 class="mb-6 text-xl">Add new student</h2>

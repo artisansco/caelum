@@ -16,7 +16,7 @@ import {
 	staff_statuses,
 	student_statuses,
 	transaction_types,
-} from "../constants";
+} from "../../constants";
 
 export const students_table = sqliteTable("students", {
 	id: text().primaryKey().$defaultFn(nanoid),

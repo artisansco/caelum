@@ -1,81 +1,111 @@
-import { desc, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { command, form, getRequestEvent, query } from "$app/server";
-import { guard_route } from "$lib/auth";
-import { announcements_table, db } from "$lib/db";
 import { announcement_schema } from "$lib/schemas";
+import { database } from "$lib/server/database/queries";
 
 export const get_announcement = query(v.string(), async (_id) => {
-	try {
+	const { success, data, message } = await database.get_announcement(_id);
+
+	if (!success) {
+		console.error(message);
 		return {};
-	} catch (_e) {
-		console.error("Error fetching announcement:", _e);
 	}
+
+	return data || {};
 });
 
-export const get_announcements = query(async () => {
-	guard_route();
-
+export const get_announcements_query = query(async () => {
 	const { locals } = getRequestEvent();
 
-	try {
-		const announcements = await db
-			.select()
-			.from(announcements_table)
-			.where(eq(announcements_table.school_id, locals.school_id))
-			.orderBy(desc(announcements_table.created_at));
+	const { success, data, message } = await database.get_announcements(
+		locals.school_id,
+	);
 
-		return announcements;
-	} catch (_e) {
-		console.error("Error fetching announcements:", _e);
+	if (!success) {
+		console.error(message);
 		return [];
 	}
+
+	return data || [];
 });
 
 export const add_announcement = form(announcement_schema, async (parsed) => {
-	try {
-		await db.insert(announcements_table).values(parsed);
+	const { success, message } = await database.create_announcement({
+		school_id: parsed.school_id,
+		title: parsed.title,
+		content: parsed.content,
+		priority: parsed.priority,
+		type: parsed.type,
+		target_audience: parsed.target_audience,
+	});
 
-		await get_announcements().refresh();
-	} catch (_e) {
-		if (_e instanceof Error) {
-			console.log(_e);
-			return { message: _e.message };
-		}
+	if (!success) {
+		return { message: message || "Failed to create announcement" };
 	}
+
+	await get_announcements_query().refresh();
 });
 
-export const delete_announcement = command(
+export const delete_announcement_command = command(
 	v.string(),
 	async (announcement_id) => {
-		try {
-			await db
-				.delete(announcements_table)
-				.where(eq(announcements_table.id, announcement_id));
+		const { success, message } =
+			await database.delete_announcement(announcement_id);
 
-			await get_announcements().refresh();
-			return { message: "Announcement deleted successfully" };
-		} catch (_e) {
-			if (_e instanceof Error) {
-				console.log(_e);
-				return { message: _e.message };
-			}
+		if (!success) {
+			return { message: message || "Failed to delete announcement" };
 		}
+
+		await get_announcements_query().refresh();
+		return { message: "Announcement deleted successfully" };
 	},
 );
 
-export const update_announcement = command(
-	announcement_schema,
-	async (_parsed) => {
-		try {
-			return { message: "Announcement updated successfully" };
+export const update_announcement_command = command(
+	v.object({
+		announcement_id: v.string(),
+		school_id: v.string(),
+		title: v.string(),
+		content: v.string(),
+		priority: v.optional(
+			v.union([v.literal("low"), v.literal("medium"), v.literal("high")]),
+		),
+		type: v.optional(
+			v.union([
+				v.literal("general"),
+				v.literal("urgent"),
+				v.literal("event"),
+				v.literal("academic"),
+				v.literal("administrative"),
+			]),
+		),
+		target_audience: v.optional(
+			v.union([v.literal("students"), v.literal("staff"), v.literal("all")]),
+		),
+	}),
+	async (parsed) => {
+		const { success, message } = await database.update_announcement(
+			parsed.announcement_id,
+			{
+				school_id: parsed.school_id,
+				title: parsed.title,
+				content: parsed.content,
+				priority: parsed.priority,
+				type: parsed.type,
+				target_audience: parsed.target_audience,
+			},
+		);
 
-			// await get_announcements(parsed.school_id).refresh();
-		} catch (_e) {
-			if (_e instanceof Error) {
-				console.log(_e);
-				return { message: _e.message };
-			}
+		if (!success) {
+			return { message: message || "Failed to update announcement" };
 		}
+
+		await get_announcements_query().refresh();
+		return { message: "Announcement updated successfully" };
 	},
 );
+
+// Export with original names for backwards compatibility
+export const get_announcements = get_announcements_query;
+export const delete_announcement = delete_announcement_command;
+export const update_announcement = update_announcement_command;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Avatar } from "melt/components";
+  import Avatar from "$lib/components/avatar.svelte";
   import { page } from "$app/state";
   import { get_school } from "./school.remote";
   import { logout } from "../auth.remote";
@@ -14,14 +14,13 @@
   <div class="relative flex h-full max-h-full flex-col">
     <!-- Logo Section -->
     <div class="flex-shrink-0 p-6">
-      <Avatar src={String(school.logo_url)}>
-        {#snippet children(avatar)}
-          <img {...avatar.image} alt={school.name} class="size-16" />
-          <span {...avatar.fallback} class="text-2xl font-bold">
-            {school.name[0]}
-          </span>
-        {/snippet}
-      </Avatar>
+      <Avatar
+        src={String(school.logo_url)}
+        alt={school.name}
+        fallback_text={school.name[0]}
+        size="size-16"
+        class="text-2xl font-bold"
+      />
     </div>
 
     <!-- Navigation Section -->

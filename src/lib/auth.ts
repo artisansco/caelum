@@ -33,7 +33,7 @@ export function get_current_user() {
 	}
 }
 
-export function guard_route(to = "/") {
+export function ensure_authenticated(to = "/") {
 	const user = get_current_user();
 	if (!user) {
 		redirect(308, to);
