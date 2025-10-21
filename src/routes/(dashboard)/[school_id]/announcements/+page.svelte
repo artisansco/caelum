@@ -1,5 +1,6 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
+  import { melt } from "@melt-ui/svelte";
   import { Select } from "melt/components";
   import { add_announcement, delete_announcement } from "./announcements.remote";
   import { toast } from "svelte-sonner";
@@ -36,7 +37,13 @@
         <h1 class="text-2xl font-bold text-gray-900">Announcements</h1>
         <p class="text-gray-600">Manage school announcements and important notices</p>
       </div>
-      <Dialog label="Add Announcement" btn_txt="New Announcement" icon="icon-[mdi--bullhorn]">
+      <Dialog label="Add Announcement">
+        {#snippet trigger(trigger: any)}
+          <button use:melt={trigger} class="btn-sm">
+            <i class="icon-[mdi--bullhorn]"></i>
+            New Announcement
+          </button>
+        {/snippet}
         <form
           {...add_announcement.enhance(async ({ submit }) => {
             await submit();
@@ -237,11 +244,12 @@
                 <h2 class="font-semibold text-gray-900">{selected_announcement.title}</h2>
               </div>
 
-              <Dialog
-                label="Delete Announcement"
-                trigger_class="btn-sm-destructive"
-                icon="icon-[mdi--trash]"
-              >
+              <Dialog label="Delete Announcement">
+                {#snippet trigger(trigger: any)}
+                  <button use:melt={trigger} class="btn-sm-destructive">
+                    <i class="icon-[mdi--trash]"></i>
+                  </button>
+                {/snippet}
                 <div class="space-y-4">
                   <p>Are you sure you want to delete this announcement??</p>
 

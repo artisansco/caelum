@@ -1,5 +1,6 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
+  import { melt } from "@melt-ui/svelte";
   import { dialog_state } from "$lib/dialog-state.svelte";
   import { add_subject, delete_subject } from "./subjects.remote";
   import { toast } from "svelte-sonner";
@@ -26,7 +27,13 @@
         <p class="text-gray-600">Manage your school's academic subjects</p>
       </div>
 
-      <Dialog label="Add New Subject" btn_txt="New Subject" icon="icon-[mdi--plus]">
+      <Dialog label="Add New Subject">
+        {#snippet trigger(trigger: any)}
+          <button use:melt={trigger} class="btn-sm">
+            <i class="icon-[mdi--plus]"></i>
+            New Subject
+          </button>
+        {/snippet}
         <form
           {...add_subject.enhance(async ({ submit }) => {
             await submit();
@@ -140,11 +147,12 @@
             <div class="flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">{selected_subject.name}</h2>
 
-              <Dialog
-                label="Delete Class"
-                icon="icon-[mdi--trash]"
-                trigger_class="btn-sm-destructive"
-              >
+              <Dialog label="Delete Subject">
+                {#snippet trigger(trigger: any)}
+                  <button use:melt={trigger} class="btn-sm-destructive">
+                    <i class="icon-[mdi--trash]"></i>
+                  </button>
+                {/snippet}
                 <div class="space-y-4">
                   <p>
                     Are you sure you want to delete "{selected_subject.name}"? This action cannot be

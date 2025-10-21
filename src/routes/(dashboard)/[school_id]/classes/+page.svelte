@@ -4,6 +4,7 @@
   import { add_class } from "./classes.remote";
   import { toast } from "svelte-sonner";
   import { get_field_error } from "$lib/utils";
+  import { melt } from "@melt-ui/svelte";
 
   const { data, params } = $props();
   let toggle_dialog = $state(false);
@@ -23,7 +24,14 @@
         <p class="text-gray-600">Manage your school's class levels</p>
       </div>
 
-      <Dialog label="Add New Class" btn_txt="New Class" icon="icon-[mdi--plus]">
+      <Dialog label="Add New Class">
+        {#snippet trigger(trigger: any)}
+          <button use:melt={trigger} class="btn-sm">
+            <i class="icon-[mdi--plus]"></i>
+            New Class
+          </button>
+        {/snippet}
+
         <form {...add_class.enhance(async ({ submit }) => await submit())} class="space-y-4">
           <input type="hidden" name="school_id" value={params.school_id} />
 

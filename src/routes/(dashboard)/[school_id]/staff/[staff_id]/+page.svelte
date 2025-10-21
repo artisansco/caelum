@@ -1,5 +1,6 @@
 <script lang="ts">
   import Avatar from "$lib/components/avatar.svelte";
+  import { melt } from "@melt-ui/svelte";
   import { Select } from "melt/components";
   import { format } from "@formkit/tempo";
   import { staff_permissions, staff_roles, staff_statuses } from "$lib/constants";
@@ -104,12 +105,13 @@
             <i class="icon-[mdi--pencil]"></i>
             Edit
           </button>
-          <Dialog
-            label="Dialog Title"
-            btn_txt="Delete"
-            icon="icon-[mdi--trash]"
-            trigger_class="btn-sm-destructive"
-          >
+          <Dialog label="Delete Staff?">
+            {#snippet trigger(trigger: any)}
+              <button use:melt={trigger} class="btn-sm-destructive">
+                <i class="icon-[mdi--trash]"></i>
+                Delete
+              </button>
+            {/snippet}
             <p class="mb-5 mt-2 leading-normal text-zinc-600">
               This action cannot be undone. This will permanently delete the staff and remove it
               from our servers.
