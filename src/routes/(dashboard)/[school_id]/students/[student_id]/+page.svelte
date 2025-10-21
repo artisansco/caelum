@@ -1,5 +1,6 @@
 <script lang="ts">
   import Avatar from "$lib/components/avatar.svelte";
+  import { melt } from "@melt-ui/svelte";
   import { Select } from "melt/components";
   import { format } from "@formkit/tempo";
   import { get_field_error, get_status_pill } from "$lib/utils";
@@ -101,12 +102,13 @@
             <i class="icon-[mdi--pencil]"></i>
             Edit
           </button>
-          <Dialog
-            label="Delete Student?"
-            btn_txt="Delete"
-            icon="icon-[mdi--trash]"
-            trigger_class="btn-sm-destructive"
-          >
+          <Dialog label="Delete Student?">
+            {#snippet trigger(trigger: any)}
+              <button use:melt={trigger} class="btn-sm-destructive">
+                <i class="icon-[mdi--trash]"></i>
+                Delete
+              </button>
+            {/snippet}
             <p class="mb-5 mt-2 leading-normal text-zinc-600">
               This action cannot be undone. This will permanently delete the student and remove it
               from our servers.

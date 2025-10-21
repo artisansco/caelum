@@ -1,5 +1,6 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
+  import { melt } from "@melt-ui/svelte";
   import { delete_class } from "./classes.remote";
   import { toast } from "svelte-sonner";
   import { get_all_students } from "../students/students.remote";
@@ -33,11 +34,12 @@
       {props.name || "N/A"}
     </h3>
     <div class="flex-shrink-0">
-      <Dialog
-        label="Add New Class"
-        icon="icon-[mdi--trash]"
-        trigger_class="btn-sm-destructive bg-red-50 text-red-500"
-      >
+      <Dialog label="Delete Class">
+        {#snippet trigger(trigger: any)}
+          <button use:melt={trigger} class="btn-sm-destructive bg-red-50 text-red-500">
+            <i class="icon-[mdi--trash]"></i>
+          </button>
+        {/snippet}
         <div class="space-y-4">
           <p>Are you sure you want to delete {props.name}? This action cannot be undone.</p>
           <button
