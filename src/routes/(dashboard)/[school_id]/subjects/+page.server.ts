@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { database } from "$lib/server/database/queries";
 import { ensure_authenticated } from "$lib/auth";
+import { database } from "$lib/server/database/queries";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params }) => {
