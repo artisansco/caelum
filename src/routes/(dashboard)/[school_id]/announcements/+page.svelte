@@ -6,7 +6,6 @@
   import { toast } from "svelte-sonner";
   import { format } from "@formkit/tempo";
   import { announcement_audience, announcement_priority, announcement_types } from "$lib/constants";
-  import { dialog_state } from "$lib/dialog-state.svelte";
   import { get_field_error, get_priority_color, get_type_icon } from "$lib/utils";
 
   const { data, params } = $props();
@@ -26,8 +25,6 @@
       toast.success(add_announcement.result.message);
     }
   });
-
-
 </script>
 
 <section class="max-w-7xl mx-auto p-6">
@@ -258,7 +255,6 @@
                     class="btn-sm-destructive"
                     onclick={async () => {
                       await delete_announcement(String(selected_announcement?.id));
-                      dialog_state.open = false;
                       selected_announcement = null;
                     }}
                   >

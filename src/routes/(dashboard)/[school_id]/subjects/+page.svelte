@@ -1,7 +1,6 @@
 <script lang="ts">
   import Dialog from "$lib/components/dialog.svelte";
   import { melt } from "@melt-ui/svelte";
-  import { dialog_state } from "$lib/dialog-state.svelte";
   import { add_subject, delete_subject } from "./subjects.remote";
   import { toast } from "svelte-sonner";
   import { get_field_error } from "$lib/utils";
@@ -163,7 +162,6 @@
                     class="btn-sm-destructive"
                     onclick={async () => {
                       await delete_subject(String(selected_subject?.id));
-                      dialog_state.open = false;
                       selected_subject = null;
                       toast.success("Subject deleted successfully");
                     }}
