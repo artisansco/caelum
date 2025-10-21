@@ -1,7 +1,9 @@
 import { database } from "$lib/server/database/queries";
+import { ensure_authenticated } from "$lib/auth";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params }) => {
+	ensure_authenticated();
 	const [
 		{ success: assignmentsSuccess, data: assignments },
 		{ success: classesSuccess, data: classes },
