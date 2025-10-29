@@ -130,6 +130,17 @@ export const school_terms = ["first", "second", "third"] as const;
 
 export const transaction_types = ["subscription", "upgrade"] as const;
 
+export const subscription_tiers = ["free", "standard", "pro"] as const;
+
+export const subscription_statuses = [
+	"active",
+	"expired",
+	"cancelled",
+	"trial",
+] as const;
+
+export const referral_statuses = ["pending", "converted"] as const;
+
 // ------
 
 export function get_error_message(status: number) {

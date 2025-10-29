@@ -42,6 +42,30 @@ export const add_grade = form(grade_schema, async (parsed) => {
 	await get_grades_query().refresh();
 });
 
+export const update_grade_form = form(
+	grade_schema.extend({ id: v.string() }),
+	async (parsed) => {
+		const { locals } = getRequestEvent();
+
+		const { success, message } = await database.update_grade(parsed.id, {
+			student_id: parsed.student_id,
+			subject_id: parsed.subject_id,
+			grade_type: parsed.grade_type,
+			max_score: parsed.max_score,
+			actual_score: parsed.actual_score,
+			term: parsed.term,
+			academic_year: parsed.academic_year,
+			notes: parsed.notes,
+		});
+
+		if (!success) {
+			return { message: message || "Failed to update grade" };
+		}
+
+		await get_grades_query().refresh();
+	},
+);
+
 export const delete_grade_command = command(v.string(), async (grade_id) => {
 	const { params } = getRequestEvent();
 	const _school_id = params.school_id as string;
@@ -57,4 +81,5 @@ export const delete_grade_command = command(v.string(), async (grade_id) => {
 
 // Export with original names for backwards compatibility
 export const get_grades = get_grades_query;
+export const update_grade = update_grade_form;
 export const delete_grade = delete_grade_command;

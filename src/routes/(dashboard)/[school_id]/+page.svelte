@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
+  import { page } from "$app/stores";
   import {
     type ChartItem,
     Chart,
@@ -55,21 +56,7 @@
   let engagement_instance: Chart;
   let engagement_canvas: ChartItem;
 
-  const upcomingEvents = [
-    { date: "Today, 2:00 PM", event: "Staff Meeting", type: "meeting" },
-    { date: "Tomorrow, 9:00 AM", event: "Grade 12 Physics Exam", type: "exam" },
-    {
-      date: "Wed, 10:00 AM",
-      event: "Parent-Teacher Conference",
-      type: "conference",
-    },
-    { date: "Thu, 3:00 PM", event: "Sports Day Preparation", type: "event" },
-    {
-      date: "Fri, 11:00 AM",
-      event: "Monthly Assessment Review",
-      type: "review",
-    },
-  ];
+  const upcomingEvents = $derived(data.upcoming_events || []);
 
   onMount(async () => {
     await tick();
@@ -84,18 +71,35 @@
         labels: months.map((m) => m),
         datasets: [
           {
-            label: "Students Enrolled",
-            data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
+            label: "Total Enrolled Students",
+            data: data.enrollment_by_month || Array(12).fill(0),
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            tension: 0.4,
           },
           {
-            label: "Graduated Students",
-            data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
-          },
-          {
-            label: "Expelled Students",
-            data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
+            label: "Active Students",
+            data: Array(12).fill(data.active_students || 0),
+            borderColor: "rgb(34, 197, 94)",
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            borderDash: [5, 5],
           },
         ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
       },
     });
   });
@@ -113,9 +117,32 @@
         labels: ["Submitted", "Late Submissions", "Missing Assignments"],
         datasets: [
           {
-            data: Array.from({ length: 3 }, () => Math.floor(Math.random() * 100)),
+            data: [
+              data.submission_stats?.submitted || 0,
+              data.submission_stats?.late || 0,
+              data.submission_stats?.missing || 0,
+            ],
+            backgroundColor: [
+              "rgb(34, 197, 94)",   // Green for submitted
+              "rgb(251, 191, 36)",  // Yellow for late
+              "rgb(239, 68, 68)",   // Red for missing
+            ],
           },
         ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "Assignment Submission Status",
+          },
+        },
       },
     });
   });
@@ -191,20 +218,29 @@
         </h3>
       </div>
       <div class="p-6">
-        <div class="space-y-4">
-          {#each upcomingEvents as event}
-            <div class="flex items-start space-x-3">
-              <div class="flex-shrink-0">
-                <i class="{get_event_icon(event.type)} text-gray-500 text-xl"></i>
+        {#if upcomingEvents.length > 0}
+          <div class="space-y-4">
+            {#each upcomingEvents as event}
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <i class="{get_event_icon(event.type)} text-gray-500 text-xl"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium text-gray-900">{event.title}</p>
+                  <p class="text-xs text-gray-500">{event.date}</p>
+                </div>
               </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-sm text-gray-900">{event.event}</p>
-                <p class="text-xs text-gray-500">{event.date}</p>
-              </div>
-            </div>
-          {/each}
-        </div>
-        <button class="btn-link mt-4 text-blue-600 hover:text-blue-800"> View all events → </button>
+            {/each}
+          </div>
+          <a href="/{$page.params.school_id}/announcements" class="btn-link mt-4 text-blue-600 hover:text-blue-800 inline-block">
+            View all announcements →
+          </a>
+        {:else}
+          <div class="text-center py-8">
+            <i class="icon-[mdi--calendar-blank] text-4xl text-gray-400 mb-2"></i>
+            <p class="text-sm text-gray-500">No recent announcements</p>
+          </div>
+        {/if}
       </div>
     </div>
   </section>

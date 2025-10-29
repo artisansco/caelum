@@ -1,0 +1,1 @@
+- 1 option a #2 pdkfit (install pdfjs too just incase) #3 cloudinary #4 resend #5 africa's talking #6 use SSE #7 do we really need GPA calculation in SL??  #8 option B #9 i will use litestream for backup,so skip for now. #10 option a. implement all the other best things without any questions, and dont be lazy

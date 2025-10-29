@@ -49,6 +49,23 @@ export async function get_student(student_id: string) {
 	}
 }
 
+export async function get_student_by_admission_number(admission_number: string) {
+	try {
+		const student = await db.query.students_table.findFirst({
+			where: eq(students_table.admission_number, admission_number),
+		});
+
+		if (!student) {
+			return { success: false, message: "Student not found" };
+		}
+
+		return { success: true, data: student };
+	} catch (error) {
+		console.error("Error getting student by admission number:", error);
+		return { success: false, message: "Failed to get student" };
+	}
+}
+
 export async function create_student(data: typeof students_table.$inferInsert) {
 	try {
 		const [student] = await db.insert(students_table).values(data).returning();

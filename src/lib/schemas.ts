@@ -1,4 +1,5 @@
 import * as z from "zod";
+import * as v from "valibot";
 import {
 	announcement_audience,
 	announcement_priority,
@@ -10,6 +11,19 @@ import {
 	school_terms,
 	transaction_types,
 } from "./constants";
+
+// Password validation schema with complexity requirements
+export const password_schema = v.pipe(
+	v.string("Password is required"),
+	v.minLength(8, "Password must be at least 8 characters"),
+	v.regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
+	v.regex(/[a-z]/, "Password must contain at least one lowercase letter"),
+	v.regex(/[0-9]/, "Password must contain at least one number"),
+	v.regex(
+		/[^A-Za-z0-9]/,
+		"Password must contain at least one special character",
+	),
+);
 
 export const assignment_schema = z.object({
 	school_id: z.string(),
@@ -70,7 +84,11 @@ export const staff_schema = z.object({
 		.min(6, { error: "phone number must be at least 6 characters long" }),
 	password: z
 		.string()
-		.min(6, { error: "Password must be at least 6 characters long" }),
+		.min(8, { error: "Password must be at least 8 characters long" })
+		.regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+		.regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+		.regex(/[0-9]/, { message: "Password must contain at least one number" })
+		.regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" }),
 	role: z.enum(["admin", "staff"], {
 		error: "role is invalid or not in the list",
 	}),
